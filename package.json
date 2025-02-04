@@ -1,0 +1,34 @@
+{
+  "name": "same-engenharia-backend",
+  "version": "1.0.0",
+  "description": "servidor da same engenharia",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server",
+    "dev": "nodemon server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LucasB0mfim/SAME_ENGENHARIA-BACKEND.git"
+  },
+  "keywords": [
+    "servidor",
+    "same",
+    "engenharia",
+    "server"
+  ],
+  "author": "Lucas Bomfim Sobral",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/LucasB0mfim/SAME_ENGENHARIA-BACKEND/issues"
+  },
+  "homepage": "https://github.com/LucasB0mfim/SAME_ENGENHARIA-BACKEND#readme",
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "nodemon": "^3.1.9"
+  }
+}
