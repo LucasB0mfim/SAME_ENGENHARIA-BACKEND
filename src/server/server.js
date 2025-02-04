@@ -1,18 +1,27 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
+import cors from 'cors';
+import dotenv from "dotenv";
+import express from 'express';
+import bodyParser from 'body-parser';
+
+import router from '../routes/router.js';
+
+// Guarda as chaves para conexão com o banco
+dotenv.config();
 
 // Inicializa o express
 const app = express();
 
 // Define a porta de acesso
-const PORT = 3000;
+const PORT = process.env.SERVER_PORT;
 
 // Middleware para analisar o corpo das requisições
 app.use(bodyParser.json());
 
 // Usar o middleware cors para permitir todas as origens
 app.use(cors());
+
+app.use('/same-engenharia', router);
+
 
 app.listen(PORT, () => {
     console.log(`O servidor está rodando no http://localhost:${PORT}`);

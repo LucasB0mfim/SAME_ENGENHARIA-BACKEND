@@ -4,8 +4,8 @@
   "description": "servidor da same engenharia",
   "main": "server.js",
   "scripts": {
-    "start": "node server",
-    "dev": "nodemon server",
+    "start": "node src/server/server.js",
+    "dev": "nodemon src/server/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -25,10 +25,14 @@
   },
   "homepage": "https://github.com/LucasB0mfim/SAME_ENGENHARIA-BACKEND#readme",
   "dependencies": {
+    "@supabase/supabase-js": "^2.48.1",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "jsonwebtoken": "^9.0.2",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
     "nodemon": "^3.1.9"
   }
 }
