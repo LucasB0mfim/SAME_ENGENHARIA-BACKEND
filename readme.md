@@ -1,5 +1,5 @@
 ## ⚖️ Licença
-Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
+Este projeto está licenciado sob a Licença Proprietary Software License - veja o arquivo [LICENSE](LICENSE) para detalhes.
 
 ## 📞 Contato
 **Autor:** Lucas Bomfim Sobral
