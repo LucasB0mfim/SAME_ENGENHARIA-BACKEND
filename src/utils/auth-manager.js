@@ -1,7 +1,7 @@
 import conexao from "../database/conexao.js";
 
 /**
- * Função responsável por validar as credenciais de acesso de um colaborador.
+ * Função responsável por autenticar as credenciais de acesso de um colaborador.
  * 
  * Esta função recebe o e-mail e a senha fornecidos pelo colaborador e realiza uma consulta
  * ao banco de dados para verificar se existe um colaborador com essas credenciais.
@@ -14,7 +14,7 @@ import conexao from "../database/conexao.js";
  * Se não houver um colaborador com essas credenciais ou ocorrer algum erro na consulta, a função
  * lança um erro com a mensagem 'Credenciais Inválidas', informando que o e-mail ou a senha estão incorretos.
  */
-async function validarAcesso(email, senha) {
+async function autenticarColaborador(email, senha) {
     const { data, error } = await conexao.from('colaboradores')
         .select('*')
         .eq('email', email)
@@ -28,4 +28,4 @@ async function validarAcesso(email, senha) {
     return data;
 }
 
-export default validarAcesso;
+export default autenticarColaborador;

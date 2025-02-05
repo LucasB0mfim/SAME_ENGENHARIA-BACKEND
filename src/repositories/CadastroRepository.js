@@ -1,5 +1,5 @@
 import conexao from "../database/conexao.js";
-import validarAcesso from "../utils/auth-manager.js";
+import autenticarColaborador from "../utils/auth-manager.js";
 import { gerarTokenNoLogin } from '../utils/jwt-manager.js';
 
 class CadastroRepository {
@@ -13,7 +13,7 @@ class CadastroRepository {
      * Ele realiza uma operação de atualização na tabela 'colaboradores' do banco de dados, 
      * verificando se o 'email' e a 'senhaAtual' correspondem aos dados existentes.
      */
-    async #atualizar(usuario, email, senhaAtual, senhaNova) {
+    async #atualizarColaborador(usuario, email, senhaAtual, senhaNova) {
         const { data, error } = await conexao
             .from('colaboradores')
             .update({ usuario, senha: senhaNova })
@@ -38,8 +38,8 @@ class CadastroRepository {
     async cadastrar(novoColaborador) {
         try {
             const { usuario, email, senhaAtual, senhaNova } = novoColaborador;
-            await validarAcesso(email, senhaAtual);
-            await this.#atualizar(usuario, email, senhaAtual, senhaNova);
+            await autenticarColaborador(email, senhaAtual);
+            await this.#atualizarColaborador(usuario, email, senhaAtual, senhaNova);
             return gerarTokenNoLogin(email);
         } catch (error) {
             throw new Error('Credenciais inválidas');

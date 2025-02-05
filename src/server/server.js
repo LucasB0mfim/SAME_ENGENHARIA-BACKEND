@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import express from 'express';
 import bodyParser from 'body-parser';
 
-import router from '../routes/router.js';
+import routes from '../routes/routes.js';
 
 // Guarda as chaves para conexão com o banco
 dotenv.config();
@@ -21,7 +21,7 @@ app.use(bodyParser.json());
 app.use(cors());
 
 // Rota padrão para todos os endpoints
-app.use('/same-engenharia', router);
+app.use('/same-engenharia/api', routes);
 
 // Responsável por escutar a porta definida pela variável 'PORT'
 app.listen(PORT, () => {
