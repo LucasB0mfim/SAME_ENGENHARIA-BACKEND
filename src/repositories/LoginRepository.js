@@ -1,5 +1,4 @@
 import autenticarColaborador from '../utils/auth-manager.js';
-import { gerarTokenNoLogin } from '../utils/jwt-manager.js';
 
 class LoginRepository {
 
@@ -14,12 +13,13 @@ class LoginRepository {
      * indicando que as credenciais fornecidas são incorretas.
      */
     async autenticar(email, senha) {
-        try {
-            await autenticarColaborador(email, senha);
-            return gerarTokenNoLogin(email);
-        } catch (error) {
-            throw new Error('Email ou senha inválidos');
+        const colaborador = await autenticarColaborador(email, senha);
+
+        if (!colaborador) {
+            throw new Error('O colaborador não foi encontrado');
         }
+
+        return colaborador;
     }
 }
 

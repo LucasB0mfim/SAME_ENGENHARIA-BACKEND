@@ -1,4 +1,7 @@
 import { z } from 'zod';
+import dotenv from "dotenv";
+
+dotenv.config();
 
 /**
  * Esquema de validação para o login de um colaborador.
@@ -23,7 +26,12 @@ export const loginSchema = z.object({
         .min(1, 'Email é obrigatório')
         .max(255, 'Email muito longo')
         .refine(email => email.endsWith('@sameengenharia.com.br'), {
-            message: 'Você não possui permissão para acessar',
+            message: 'Você não possui permissão',
+        }),
+
+    senha: z.string()
+        .refine(senha => senha === process.env.SP, {
+            message: 'Você não possui permissão'
         })
 });
 

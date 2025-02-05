@@ -1,4 +1,4 @@
-import CadastroRepository from '../repositories/CadastroRepository.js';
+import CadastroService from '../services/CadastroService.js';
 
 class CadastroController {
 
@@ -16,20 +16,11 @@ class CadastroController {
     async cadastrarColaborador(req, res) {
         try {
             const colaborador = req.body;
-            const { usuario, email, senhaAtual, senhaNova } = colaborador;
-            const resultado = await CadastroRepository.cadastrar(colaborador);
-
-            return res.status(200).json({
-                success: true,
-                message: resultado
-            });
+            const resultado = await CadastroService.cadastrarColaborador(colaborador);
+            return res.status(200).json({ success: true, message: resultado });
         } catch (error) {
             const status = error.message === 'Credenciais inválidas' ? 401 : 500;
-
-            return res.status(status).json({
-                success: false,
-                message: error.message
-            });
+            return res.status(status).json({ success: false, message: error.message });
         }
     }
 }

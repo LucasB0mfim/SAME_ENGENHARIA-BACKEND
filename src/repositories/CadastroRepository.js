@@ -22,7 +22,6 @@ class CadastroRepository {
             .select();
 
         if (error) throw new Error('Erro ao atualizar colaborador: ' + error.message);
-
         return data;
     }
 
@@ -39,8 +38,7 @@ class CadastroRepository {
         try {
             const { usuario, email, senhaAtual, senhaNova } = novoColaborador;
             await autenticarColaborador(email, senhaAtual);
-            await this.#atualizarColaborador(usuario, email, senhaAtual, senhaNova);
-            return gerarTokenNoLogin(email);
+            return this.#atualizarColaborador(usuario, email, senhaAtual, senhaNova);
         } catch (error) {
             throw new Error('Credenciais inválidas');
         }

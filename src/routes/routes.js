@@ -11,11 +11,14 @@ import autenticarLogin from '../middlewares/autenticar-login.js';
 
 // Importando Schemas
 import { loginSchema, atualizarSchema } from '../validators/login.schema.js';
+import verificarSaude from '../middlewares/verificar-saude.js';
 
 // Iniciando as rotas
 const router = express.Router();
 
 // Rotas de acesso
+router.get('/banco-de-dados/saude', verificarSaude);
+
 router.post('/validar-token', autenticarToken, LoginController.token);
 
 router.post('/colaborador/logar', autenticarLogin(loginSchema), LoginController.autenticarColaborador);

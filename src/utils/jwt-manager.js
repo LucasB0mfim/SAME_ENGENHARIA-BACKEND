@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const CHAVE_SECRETA = process.env.CHAVE_SECRETA;
+const CHAVE_SECRETA = process.env.CS;
 
 /**
  * Função responsável por gerar um token JWT (JSON Web Token) no processo de login.

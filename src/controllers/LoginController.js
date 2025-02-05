@@ -1,4 +1,4 @@
-import LoginRepository from '../repositories/LoginRepository.js';
+import LoginService from '../services/LoginService.js';
 
 class LoginController {
 
@@ -24,16 +24,11 @@ class LoginController {
     async autenticarColaborador(req, res) {
         try {
             const { email, senha } = req.body;
-            const token = await LoginRepository.autenticar(email, senha);
-
+            const token = await LoginService.autenticar(email, senha);
             return res.status(200).json({ success: true, token });
         } catch (error) {
             const status = error.message === 'Email ou senha inválidos' ? 401 : 500;
-
-            return res.status(status).json({
-                success: false,
-                message: error.message
-            });
+            return res.status(status).json({ success: false, message: error.message });
         }
     }
 
@@ -44,7 +39,8 @@ class LoginController {
      * fará a validação necessária.
      */
     async token(req, res) {
-        return res.json({ message: 'Token Válido', email: req.email });
+        const resultado = await LoginService.validarToken(req.email);
+        return res.json(resultado);
     }
 }
 

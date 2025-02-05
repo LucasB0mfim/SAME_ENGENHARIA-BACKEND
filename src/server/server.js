@@ -12,7 +12,7 @@ dotenv.config();
 const app = express();
 
 // Define a porta de acesso
-const PORT = process.env.SERVER_PORT;
+const PORT = process.env.PS;
 
 // Middleware para analisar o corpo das requisições
 app.use(bodyParser.json());
