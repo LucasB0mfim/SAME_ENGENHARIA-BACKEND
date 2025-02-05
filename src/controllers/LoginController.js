@@ -3,8 +3,7 @@ import LoginRepository from '../repositories/LoginRepository.js';
 class LoginController {
 
     constructor() {
-        this.repository = LoginRepository;
-        this.login = this.login.bind(this);
+        this.autenticarColaborador = this.autenticarColaborador.bind(this);
         this.token = this.token.bind(this);
     }
 
@@ -25,7 +24,7 @@ class LoginController {
     async autenticarColaborador(req, res) {
         try {
             const { email, senha } = req.body;
-            const token = await this.repository.autenticar(email, senha);
+            const token = await LoginRepository.autenticar(email, senha);
 
             return res.status(200).json({ success: true, token });
         } catch (error) {

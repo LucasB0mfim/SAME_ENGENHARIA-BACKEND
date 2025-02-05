@@ -3,7 +3,7 @@ import CadastroRepository from '../repositories/CadastroRepository.js';
 class CadastroController {
 
     constructor() {
-        this.cadastro = this.cadastro.bind(this);
+        this.cadastrarColaborador = this.cadastrarColaborador.bind(this);
     }
 
     /**
