@@ -6,24 +6,31 @@ class LoginController {
         this.repository = LoginRepository;
         this.login = this.login.bind(this);
         this.token = this.token.bind(this);
-        this.primeiroAcesso = this.primeiroAcesso.bind(this);
     }
 
-    async login(req, res) {
+    /**
+     * Método responsável por realizar o login de um colaborador.
+     * 
+     * Este método recebe os dados de login (e-mail e senha) enviados no corpo da requisição, 
+     * e tenta autenticar o colaborador utilizando essas informações. Ele chama o método 'autenticar'
+     * do repositório para validar as credenciais.
+     * 
+     * Se as credenciais estiverem corretas, o método gera um token e retorna uma resposta com status 
+     * HTTP 200 (OK), incluindo o token gerado.
+     * 
+     * Caso as credenciais estejam incorretas (se o e-mail ou senha forem inválidos), o método captura o erro 
+     * e retorna uma resposta com o código de status 401 (não autorizado), além de uma mensagem de erro.
+     * Para qualquer outro erro, o status retornado será 500 (erro interno do servidor).
+     */
+    async autenticarColaborador(req, res) {
         try {
             const { email, senha } = req.body;
             const token = await this.repository.autenticar(email, senha);
 
-            console.log('Credenciais Válidas');
             return res.status(200).json({ success: true, token });
         } catch (error) {
-            // Se o erro retornado for esse texto o status vira 401
-            const status = { 'Credenciais Inválidas': 401 };
+            const status = error.message === 'Email ou senha inválidos' ? 401 : 500;
 
-            // Usa o [error.message] como chave para buscar o status
-            [error.message] || 500;
-
-            // Envia o motivo do erro
             return res.status(status).json({
                 success: false,
                 message: error.message
@@ -31,29 +38,14 @@ class LoginController {
         }
     }
 
+    /**
+     * Método responsável por retornar para a requisição que o token fornecido por ele é válido.
+     * 
+     * Caso o token esteja incorreto, expirado ou seja inexistente, o middleware autenticar-token.js
+     * fará a validação necessária.
+     */
     async token(req, res) {
         return res.json({ message: 'Token Válido', email: req.email });
-    }
-
-    async primeiroAcesso(req, res) {
-        try {
-            const { usuario, email, senhaAtual, senhaNova } = req.body;
-
-            if (!usuario || !email || !senhaAtual || !senhaNova) {
-                return res.status(400).json({ message: 'Os campos (usuario, email, senhaAtual, senhaNova) são obrigatórios.' });
-            }
-
-            const resultado = await this.repository.atualizar(usuario, email, senhaAtual, senhaNova);
-
-            console.log('Conta atualizada com sucesso');
-            return res.status(200).json({ success: true, message: resultado });
-        } catch (error) {
-            // Envia o motivo do erro
-            return res.status(500).json({
-                success: false,
-                message: error.message
-            });
-        }
     }
 }
 

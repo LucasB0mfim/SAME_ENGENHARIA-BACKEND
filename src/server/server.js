@@ -20,9 +20,10 @@ app.use(bodyParser.json());
 // Usar o middleware cors para permitir todas as origens
 app.use(cors());
 
+// Rota padrão para todos os endpoints
 app.use('/same-engenharia', router);
 
-
+// Responsável por escutar a porta definida pela variável 'PORT'
 app.listen(PORT, () => {
     console.log(`O servidor está rodando no http://localhost:${PORT}`);
 })
