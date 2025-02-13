@@ -17,30 +17,30 @@ import checkHealth from '../middlewares/checkHealth.js';
 const router = express.Router();
 
 // Rotas de acesso
-router.get('/banco-de-dados/saude',
+router.get('/dataBase/Health',
     checkHealth
 );
 
-router.post('/validar-token',
+router.post('/validateToken',
     authToken,
     LoginEmployeeController.token
 );
 
-router.post('/colaborador/logar',
+router.post('/employee/login',
     authLogin(loginSchema),
     LoginEmployeeController.authenticateEmployee
 );
 
-router.put('/colaborador/atualizar',
+router.put('/employee/update',
     authToken,
     authLogin(updateSchema),
     UpdateEmployeeController.updateEmployee
 );
 
-router.get('/dashboard', authToken, (req, res) => {
+router.get('/employee/dashboard', authToken, (req, res) => {
     res.status(200).json({
         success: true,
-        message: 'Bem-vindo, colaborador'
+        message: 'Bem-vindo a área de trabalho!'
     });
 });
 

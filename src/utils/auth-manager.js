@@ -21,11 +21,9 @@ async function authEmployee(email, password) {
         .eq('email', email)
         .eq('senha', password)
         .single();
-
     if (error || !data) {
-        throw new Error('email ou senha inválidos');
+        throw new Error('email ou senha incorreto(s).');
     }
-
     return data;
 }
 

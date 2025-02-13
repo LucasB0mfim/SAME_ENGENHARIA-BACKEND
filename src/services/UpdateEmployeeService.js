@@ -17,7 +17,7 @@ class UpdateEmployeeService {
                 token: generateToken(employee.email)
             };
         } catch (error) {
-            throw new AppError('Erro ao atualizar colaborador no banco de dados.', 500);
+            throw new error;
         }
     }
 }

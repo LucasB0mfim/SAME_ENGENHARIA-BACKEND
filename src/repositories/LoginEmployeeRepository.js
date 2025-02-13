@@ -1,4 +1,5 @@
 import authEmployee from '../utils/auth-manager.js';
+import AppError from '../utils/errors/AppError.js';
 
 class LoginEmployeeRepository {
 
@@ -13,14 +14,20 @@ class LoginEmployeeRepository {
      * indicando que as credenciais fornecidas são incorretas.
      */
     async login(email, password) {
-        const employee = await authEmployee(email, password);
-
-        if (!employee) {
-            throw new Error('O colaborador não foi encontrado');
-        }
-
-        return employee;
-    }
-}
+        try {
+            const employee = await authEmployee(email, password);
+            return {
+                success: true,
+                message: 'Colaborador logado com sucesso.',
+                employee
+            };
+        } catch (error) {
+            if (error.message === 'email ou senha incorreto(s).') {
+                throw new AppError('email ou senha incorreto(s).', 404);
+            };
+            throw new AppError('Erro ao logar colaborador.', 500);
+        };
+    };
+};
 
 export default new LoginEmployeeRepository();

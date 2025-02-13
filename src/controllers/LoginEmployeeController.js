@@ -30,13 +30,19 @@ class LoginEmployeeController {
             const token = await service.authenticateEmployee(email, password);
             return res.status(200).json({
                 success: true,
+                message: 'Colaborador logado com sucesso.',
                 token
             });
         } catch (error) {
-            const status = error.message === 'email ou senha inválidos' ? 401 : 500;
-            return res.status(status).json({
+            if (error.statusCode) {
+                return res.status(error.statusCode).json({
+                    success: false,
+                    message: error.message
+                });
+            };
+            return res.status(500).json({
                 success: false,
-                message: error.message
+                message: 'Erro interno no servidor. Tente novamente mais tarde.'
             });
         };
     };
@@ -51,7 +57,7 @@ class LoginEmployeeController {
     async token(req, res) {
         const result = await service.validarToken(req.email);
         return res.json(result);
-    }
-}
+    };
+};
 
 export default new LoginEmployeeController();

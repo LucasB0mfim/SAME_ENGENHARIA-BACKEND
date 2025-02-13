@@ -22,11 +22,10 @@ class UpdateEmployeeRepository {
                 data: updatedEmployee
             };
         } catch (error) {
-            if (error.statusCode) {
-                console.error('Erro controlado:', error);
-                throw error;
-            }
-            throw new AppError('Erro ao atualizar colaborador no banco de dados.', 500);
+            if (error.message === 'Credênciais inválidas.') {
+                throw new AppError('Credênciais inválidas.', 404);
+            };
+            throw new AppError('Erro ao atualizar colaborador.', 500);
         };
     };
 };

@@ -9,15 +9,14 @@ import dataBase from "../database/dataBase.js";
  * Ele realiza uma operação de atualização na tabela 'colaboradores' do banco de dados, 
  * verificando se o 'email' e a 'currentPassword' correspondem aos dados existentes.
  */
-async function updateEmployee(username, email, currentPassword, newPasswaord) {
+async function updateEmployee(username, email, currentPassword, newPassword) {
     const { data, error } = await dataBase
         .from('colaboradores')
-        .update({ usuario: username, senha: newPasswaord })
+        .update({ usuario: username, senha: newPassword })
         .eq('email', email)
         .eq('senha', currentPassword)
         .select();
-
-    if (error) throw new Error('Erro ao atualizar colaborador: ' + error.message);
+    if (error) throw new Error('Credênciais inválidas.');
     return data;
 }
 

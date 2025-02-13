@@ -8,18 +8,18 @@ class LoginEmployeeService {
     async authenticateEmployee(email, password) {
         try {
             const employee = await repository.login(email, password);
-            return {
-                employee,
-                token: generateToken(email)
+            if (!employee) {
+                throw new AppError('email ou senha incorreto(s).', 404);
             };
+            return generateToken(email);
         } catch (error) {
-            throw new Error('Email ou senha inválidos');
-        }
-    }
+            throw error;
+        };
+    };
 
     async validarToken(email) {
         return { message: 'Token válido', email };
-    }
-}
+    };
+};
 
 export default new LoginEmployeeService();
