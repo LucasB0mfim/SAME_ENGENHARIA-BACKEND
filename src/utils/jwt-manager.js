@@ -18,7 +18,7 @@ const CHAVE_SECRETA = process.env.CS;
  * Este token é utilizado como uma forma de autenticação para o colaborador, permitindo que ele acesse
  * recursos protegidos no sistema.
  */
-export const gerarTokenNoLogin = (email) => {
+export const generateToken = (email) => {
     return jwt.sign({ email }, CHAVE_SECRETA, { expiresIn: 300 });
 };
 

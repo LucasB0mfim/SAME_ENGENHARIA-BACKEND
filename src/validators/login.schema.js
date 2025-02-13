@@ -29,7 +29,7 @@ export const loginSchema = z.object({
             message: 'Você não possui permissão',
         }),
 
-    senha: z.string()
+    password: z.string()
         .refine(senha => senha === process.env.SP, {
             message: 'Você não possui permissão'
         })
@@ -41,23 +41,23 @@ export const loginSchema = z.object({
  * Este esquema valida os dados fornecidos para atualizar o colaborador, garantindo que:
  * - O nome de usuário tenha entre 3 e 10 caracteres, e contenha apenas letras.
  * - O e-mail seja válido e pertença ao domínio '@sameengenharia.com.br'.
- * - A senha atual seja obrigatória e corresponda a um valor fixo (neste caso, 'same0106').
+ * - A senha atual seja obrigatória e corresponda a um valor fixo (neste caso, 'Same@0106').
  * - A senha nova deve ter no mínimo 8 caracteres, ser composta por letras maiúsculas, minúsculas, números, 
  *   e um caractere especial.
  *
  * Caso qualquer uma das condições falhe, uma mensagem de erro é retornada.
  * 
  * @example
- * atualizarSchema.parse({
+ * updateSchema.parse({
  *   usuario: 'NovoUsuario',
  *   email: 'usuario@sameengenharia.com.br',
- *   senhaAtual: 'same0106',
+ *   senhaAtual: 'Same@0106',
  *   senhaNova: 'NovaSenha123!'
  * });
  * 
  */
-export const atualizarSchema = z.object({
-    usuario: z.string()
+export const updateSchema = z.object({
+    username: z.string()
         .min(3, 'Nome de usuário deve ter no mínimo 3 caracteres')
         .max(10, 'Nome de usuário deve ter no máximo 10 caracteres')
         .regex(/^[a-zA-Z]+$/, 'Nome de usuário deve conter apenas letras'),
@@ -69,13 +69,13 @@ export const atualizarSchema = z.object({
             message: 'O email deve pertencer ao domínio @sameengenharia.com.br',
         }),
 
-    senhaAtual: z.string()
+    currentPassword: z.string()
         .min(1, 'Senha atual é obrigatória')
-        .refine(senha => senha === 'same0106', {
+        .refine(senha => senha === 'Same@0106', {
             message: 'Senha atual incorreta',
         }),
 
-    senhaNova: z.string()
+    newPassword: z.string()
         .min(8, 'Senha nova deve ter no mínimo 8 caracteres')
         .max(100, 'Senha muito longa')
         .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,

@@ -5,9 +5,9 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // Configuração de acesso ao banco de dados
-const conexao = createClient(
+const dataBase = createClient(
     process.env.SB_URL, 
     process.env.SB_KEY    
 );
 
-export default conexao;
+export default dataBase;

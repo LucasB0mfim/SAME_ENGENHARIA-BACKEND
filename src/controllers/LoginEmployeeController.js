@@ -1,11 +1,13 @@
-import LoginService from '../services/LoginService.js';
+import LoginEmployeeService from '../services/LoginEmployeeService.js';
 
-class LoginController {
+const service = LoginEmployeeService
+
+class LoginEmployeeController {
 
     constructor() {
-        this.autenticarColaborador = this.autenticarColaborador.bind(this);
+        this.authenticateEmployee = this.authenticateEmployee.bind(this);
         this.token = this.token.bind(this);
-    }
+    };
 
     /**
      * Método responsável por realizar o login de um colaborador.
@@ -21,27 +23,35 @@ class LoginController {
      * e retorna uma resposta com o código de status 401 (não autorizado), além de uma mensagem de erro.
      * Para qualquer outro erro, o status retornado será 500 (erro interno do servidor).
      */
-    async autenticarColaborador(req, res) {
+
+    async authenticateEmployee(req, res) {
         try {
-            const { email, senha } = req.body;
-            const token = await LoginService.autenticar(email, senha);
-            return res.status(200).json({ success: true, token });
+            const { email, password } = req.body;
+            const token = await service.authenticateEmployee(email, password);
+            return res.status(200).json({
+                success: true,
+                token
+            });
         } catch (error) {
-            const status = error.message === 'Email ou senha inválidos' ? 401 : 500;
-            return res.status(status).json({ success: false, message: error.message });
-        }
-    }
+            const status = error.message === 'email ou senha inválidos' ? 401 : 500;
+            return res.status(status).json({
+                success: false,
+                message: error.message
+            });
+        };
+    };
 
     /**
      * Método responsável por retornar para a requisição que o token fornecido por ele é válido.
      * 
-     * Caso o token esteja incorreto, expirado ou seja inexistente, o middleware autenticar-token.js
+     * Caso o token esteja incorreto, expirado ou seja inexistente, o middleware authToken.js
      * fará a validação necessária.
      */
+
     async token(req, res) {
-        const resultado = await LoginService.validarToken(req.email);
-        return res.json(resultado);
+        const result = await service.validarToken(req.email);
+        return res.json(result);
     }
 }
 
-export default new LoginController();
+export default new LoginEmployeeController();

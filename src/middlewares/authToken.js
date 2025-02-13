@@ -11,7 +11,7 @@ import { validarToken } from '../utils/jwt-manager.js';
  * Se o token não for enviado, ou se for inválido ou expirado, o middleware retorna uma 
  * resposta com o código de status adequado (401 para falta de token e 403 para token inválido/expirado).
  */
-const autenticarToken = (req, res, next) => {
+const authToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
@@ -30,4 +30,4 @@ const autenticarToken = (req, res, next) => {
     next();
 };
 
-export default autenticarToken;
+export default authToken;

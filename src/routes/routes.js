@@ -2,27 +2,47 @@
 import express from 'express';
 
 // Importando os controllers
-import LoginController from '../controllers/LoginController.js';
-import CadastroController from '../controllers/CadastroController.js'
+import LoginEmployeeController from '../controllers/LoginEmployeeController.js';
+import UpdateEmployeeController from '../controllers/UpdateEmployeeController.js';
 
 // Importando middlewares
-import autenticarToken from '../middlewares/autenticar-token.js';
-import autenticarLogin from '../middlewares/autenticar-login.js';
+import authToken from '../middlewares/authToken.js';
+import authLogin from '../middlewares/authLogin.js';
 
 // Importando Schemas
-import { loginSchema, atualizarSchema } from '../validators/login.schema.js';
-import verificarSaude from '../middlewares/verificar-saude.js';
+import { loginSchema, updateSchema } from '../validators/login.schema.js';
+import checkHealth from '../middlewares/checkHealth.js';
 
 // Iniciando as rotas
 const router = express.Router();
 
 // Rotas de acesso
-router.get('/banco-de-dados/saude', verificarSaude);
+router.get('/banco-de-dados/saude',
+    checkHealth
+);
 
-router.post('/validar-token', autenticarToken, LoginController.token);
+router.post('/validar-token',
+    authToken,
+    LoginEmployeeController.token
+);
 
-router.post('/colaborador/logar', autenticarLogin(loginSchema), LoginController.autenticarColaborador);
-router.put('/colaborador/atualizar', autenticarToken, autenticarLogin(atualizarSchema), CadastroController.cadastrarColaborador);
+router.post('/colaborador/logar',
+    authLogin(loginSchema),
+    LoginEmployeeController.authenticateEmployee
+);
+
+router.put('/colaborador/atualizar',
+    authToken,
+    authLogin(updateSchema),
+    UpdateEmployeeController.updateEmployee
+);
+
+router.get('/dashboard', authToken, (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: 'Bem-vindo, colaborador'
+    });
+});
 
 // Exportando a rota
 export default router;
