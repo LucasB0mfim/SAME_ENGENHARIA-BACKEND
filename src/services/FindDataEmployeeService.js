@@ -9,6 +9,7 @@ class FindDataEmployeeService {
             const employeeData = await repository.find(email);
             return {
                 name: employeeData.nome,
+                username: employeeData.usuario,
                 function: employeeData.funcao
             };
         } catch (error) {

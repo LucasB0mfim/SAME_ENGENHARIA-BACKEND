@@ -18,11 +18,12 @@ class UpdateEmployeeController {
 
     async updateEmployee(req, res) {
         try {
-            const result = await service.updateEmployee(req.body);
+            const { username, email, currentPassword, newPassword } = req.body;
+            const { token } = await service.updateEmployee(username, email, currentPassword, newPassword);
             return res.status(200).json({
                 success: true,
                 message: 'Colaborador atualizado com sucesso.',
-                data: result
+                token
             });
         } catch (error) {
             if (error.statusCode) {

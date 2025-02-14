@@ -12,14 +12,15 @@ class UpdateEmployeeRepository {
      * e, se as credenciais forem corretas, chama o método privado '#atualizar' para atualizar as informações 
      * do colaborador. Por fim, gera um token de login para o colaborador.
      */
-    
-    async update(employee) {
+
+    async update(username, email, currentPassword, newPassword) {
         try {
-            const updatedEmployee = await updateEmployee(employee);
+            const data = await updateEmployee(username, email, currentPassword, newPassword);
+            if (!data) {
+                throw new Error('Credênciais inválidas.');
+            }
             return {
-                success: true,
-                message: 'Colaborador Atualizado.',
-                data: updatedEmployee
+                success: true
             };
         } catch (error) {
             if (error.message === 'Credênciais inválidas.') {

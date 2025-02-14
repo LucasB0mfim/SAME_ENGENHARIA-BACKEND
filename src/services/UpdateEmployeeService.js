@@ -6,18 +6,17 @@ const repository = UpdateEmployeeRepository;
 
 class UpdateEmployeeService {
 
-    async updateEmployee(employee) {
+    async updateEmployee(username, email, currentPassword, newPassword) {
         try {
-            const newEmployee = await repository.update(employee);
-            if (!newEmployee) {
+            const result = await repository.update(username, email, currentPassword, newPassword);
+            if (!result.success) {
                 throw new AppError('Colaborador não encontrado.', 404);
             }
             return {
-                newEmployee,
-                token: generateToken(employee.email)
+                token: generateToken(email)
             };
         } catch (error) {
-            throw new error;
+            throw error;
         }
     }
 }
