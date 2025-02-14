@@ -4,6 +4,7 @@ import express from 'express';
 // Importando os controllers
 import LoginEmployeeController from '../controllers/LoginEmployeeController.js';
 import UpdateEmployeeController from '../controllers/UpdateEmployeeController.js';
+import FindDataEmployeeController from '../controllers/FindDataEmployeeController.js';
 
 // Importando middlewares
 import authToken from '../middlewares/authToken.js';
@@ -24,6 +25,11 @@ router.get('/dataBase/Health',
 router.post('/validateToken',
     authToken,
     LoginEmployeeController.token
+);
+
+router.get('/employee/info',
+    authToken,
+    FindDataEmployeeController.findDataEmployee
 );
 
 router.post('/employee/login',

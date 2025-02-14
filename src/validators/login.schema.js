@@ -30,7 +30,7 @@ export const loginSchema = z.object({
         }),
 
     password: z.string()
-        .refine(senha => senha === process.env.SP, {
+        .refine(senha => senha !== 'same0106', {
             message: 'Você não possui permissão'
         })
 });
