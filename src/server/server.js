@@ -1,9 +1,10 @@
-import cors from 'cors';
+import cors from "cors";
 import dotenv from "dotenv";
-import express from 'express';
-import bodyParser from 'body-parser';
+import express from "express";
+import bodyParser from "body-parser";
 
-import routes from '../routes/routes.js';
+import config from "../config/cors.js";
+import routes from "../routes/routes.js";
 
 // Guarda as chaves para conexão com o banco
 dotenv.config();
@@ -18,7 +19,7 @@ const PORT = process.env.PS;
 app.use(bodyParser.json());
 
 // Usar o middleware cors para permitir todas as origens
-app.use(cors());
+app.use(cors(config));
 
 // Rota padrão para todos os endpoints
 app.use('/same-engenharia/api', routes);
