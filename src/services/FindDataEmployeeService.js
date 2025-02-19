@@ -10,7 +10,8 @@ class FindDataEmployeeService {
             return {
                 name: employeeData.nome,
                 username: employeeData.usuario,
-                function: employeeData.funcao
+                function: employeeData.funcao,
+                avatar: employeeData.avatar
             };
         } catch (error) {
             throw new Error('Erro ao buscar informações do colaborador');

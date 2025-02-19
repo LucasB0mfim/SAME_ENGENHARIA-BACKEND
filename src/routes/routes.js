@@ -11,7 +11,7 @@ import authToken from '../middlewares/authToken.js';
 import authLogin from '../middlewares/authLogin.js';
 
 // Importando Schemas
-import { loginSchema, updateSchema } from '../validators/login.schema.js';
+import { firstLoginSchema, loginSchema, updateSchema } from '../validators/login.schema.js';
 import checkHealth from '../middlewares/checkHealth.js';
 
 // Iniciando as rotas
@@ -30,6 +30,11 @@ router.post('/validateToken',
 router.get('/employee/info',
     authToken,
     FindDataEmployeeController.findDataEmployee
+);
+
+router.post('/employee/firstLogin',
+    authLogin(firstLoginSchema),
+    LoginEmployeeController.authenticateEmployee
 );
 
 router.post('/employee/login',

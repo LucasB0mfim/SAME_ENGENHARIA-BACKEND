@@ -19,7 +19,7 @@ const CHAVE_SECRETA = process.env.CS;
  * recursos protegidos no sistema.
  */
 export const generateToken = (email) => {
-    return jwt.sign({ email }, CHAVE_SECRETA, { expiresIn: 300 });
+    return jwt.sign({ email }, CHAVE_SECRETA, { expiresIn: 1000 });
 };
 
 /**
