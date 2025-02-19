@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "servidor da same engenharia",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "start": "node src/server/server.js",
     "dev": "nodemon src/server/server.js",
