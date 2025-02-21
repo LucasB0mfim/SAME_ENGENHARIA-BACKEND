@@ -28,6 +28,7 @@ router.get('/employee',
 
 router.put('/employee',
     authToken,
+    authLogin(updateSchema),
     employeeController.updateEmployee
 );
 
