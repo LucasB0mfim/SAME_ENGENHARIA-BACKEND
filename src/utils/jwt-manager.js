@@ -19,7 +19,7 @@ const CHAVE_SECRETA = process.env.CS;
  * recursos protegidos no sistema.
  */
 export const generateToken = (email) => {
-    return jwt.sign({ email }, CHAVE_SECRETA, { expiresIn: 1000 });
+    return jwt.sign({ email }, CHAVE_SECRETA, { expiresIn: 3600 });
 };
 
 /**
@@ -33,18 +33,14 @@ export const generateToken = (email) => {
  * como o e-mail do colaborador. Caso contrário, ela captura o erro e retorna 'undefined', indicando que
  * o token é inválido ou expirado.
  */
+
 export const validarToken = (token) => {
-    let TOKEN_VALIDO = undefined;
-    
     try {
         if (!token) {
             throw new Error('Token vazio.');
         }
-
-        TOKEN_VALIDO = jwt.verify(token, CHAVE_SECRETA);
+        return jwt.verify(token, CHAVE_SECRETA);
     } catch (error) {
-        TOKEN_VALIDO = undefined;
+        throw new Error('Token inválido ou expirado.');
     }
-
-    return TOKEN_VALIDO;
 };

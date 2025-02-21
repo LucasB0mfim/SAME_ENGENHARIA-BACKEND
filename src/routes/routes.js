@@ -2,9 +2,7 @@
 import express from 'express';
 
 // Importando os controllers
-import LoginEmployeeController from '../controllers/LoginEmployeeController.js';
-import UpdateEmployeeController from '../controllers/UpdateEmployeeController.js';
-import FindDataEmployeeController from '../controllers/FindDataEmployeeController.js';
+import employeeController from '../controllers/employee.controller.js';
 
 // Importando middlewares
 import authToken from '../middlewares/authToken.js';
@@ -12,40 +10,53 @@ import authLogin from '../middlewares/authLogin.js';
 
 // Importando Schemas
 import { firstLoginSchema, loginSchema, updateSchema } from '../validators/login.schema.js';
-import checkHealth from '../middlewares/checkHealth.js';
+import checkDatabaseHealth from '../middlewares/checkHealth.js';
 
 // Iniciando as rotas
 const router = express.Router();
 
 // Rotas de acesso
-router.get('/dataBase/Health',
-    checkHealth
-);
-
-router.post('/validateToken',
+router.get('/employees',
     authToken,
-    LoginEmployeeController.token
+    employeeController.getAllEmployees
 );
 
-router.get('/employee/info',
+router.get('/employee',
     authToken,
-    FindDataEmployeeController.findDataEmployee
+    employeeController.getEmployeeByEmail
 );
 
-router.post('/employee/firstLogin',
-    authLogin(firstLoginSchema),
-    LoginEmployeeController.authenticateEmployee
+router.put('/employee',
+    authToken,
+    employeeController.updateEmployee
 );
 
-router.post('/employee/login',
+router.post('/employee',
+    authToken,
+    employeeController.createEmployee
+);
+
+router.delete('/employee',
+    authToken,
+    employeeController.deleteEmployee
+);
+
+router.post('/auth/employee/login',
     authLogin(loginSchema),
-    LoginEmployeeController.authenticateEmployee
+    employeeController.authenticateEmployee
 );
 
-router.put('/employee/update',
-    authToken,
-    authLogin(updateSchema),
-    UpdateEmployeeController.updateEmployee
+router.post('/auth/employee/first-login',
+    authLogin(firstLoginSchema),
+    employeeController.authenticateEmployee
+);
+
+router.post('/auth/validate-token',
+    employeeController.validateEmployeeToken
+);
+
+router.get('/health',
+    checkDatabaseHealth
 );
 
 router.get('/employee/dashboard', authToken, (req, res) => {
