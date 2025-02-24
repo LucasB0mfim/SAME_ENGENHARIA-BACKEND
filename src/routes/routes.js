@@ -23,8 +23,7 @@ router.get('/employees',
 );
 
 router.get('/employee',
-    authToken,
-    EmployeeController.getEmployeeByEmail
+    EmployeeController.getEmployeeByToken
 );
 
 router.put('/employee',
@@ -50,6 +49,7 @@ router.post('/auth/employee/login',
 
 router.post('/auth/employee/first-login',
     authLogin(firstLoginSchema),
+    authToken,
     EmployeeController.authenticateEmployee
 );
 

@@ -16,6 +16,15 @@ class EmployeeService {
         return await repository.findByEmail(email);
     }
 
+    async getEmployeeByToken(token) {
+        if (!token) {
+            throw new AppError('Token não fornecido.', 400);
+        }
+
+        const isValidToken = await validarToken(token)
+        return await repository.findByEmail(isValidToken.email);
+    }
+
     async createEmployee(name, email, position, role, password) {
         if (!name || !email || !position || !role || !password) {
             throw new AppError('Todos os campos são obrigatórios.', 400);

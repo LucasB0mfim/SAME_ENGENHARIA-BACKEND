@@ -51,11 +51,37 @@ class EmployeeController {
         }
     }
 
+    async getEmployeeByToken(req, res) {
+        try {
+            const authHeader = req.headers['authorization'];
+            const token = authHeader && authHeader.split(' ')[1];
+            const employee = await service.getEmployeeByToken(token);
+
+            return res.status(200).json({
+                success: true,
+                message: 'Colaborador encontrado com sucesso.',
+                employee
+            });
+        } catch (error) {
+            if (error.statusCode) {
+                return res.status(error.statusCode).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+
+            return res.status(500).json({
+                success: false,
+                message: 'Erro no servidor.'
+            });
+        }
+    }
+
     async createEmployee(req, res) {
         try {
             const { name, email, position, role, password } = req.body;
             const employee = await service.createEmployee(name, email, position, role, password);
-            
+
             return res.status(201).json({
                 success: true,
                 message: 'Colaborador criado com sucesso.',
@@ -80,7 +106,7 @@ class EmployeeController {
         try {
             const { username, email, currentPassword, newPassword } = req.body
             const { employee } = await service.updateEmployee(username, email, currentPassword, newPassword)
-            
+
             return res.status(200).json({
                 success: true,
                 message: 'Colaborador atualizado com sucesso.',
@@ -93,7 +119,7 @@ class EmployeeController {
                     message: error.message
                 })
             }
-            
+
             return res.status(500).json({
                 success: false,
                 message: 'Erro no servidor.'
@@ -105,7 +131,7 @@ class EmployeeController {
         try {
             const { email } = req.body;
             const employee = await service.deleteEmployee(email);
-            
+
             return res.status(200).json({
                 success: true,
                 message: 'Colaborador excluido com sucesso.',
@@ -118,7 +144,7 @@ class EmployeeController {
                     message: error.message
                 })
             }
-            
+
             return res.status(500).json({
                 success: false,
                 message: 'Erro no servidor.'
@@ -130,7 +156,7 @@ class EmployeeController {
         try {
             const { email, password } = req.body;
             const token = await service.authenticateEmployee(email, password);
-            
+
             return res.status(200).json({
                 success: true,
                 message: 'Colaborador logado com sucesso.',
@@ -143,7 +169,7 @@ class EmployeeController {
                     message: error.message
                 });
             }
-            
+
             return res.status(500).json({
                 success: false,
                 message: 'Erro interno no servidor.'
@@ -153,16 +179,17 @@ class EmployeeController {
 
     async validateEmployeeToken(req, res) {
         try {
-            const { token } = req.body;
+            const authHeader = req.headers['authorization'];
+            const token = authHeader && authHeader.split(' ')[1];
             const result = await validarToken(token);
-    
+
             if (!result) {
                 return res.status(401).json({
                     success: false,
                     message: 'Token inválido ou expirado.'
                 });
             }
-    
+
             return res.status(200).json({
                 success: true,
                 message: 'Token Válido.',
