@@ -2,7 +2,8 @@
 import express from 'express';
 
 // Importando os controllers
-import employeeController from '../controllers/employee.controller.js';
+import EmployeeController from '../controllers/employee.controller.js';
+import TimeSheetController from '../controllers/time-sheet.controller.js';
 
 // Importando middlewares
 import authToken from '../middlewares/authToken.js';
@@ -18,42 +19,42 @@ const router = express.Router();
 // Rotas de acesso
 router.get('/employees',
     authToken,
-    employeeController.getAllEmployees
+    EmployeeController.getAllEmployees
 );
 
 router.get('/employee',
     authToken,
-    employeeController.getEmployeeByEmail
+    EmployeeController.getEmployeeByEmail
 );
 
 router.put('/employee',
     authToken,
     authLogin(updateSchema),
-    employeeController.updateEmployee
+    EmployeeController.updateEmployee
 );
 
 router.post('/employee',
     authToken,
-    employeeController.createEmployee
+    EmployeeController.createEmployee
 );
 
 router.delete('/employee',
     authToken,
-    employeeController.deleteEmployee
+    EmployeeController.deleteEmployee
 );
 
 router.post('/auth/employee/login',
     authLogin(loginSchema),
-    employeeController.authenticateEmployee
+    EmployeeController.authenticateEmployee
 );
 
 router.post('/auth/employee/first-login',
     authLogin(firstLoginSchema),
-    employeeController.authenticateEmployee
+    EmployeeController.authenticateEmployee
 );
 
 router.post('/auth/validate-token',
-    employeeController.validateEmployeeToken
+    EmployeeController.validateEmployeeToken
 );
 
 router.get('/health',
@@ -66,6 +67,18 @@ router.get('/employee/dashboard', authToken, (req, res) => {
         message: 'Bem-vindo a área de trabalho!'
     });
 });
+
+router.get('/reports/timeheets',
+    TimeSheetController.getAllRecords
+)
+
+router.get('/reports/timeheet',
+    TimeSheetController.getRecordsByChapa
+)
+
+router.get('/reports/timeheet/period',
+    TimeSheetController.getRecordsByPeriod
+)
 
 // Exportando a rota
 export default router;
