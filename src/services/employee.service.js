@@ -12,7 +12,7 @@ class EmployeeService {
         if (!email) {
             throw new AppError('Email não fornecido.', 400);
         }
-        
+
         return await repository.findByEmail(email);
     }
 
@@ -56,7 +56,7 @@ class EmployeeService {
 
         try {
             const employee = await repository.findByLogin(email, password);
-            
+
             if (!employee) {
                 throw new AppError('Colaborador não encontrado.', 404);
             }
@@ -77,16 +77,21 @@ class EmployeeService {
         }
     }
 
-    async validateEmployeeToken(email) {
-        if (!email) {
-            throw new AppError('Email não fornecido.', 400);
+    async validateEmployeeToken(token) {
+        if (!token) {
+            throw new AppError('Token não fornecido.', 400);
+        }
+
+        const isValidToken = await validarToken(token);
+        if (!isValidToken) {
+            throw new AppError('Token inválido ou expirado.', 401);
         }
 
         return {
             success: true,
             message: 'Token válido.',
-            email
-        }
+            email: isValidToken.email
+        };
     }
 }
 

@@ -349,21 +349,21 @@ describe("EmployeeController", () => {
 
     describe("validateEmployeeToken", () => {
         beforeEach(() => {
-            req.body = {
-                token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+            req.headers = {
+                authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
             };
         });
-
+    
         test("deve validar o token do colaborador com sucesso", async () => {
             const mockResult = {
                 email: "teste@sameengenharia.com.br",
                 iat: "1740398614",
                 exp: "1740402214",
             };
-
+    
             validarToken.mockResolvedValue(mockResult);
             await employeeController.validateEmployeeToken(req, res);
-
+    
             expect(validarToken).toHaveBeenCalledWith("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9");
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith({
@@ -372,11 +372,11 @@ describe("EmployeeController", () => {
                 result: mockResult,
             });
         });
-
+    
         test("deve retornar erro 401 quando o token for inválido", async () => {
             validarToken.mockResolvedValue(false);
             await employeeController.validateEmployeeToken(req, res);
-
+    
             expect(validarToken).toHaveBeenCalledWith("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9");
             expect(res.status).toHaveBeenCalledWith(401);
             expect(res.json).toHaveBeenCalledWith({
@@ -384,11 +384,11 @@ describe("EmployeeController", () => {
                 message: "Token inválido ou expirado.",
             });
         });
-
+    
         test("deve retornar erro 500 quando houver falha interna", async () => {
             validarToken.mockRejectedValue(new Error("Erro interno"));
             await employeeController.validateEmployeeToken(req, res);
-
+    
             expect(res.status).toHaveBeenCalledWith(500);
             expect(res.json).toHaveBeenCalledWith({
                 success: false,

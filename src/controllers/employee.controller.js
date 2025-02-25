@@ -182,14 +182,14 @@ class EmployeeController {
             const authHeader = req.headers['authorization'];
             const token = authHeader && authHeader.split(' ')[1];
             const result = await validarToken(token);
-
+    
             if (!result) {
                 return res.status(401).json({
                     success: false,
                     message: 'Token inválido ou expirado.'
                 });
             }
-
+    
             return res.status(200).json({
                 success: true,
                 message: 'Token Válido.',

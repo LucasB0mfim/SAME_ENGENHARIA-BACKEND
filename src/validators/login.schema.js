@@ -102,10 +102,10 @@ export const updateSchema = z.object({
         }),
 
     currentPassword: z.string()
-        .min(1, 'Senha atual é obrigatória')
-        .refine(senha => senha === process.env.SP, {
-            message: 'Senha atual incorreta',
-        }),
+        .min(1, 'Senha atual é obrigatória'),
+        // .refine(senha => senha === process.env.SP, {
+        //     message: 'Senha atual incorreta',
+        // }),
 
     newPassword: z.string()
         .min(8, 'Senha nova deve ter no mínimo 8 caracteres')
