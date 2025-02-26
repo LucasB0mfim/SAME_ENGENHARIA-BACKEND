@@ -4,6 +4,7 @@ import express from 'express';
 // Importando os controllers
 import EmployeeController from '../controllers/employee.controller.js';
 import TimeSheetController from '../controllers/time-sheet.controller.js';
+import experienceController from '../controllers/experience.controller.js';
 
 // Importando middlewares
 import authToken from '../middlewares/authToken.js';
@@ -79,6 +80,11 @@ router.get('/reports/timeheet',
 router.get('/reports/timeheet/period',
     TimeSheetController.getRecordsByPeriod
 )
+
+router.get('/tabela',
+    authToken,
+    experienceController.getExperience
+);
 
 // Exportando a rota
 export default router;
