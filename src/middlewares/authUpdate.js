@@ -12,14 +12,14 @@ import { ZodError } from 'zod';
  * Caso o erro não seja relacionado à validação (por exemplo, erro interno do servidor), 
  * ele retorna uma resposta com status 500 (erro interno do servidor).
  */
-export const authLogin = (schema) => async (req, res, next) => {
+export const authUpdate = (schema) => async (req, res, next) => {
     try {
         const dadosValidados = await schema.parseAsync(req.body);
         req.body = dadosValidados;
         next();
     } catch (error) {
         if (error instanceof ZodError) {
-            return res.status(401).json({
+            return res.status(422).json({
                 success: false,
                 message: 'Dados inválidos',
                 errors: error.errors.map(err => ({
@@ -35,4 +35,4 @@ export const authLogin = (schema) => async (req, res, next) => {
     }
 };
 
-export default authLogin;
+export default authUpdate;

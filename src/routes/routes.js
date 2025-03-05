@@ -11,8 +11,10 @@ import authToken from '../middlewares/authToken.js';
 import authLogin from '../middlewares/authLogin.js';
 
 // Importando Schemas
-import { firstLoginSchema, loginSchema, updateSchema } from '../validators/login.schema.js';
+import { firstLoginSchema, loginSchema } from '../validators/login.schema.js';
+import { updateSchema } from '../validators/update.schema.js';
 import checkDatabaseHealth from '../middlewares/checkHealth.js';
+import authUpdate from '../middlewares/authUpdate.js';
 
 // Iniciando as rotas
 const router = express.Router();
@@ -29,7 +31,7 @@ router.get('/employee',
 
 router.put('/employee',
     authToken,
-    authLogin(updateSchema),
+    authUpdate(updateSchema),
     EmployeeController.updateEmployee
 );
 
@@ -50,7 +52,6 @@ router.post('/auth/employee/login',
 
 router.post('/auth/employee/first-login',
     authLogin(firstLoginSchema),
-    authToken,
     EmployeeController.authenticateEmployee
 );
 

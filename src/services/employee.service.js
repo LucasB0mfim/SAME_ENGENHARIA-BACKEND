@@ -3,6 +3,11 @@ import { generateToken, validarToken } from '../utils/jwt-manager.js';
 import AppError from '../utils/errors/AppError.js';
 import logger from '../utils/logger/winston.js';
 
+import dotenv from "dotenv";
+
+dotenv.config();
+
+
 class EmployeeService {
     async getAllEmployees() {
         return await repository.findAll();
@@ -36,6 +41,10 @@ class EmployeeService {
     async updateEmployee(username, email, currentPassword, newPassword) {
         if (!username || !email || !currentPassword || !newPassword) {
             throw new AppError('Todos os campos são obrigatórios.', 400);
+        }
+
+        if (currentPassword !== process.env.SP) {
+            throw new AppError('Senha atual incorreta.', 401)
         }
 
         return await repository.update(username, email, currentPassword, newPassword);

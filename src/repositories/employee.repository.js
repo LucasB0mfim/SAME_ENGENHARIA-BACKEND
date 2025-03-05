@@ -139,7 +139,7 @@ class EmployeeRepository {
 
             const { data: employees, error } = await dataBase
                 .from('employees')
-                .select('name, email')
+                .select('name, email, role, avatar')
 
             if (!employees || error) {
                 logger.error('Falha ao buscar colaboradores', { error });
