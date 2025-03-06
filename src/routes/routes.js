@@ -74,8 +74,8 @@ router.get('/reports/timeheets',
     TimeSheetController.getAllRecords
 )
 
-router.get('/reports/timeheet',
-    TimeSheetController.getRecordsByChapa
+router.post('/reports/timeheet',
+    TimeSheetController.getRecordsByName
 )
 
 router.get('/reports/timeheet/period',

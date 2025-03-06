@@ -5,8 +5,8 @@ class TimeSheetsService {
         return await repository.findAll();
     }
 
-    async getRecordsByChapa(chapa) {
-        return await repository.findByChapa(chapa);
+    async getRecordsByName(name) {
+        return await repository.findByName(name);
     }
 
     async getRecordsByPeriod(periodo) {

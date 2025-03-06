@@ -25,10 +25,10 @@ class TimeSheetsController {
         }
     }
 
-    async getRecordsByChapa(req, res) {
+    async getRecordsByName(req, res) {
         try {
-            const { chapa } = req.body;
-            const records = await service.getRecordsByChapa(chapa);
+            const { name } = req.body;
+            const records = await service.getRecordsByName(name);
 
             res.status(200).json({
                 success: true,

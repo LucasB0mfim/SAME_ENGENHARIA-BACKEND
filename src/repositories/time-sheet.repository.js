@@ -41,9 +41,9 @@ class TimeSheetsRepository {
         }
     }
 
-    async findByChapa(chapa) {
+    async findByName(name) {
         try {
-            logger.info(`Buscando registros do colaborador: '${chapa}' na folha de ponto.`);
+            logger.info(`Buscando registros do colaborador: '${name}' na folha de ponto.`);
 
             const recordsPage = 1000;
             let currentPage = 0;
@@ -54,13 +54,13 @@ class TimeSheetsRepository {
                 const { data: records, error } = await dataBase
                     .from('folha_ponto')
                     .select('*')
-                    .eq('CHAPA', chapa)
+                    .ilike('NOME', name)
                     .order('PERIODO', { ascending: true })
                     .range(currentPage * recordsPage, (currentPage + 1) * recordsPage - 1);
 
                 if (!records || error) {
-                    logger.error(`Não foi possível encontrar os registros de ponto do colaborador ${chapa}`, { error });
-                    throw new AppError(`Não foi possível encontrar os registros de ponto do colaborador ${chapa}`, 404);
+                    logger.error(`Não foi possível encontrar os registros de ponto do colaborador ${name}`, { error });
+                    throw new AppError(`Não foi possível encontrar os registros de ponto do colaborador ${name}`, 404);
                 }
 
                 if (records.length > 0) {
@@ -71,11 +71,11 @@ class TimeSheetsRepository {
                 }
             }
 
-            logger.info(`${allRecords.length} registros encontrados do colaborador: ${chapa}.`);
+            logger.info(`${allRecords.length} registros encontrados do colaborador: ${name}.`);
 
             return allRecords;
         } catch (error) {
-            logger.error(`Erro ao buscar os registros do colaborador: '${chapa}' na folha de ponto.`);
+            logger.error(`Erro ao buscar os registros do colaborador: '${name}' na folha de ponto.`);
             throw error;
         }
     }
