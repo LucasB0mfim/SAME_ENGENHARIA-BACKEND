@@ -4,7 +4,8 @@ import express from 'express';
 // Importando os controllers
 import EmployeeController from '../controllers/employee.controller.js';
 import TimeSheetController from '../controllers/time-sheet.controller.js';
-import experienceController from '../controllers/experience.controller.js';
+import ExperienceController from '../controllers/experience.controller.js';
+import TrackingController from '../controllers/tracking.controller.js';
 
 // Importando middlewares
 import authToken from '../middlewares/authToken.js';
@@ -70,21 +71,25 @@ router.get('/employee/dashboard', authToken, (req, res) => {
     });
 });
 
-router.get('/reports/timeheets',
+router.get('/reports/timesheets',
     TimeSheetController.getAllRecords
 )
 
-router.post('/reports/timeheet',
+router.post('/reports/timesheet',
     TimeSheetController.getRecordsByName
 )
 
-router.post('/reports/timeheet/filters',
+router.post('/reports/timesheet/filters',
     TimeSheetController.getRecordsByFilters
 )
 
 router.get('/tabela',
     authToken,
-    experienceController.getExperience
+    ExperienceController.getExperience
+);
+
+router.get('/reports/tracking',
+    TrackingController.getTracking
 );
 
 // Exportando a rota
