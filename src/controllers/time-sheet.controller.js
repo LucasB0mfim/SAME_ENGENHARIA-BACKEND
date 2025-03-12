@@ -50,10 +50,10 @@ class TimeSheetsController {
         }
     }
 
-    async getRecordsByPeriod(req, res) {
+    async getRecordsByFilters(req, res) {
         try {
-            const { periodo } = req.body;
-            const records = await service.getRecordsByPeriod(periodo);
+            const { status, abono, startDate, endDate } = req.body;
+            const records = await service.getRecordsByFilters(status, abono, startDate, endDate);
 
             return res.status(200).json({
                 success: true,

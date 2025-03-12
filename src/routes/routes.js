@@ -78,8 +78,8 @@ router.post('/reports/timeheet',
     TimeSheetController.getRecordsByName
 )
 
-router.get('/reports/timeheet/period',
-    TimeSheetController.getRecordsByPeriod
+router.post('/reports/timeheet/filters',
+    TimeSheetController.getRecordsByFilters
 )
 
 router.get('/tabela',

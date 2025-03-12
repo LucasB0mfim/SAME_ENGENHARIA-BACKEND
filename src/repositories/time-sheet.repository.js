@@ -80,28 +80,32 @@ class TimeSheetsRepository {
         }
     }
 
-    async findByPeriod(periodo) {
+    async findByFilters(status, abono, startDate, endDate) {
         try {
-            logger.info(`Buscando registros do período: ${periodo} na folha de ponto.`);
-
+            logger.info(`Buscando registros na folha de ponto com filtros: status=${status}, abono=${abono}, startDate=${startDate}, endDate=${endDate}`);
+    
+            // Definir data final igual à inicial se não for fornecida
+            const dataFinal = endDate || startDate;
+    
             const recordsPage = 1000;
             let currentPage = 0;
             let allRecords = [];
             let hasMoreData = true;
-
+    
             while (hasMoreData) {
                 const { data: records, error } = await dataBase
                     .from('folha_ponto')
                     .select('*')
-                    .eq('PERIODO', periodo)
+                    .gte('PERIODO', startDate)
+                    .lte('PERIODO', dataFinal)
                     .order('PERIODO', { ascending: true })
                     .range(currentPage * recordsPage, (currentPage + 1) * recordsPage - 1);
-
+    
                 if (!records || error) {
-                    logger.error(`Não foi possivel buscar os registros do período: ${periodo}`);
-                    throw new AppError(`Não foi possivel buscar os registros do período: ${periodo}.`, 404);
+                    logger.error('Não foi possível buscar os registros na folha de ponto.');
+                    throw new AppError('Não foi possível buscar os registros na folha de ponto.', 404);
                 }
-
+    
                 if (records.length > 0) {
                     allRecords = allRecords.concat(records);
                     currentPage++;
@@ -109,12 +113,33 @@ class TimeSheetsRepository {
                     hasMoreData = false;
                 }
             }
-
-            logger.info(`${allRecords.length} registros encontrados do período: ${periodo} na folha de ponto.`);
-
-            return allRecords;
+    
+            // Aplicar filtros adicionais nos resultados já obtidos
+            let filteredRecords = [...allRecords];
+    
+            // Filtrar por status (ausentes, presentes)
+            if (status) {
+                if (status.toLowerCase() === 'ausentes') {
+                    filteredRecords = filteredRecords.filter(record => record.FALTA === 'SIM');
+                } else if (status.toLowerCase() === 'presentes') {
+                    filteredRecords = filteredRecords.filter(record => record.FALTA === 'NÃO');
+                } else {
+                    filteredRecords = filteredRecords.filter(record => record.FALTA === 'NÃO' || record.FALTA === 'SIM');
+                }
+            }
+    
+            // Filtrar por tipo de abono
+            if (abono) {
+                filteredRecords = filteredRecords.filter(record =>
+                    record['EVENTO ABONO'] === abono
+                );
+            }
+    
+            logger.info(`${filteredRecords.length} registros encontrados após aplicação dos filtros.`);
+    
+            return filteredRecords;
         } catch (error) {
-            logger.error(`Erro ao buscar registros do período: ${periodo} na folha de ponto.`);
+            logger.error('Erro ao buscar registros na folha de ponto.');
             throw error;
         }
     }
