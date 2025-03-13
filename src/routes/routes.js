@@ -83,8 +83,7 @@ router.post('/reports/timesheet/filters',
     TimeSheetController.getRecordsByFilters
 )
 
-router.get('/tabela',
-    authToken,
+router.get('/reports/experience',
     ExperienceController.getExperience
 );
 
