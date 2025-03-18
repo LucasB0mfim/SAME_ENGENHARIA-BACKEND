@@ -9,8 +9,8 @@ class TimeSheetsService {
         return await repository.findByName(name);
     }
 
-    async getRecordsByFilters(status, abono, startDate, endDate) {
-        return await repository.findByFilters(status, abono, startDate, endDate);
+    async getRecordsByFilters(status, startDate, endDate) {
+        return await repository.findByFilters(status, startDate, endDate);
     }
 }
 

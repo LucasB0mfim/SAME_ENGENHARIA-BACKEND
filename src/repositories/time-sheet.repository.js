@@ -80,12 +80,12 @@ class TimeSheetsRepository {
         }
     }
 
-    async findByFilters(status, abono, startDate, endDate) {
+    async findByFilters(status, startDate, endDate) {
         try {
-            logger.info(`Buscando registros na folha de ponto com filtros: status=${status}, abono=${abono}, startDate=${startDate}, endDate=${endDate}`);
+            logger.info(`Buscando registros na folha de ponto com filtros: status=${status}, startDate=${startDate}, endDate=${endDate}`);
     
             // Definir data final igual à inicial se não for fornecida
-            const dataFinal = endDate || startDate;
+            const secondDate = endDate || startDate;
     
             const recordsPage = 1000;
             let currentPage = 0;
@@ -97,7 +97,7 @@ class TimeSheetsRepository {
                     .from('folha_ponto')
                     .select('*')
                     .gte('PERIODO', startDate)
-                    .lte('PERIODO', dataFinal)
+                    .lte('PERIODO', secondDate)
                     .order('PERIODO', { ascending: true })
                     .range(currentPage * recordsPage, (currentPage + 1) * recordsPage - 1);
     
@@ -119,20 +119,19 @@ class TimeSheetsRepository {
     
             // Filtrar por status (ausentes, presentes)
             if (status) {
-                if (status.toLowerCase() === 'ausentes') {
-                    filteredRecords = filteredRecords.filter(record => record.FALTA === 'SIM');
-                } else if (status.toLowerCase() === 'presentes') {
+                if (status.toLowerCase() === 'all') {
+                    filteredRecords = filteredRecords.filter(record => (record.FALTA === 'SIM') || (record.FALTA === 'NÃO'));
+                } else if (status.toLowerCase() === 'presents') {
                     filteredRecords = filteredRecords.filter(record => record.FALTA === 'NÃO');
-                } else {
-                    filteredRecords = filteredRecords.filter(record => record.FALTA === 'NÃO' || record.FALTA === 'SIM');
+                } else if (status.toLowerCase() === 'absent') {
+                    filteredRecords = filteredRecords.filter(record => record.FALTA === 'SIM');
+                } else if (status.toLowerCase() === 'vacation') {
+                    filteredRecords = filteredRecords.filter(record => record['EVENTO ABONO'] === 'Férias');
+                } else if (status.toLowerCase() === 'paid') {
+                    filteredRecords = filteredRecords.filter(record => record['EVENTO ABONO'] === 'Gestor decidiu abonar');
+                } else if (status.toLowerCase() === 'certificate') {
+                    filteredRecords = filteredRecords.filter(record => record['EVENTO ABONO'] === 'Atestado Médico');
                 }
-            }
-    
-            // Filtrar por tipo de abono
-            if (abono) {
-                filteredRecords = filteredRecords.filter(record =>
-                    record['EVENTO ABONO'] === abono
-                );
             }
     
             logger.info(`${filteredRecords.length} registros encontrados após aplicação dos filtros.`);

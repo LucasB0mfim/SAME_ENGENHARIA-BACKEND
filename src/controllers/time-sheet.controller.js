@@ -52,8 +52,8 @@ class TimeSheetsController {
 
     async getRecordsByFilters(req, res) {
         try {
-            const { status, abono, startDate, endDate } = req.body;
-            const records = await service.getRecordsByFilters(status, abono, startDate, endDate);
+            const { status, startDate, endDate } = req.body;
+            const records = await service.getRecordsByFilters(status, startDate, endDate);
 
             return res.status(200).json({
                 success: true,
