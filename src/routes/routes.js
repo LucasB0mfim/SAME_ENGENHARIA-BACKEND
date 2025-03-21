@@ -6,6 +6,7 @@ import EmployeeController from '../controllers/employee.controller.js';
 import TimeSheetController from '../controllers/time-sheet.controller.js';
 import ExperienceController from '../controllers/experience.controller.js';
 import TrackingController from '../controllers/tracking.controller.js';
+import RequestController from '../controllers/request.controller.js';
 
 // Importando middlewares
 import authToken from '../middlewares/authToken.js';
@@ -89,6 +90,10 @@ router.get('/reports/experience',
 
 router.get('/reports/tracking',
     TrackingController.getTracking
+);
+
+router.get('/reports/request',
+    RequestController.getRequest
 );
 
 // Exportando a rota
