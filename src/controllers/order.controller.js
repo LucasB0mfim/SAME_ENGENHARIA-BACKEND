@@ -1,4 +1,5 @@
 import service from '../services/order.service.js';
+import AppError from '../utils/errors/AppError.js';
 
 class OrderController {
     async getOrder(req, res) {
@@ -27,16 +28,11 @@ class OrderController {
 
     async updateOrder(req, res) {
         try {
-            const { status, quantidade_entregue, urgencia, oc } = req.body; // Extrai o OC do corpo da requisição
+            const { status, quantidade_entregue, urgencia, oc, ultima_atualizacao, data_entrega } = req.body; // Extrai o OC do corpo da requisição
+            
             const nota_fiscal = req.file ? `uploads/${req.file.filename}` : null; // Caminho relativo
     
-            console.log('Arquivo recebido:', req.file); // Log do arquivo recebido
-    
-            if (!nota_fiscal) {
-                throw new AppError('Nenhum arquivo de nota fiscal foi enviado.', 400);
-            }
-    
-            const order = await service.updateOrder(status, quantidade_entregue, urgencia, nota_fiscal, oc);
+            const order = await service.updateOrder(status, quantidade_entregue, urgencia, nota_fiscal, oc, ultima_atualizacao, data_entrega);
     
             return res.status(200).json({
                 success: true,

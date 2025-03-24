@@ -5,8 +5,8 @@ class OrderService {
         return await repository.findAll();
     }
 
-    async updateOrder(status, quantidade_entregue, urgencia, nota_fiscal, oc) {
-        return await repository.update(status, quantidade_entregue, urgencia, nota_fiscal, oc);
+    async updateOrder(status, quantidade_entregue, urgencia, nota_fiscal, oc, ultima_atualizacao, data_entrega) {
+        return await repository.update(status, quantidade_entregue, urgencia, nota_fiscal, oc, ultima_atualizacao, data_entrega);
     }
 }
 

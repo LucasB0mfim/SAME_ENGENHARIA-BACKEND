@@ -40,14 +40,16 @@ class OrderRepository {
         }
     }
 
-    async update(status, quantidade_entregue, urgencia, nota_fiscal, oc) {
+    async update(status, quantidade_entregue, urgencia, nota_fiscal, oc, ultima_atualizacao, data_entrega) {
         try {
             logger.info('Atualizando registros de pedidos.', {
                 status,
                 quantidade_entregue,
                 urgencia,
                 nota_fiscal,
-                oc
+                oc,
+                ultima_atualizacao,
+                data_entrega
             });
 
             const { data: updatedOrder, error } = await dataBase
@@ -56,7 +58,9 @@ class OrderRepository {
                     status,
                     quantidade_entregue,
                     urgencia,
-                    nota_fiscal
+                    nota_fiscal,
+                    ultima_atualizacao,
+                    data_entrega
                 })
                 .eq('oc', oc) // Atualiza o pedido com o OC correspondente
                 .select('*');
