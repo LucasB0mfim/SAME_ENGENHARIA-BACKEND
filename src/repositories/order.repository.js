@@ -2,7 +2,7 @@ import logger from '../utils/logger/winston.js';
 import dataBase from '../database/dataBase.js';
 import AppError from '../utils/errors/AppError.js';
 
-class TrackingRequest {
+class OrderRepository {
     async findAll() {
         try {
             logger.info('Buscando todos os registros de pedidos.');
@@ -39,6 +39,40 @@ class TrackingRequest {
             throw error;
         }
     }
+
+    async update(status, quantidade_entregue, urgencia, nota_fiscal, oc) {
+        try {
+            logger.info('Atualizando registros de pedidos.', {
+                status,
+                quantidade_entregue,
+                urgencia,
+                nota_fiscal,
+                oc
+            });
+
+            const { data: updatedOrder, error } = await dataBase
+                .from('oc')
+                .update({
+                    status,
+                    quantidade_entregue,
+                    urgencia,
+                    nota_fiscal
+                })
+                .eq('oc', oc) // Atualiza o pedido com o OC correspondente
+                .select('*');
+
+            if (!updatedOrder || error) {
+                logger.error('Não foi possível atualizar o pedido.', { error });
+                throw new AppError('Não foi possível atualizar o pedido.', 400);
+            }
+
+            logger.info('Pedido atualizado com sucesso.', { updatedOrder });
+            return updatedOrder;
+        } catch (error) {
+            logger.error('Erro ao atualizar o pedido.', { error });
+            throw error;
+        }
+    }
 }
 
-export default new TrackingRequest();
+export default new OrderRepository();

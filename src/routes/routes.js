@@ -1,12 +1,13 @@
-// Importando a dependência express
 import express from 'express';
+import multer from 'multer';
+import upload from '../config/multer.js';
 
 // Importando os controllers
 import EmployeeController from '../controllers/employee.controller.js';
 import TimeSheetController from '../controllers/time-sheet.controller.js';
 import ExperienceController from '../controllers/experience.controller.js';
 import TrackingController from '../controllers/tracking.controller.js';
-import RequestController from '../controllers/request.controller.js';
+import OrderController from '../controllers/order.controller.js';
 
 // Importando middlewares
 import authToken from '../middlewares/authToken.js';
@@ -93,8 +94,10 @@ router.get('/reports/tracking',
 );
 
 router.get('/reports/request',
-    RequestController.getRequest
+    OrderController.getOrder
 );
+
+router.put('/reports/request', upload.single('nf'), OrderController.updateOrder);
 
 // Exportando a rota
 export default router;
