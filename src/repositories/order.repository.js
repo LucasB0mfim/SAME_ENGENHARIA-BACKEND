@@ -14,7 +14,7 @@ class OrderRepository {
 
             while (hasMoreData) {
                 const { data: records, error } = await dataBase
-                    .from('oc')
+                    .from('orders')
                     .select('*')
                     .range(currentPage * recordsPage, (currentPage + 1) * recordsPage - 1);
 
@@ -53,7 +53,7 @@ class OrderRepository {
             });
 
             const { data: updatedOrder, error } = await dataBase
-                .from('oc')
+                .from('orders')
                 .update({
                     status,
                     quantidade_entregue,
