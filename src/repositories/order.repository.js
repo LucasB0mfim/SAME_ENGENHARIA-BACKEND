@@ -40,29 +40,15 @@ class OrderRepository {
         }
     }
 
-    async update(status, quantidade_entregue, urgencia, nota_fiscal, oc, ultima_atualizacao, data_entrega) {
+    async update(status, quantidade_entregue, numero_oc, idprd, ultima_atualizacao, recebedor, nota_fiscal) {
         try {
-            logger.info('Atualizando registros de pedidos.', {
-                status,
-                quantidade_entregue,
-                urgencia,
-                nota_fiscal,
-                oc,
-                ultima_atualizacao,
-                data_entrega
-            });
+            logger.info('Atualizando ordem de compra.');
 
             const { data: updatedOrder, error } = await dataBase
                 .from('orders')
-                .update({
-                    status,
-                    quantidade_entregue,
-                    urgencia,
-                    nota_fiscal,
-                    ultima_atualizacao,
-                    data_entrega
-                })
-                .eq('oc', oc) // Atualiza o pedido com o OC correspondente
+                .update({ status, quantidade_entregue, numero_oc, idprd, ultima_atualizacao, recebedor, nota_fiscal })
+                .eq('numero_oc', numero_oc)
+                .eq('idprd', idprd)
                 .select('*');
 
             if (!updatedOrder || error) {

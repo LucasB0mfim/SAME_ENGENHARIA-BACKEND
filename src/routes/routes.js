@@ -97,7 +97,7 @@ router.get('/reports/request',
     OrderController.getOrder
 );
 
-router.put('/reports/request', upload.single('nf'), OrderController.updateOrder);
+router.put('/reports/request', upload.single('nota_fiscal'), OrderController.updateOrder);
 
 // Exportando a rota
 export default router;

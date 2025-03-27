@@ -28,26 +28,25 @@ class OrderController {
 
     async updateOrder(req, res) {
         try {
-            const { status, quantidade_entregue, urgencia, oc, ultima_atualizacao, data_entrega } = req.body; // Extrai o OC do corpo da requisição
-            
+            const { status, quantidade_entregue, numero_oc, idprd, ultima_atualizacao, recebedor } = req.body;
+
             const nota_fiscal = req.file ? `uploads/${req.file.filename}` : null; // Caminho relativo
-    
-            const order = await service.updateOrder(status, quantidade_entregue, urgencia, nota_fiscal, oc, ultima_atualizacao, data_entrega);
-    
+
+            const order = await service.updateOrder(status, quantidade_entregue, numero_oc, idprd, ultima_atualizacao, recebedor, nota_fiscal);
+
             return res.status(200).json({
                 success: true,
-                message: 'Pedido atualizado com sucesso.',
+                message: 'Ordem de compra atualizado com sucesso.',
                 order
             });
         } catch (error) {
-            console.error('Erro ao atualizar o pedido:', error); // Log do erro
             if (error.statusCode) {
                 return res.status(error.statusCode).json({
                     success: false,
                     message: error.message
                 });
             }
-    
+
             return res.status(500).json({
                 success: false,
                 message: 'Erro no servidor.'
