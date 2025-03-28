@@ -28,11 +28,11 @@ class OrderController {
 
     async updateOrder(req, res) {
         try {
-            const { status, quantidade_entregue, numero_oc, idprd, ultima_atualizacao, recebedor } = req.body;
+            const { status, quantidade, quantidade_entregue, numero_oc, idprd, data_entrega, ultima_atualizacao, recebedor } = req.body;
 
             const nota_fiscal = req.file ? `uploads/${req.file.filename}` : null; // Caminho relativo
 
-            const order = await service.updateOrder(status, quantidade_entregue, numero_oc, idprd, ultima_atualizacao, recebedor, nota_fiscal);
+            const order = await service.updateOrder(status, quantidade, quantidade_entregue, numero_oc, idprd, data_entrega, ultima_atualizacao, recebedor, nota_fiscal);
 
             return res.status(200).json({
                 success: true,
