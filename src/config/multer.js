@@ -7,6 +7,6 @@ const storage = multer.diskStorage({
     }
 })
 
-const uploadNF = multer({ storage }).single('nota_fiscal');
+export const uploadNF = multer({ storage }).single('nota_fiscal');
 
-export default uploadNF;
+export const uploadCSV = multer({ storage: multer.memoryStorage() }).single('csv');

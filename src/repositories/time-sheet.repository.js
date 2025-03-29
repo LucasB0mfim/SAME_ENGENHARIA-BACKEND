@@ -83,15 +83,15 @@ class TimeSheetsRepository {
     async findByFilters(status, startDate, endDate) {
         try {
             logger.info(`Buscando registros na folha de ponto com filtros: status=${status}, startDate=${startDate}, endDate=${endDate}`);
-    
+
             // Definir data final igual à inicial se não for fornecida
             const secondDate = endDate || startDate;
-    
+
             const recordsPage = 1000;
             let currentPage = 0;
             let allRecords = [];
             let hasMoreData = true;
-    
+
             while (hasMoreData) {
                 const { data: records, error } = await dataBase
                     .from('folha_ponto')
@@ -100,12 +100,12 @@ class TimeSheetsRepository {
                     .lte('PERIODO', secondDate)
                     .order('PERIODO', { ascending: true })
                     .range(currentPage * recordsPage, (currentPage + 1) * recordsPage - 1);
-    
+
                 if (!records || error) {
                     logger.error('Não foi possível buscar os registros na folha de ponto.');
                     throw new AppError('Não foi possível buscar os registros na folha de ponto.', 404);
                 }
-    
+
                 if (records.length > 0) {
                     allRecords = allRecords.concat(records);
                     currentPage++;
@@ -113,10 +113,10 @@ class TimeSheetsRepository {
                     hasMoreData = false;
                 }
             }
-    
+
             // Aplicar filtros adicionais nos resultados já obtidos
             let filteredRecords = [...allRecords];
-    
+
             // Filtrar por status (ausentes, presentes)
             if (status) {
                 if (status.toLowerCase() === 'all') {
@@ -133,12 +133,35 @@ class TimeSheetsRepository {
                     filteredRecords = filteredRecords.filter(record => record['EVENTO ABONO'] === 'Atestado Médico');
                 }
             }
-    
+
             logger.info(`${filteredRecords.length} registros encontrados após aplicação dos filtros.`);
-    
+
             return filteredRecords;
         } catch (error) {
             logger.error('Erro ao buscar registros na folha de ponto.');
+            throw error;
+        }
+    }
+
+    async create(timeSheet) {
+        try {
+            logger.info('Controle de ponto recebido.');
+
+            const { data, error } = await dataBase
+                .from('folha_ponto')
+                .upsert(timeSheet, { onConflict: ['NOME', 'PERIODO'] })
+                .select('*')
+
+            if (!data || error) {
+                logger.error('Não foi possível armazenar o controle de ponto.', { error });
+                throw new AppError('Não foi possível armazenar o controle de ponto.', 404);
+            }
+
+            logger.info('Controle de ponto armazenado.');
+
+            return data;
+        } catch (error) {
+            logger.error('Erro ao armazenar controle de ponto.');
             throw error;
         }
     }

@@ -8,7 +8,7 @@ class OrderService {
 
     async updateNF(idprd, nota_fiscal) {
         if (!idprd || !nota_fiscal) throw new AppError('Os campos "idprd" e "nota_fiscal" são obrigatórios', 400);
-        await repository.update(idprd, nota_fiscal);
+        return await repository.update(idprd, nota_fiscal);
     }
 }
 

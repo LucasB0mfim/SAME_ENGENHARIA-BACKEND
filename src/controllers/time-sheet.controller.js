@@ -74,6 +74,31 @@ class TimeSheetsController {
             });
         }
     }
+
+    async uploadTimeSheet(req, res) {
+        try {
+            const timeSheet = req.file.buffer;
+            const result = await service.uploadTimeSheet(timeSheet);
+
+            res.status(200).json({
+                success: true,
+                message: ' Controle de ponto armazenado.',
+                result
+            })
+        } catch (error) {
+            if (error.statusCode) {
+                return res.status(error.statusCode).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+
+            return res.status(500).json({
+                success: false,
+                message: 'Erro no servidor.'
+            });
+        }
+    }
 }
 
 export default new TimeSheetsController();

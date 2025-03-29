@@ -32,10 +32,13 @@ class OrderController {
             const nota_fiscal = req.file.filename;
 
             await service.updateNF(idprd, nota_fiscal);
+            
+            const nota_fiscal_url = `${req.protocol}://${req.get('host')}/same-engenharia/api/notas_fiscais/${nota_fiscal}`;
 
             res.status(200).json({
                 success: true,
-                message: 'Nota fiscal armazenada.'
+                message: 'Nota fiscal armazenada.',
+                nota_fiscal: nota_fiscal_url
             })
         } catch (error) {
             if (error.statusCode) {

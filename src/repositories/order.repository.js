@@ -48,7 +48,7 @@ class OrderRepository {
                 .from('orders')
                 .update({nota_fiscal: nota_fiscal})
                 .eq('idprd', idprd)
-                .select('*')
+                .select('nota_fiscal')
 
                 if (!data || error) {
                     logger.error('Não foi possível armazenar a nota fiscal.', { error });
@@ -56,6 +56,8 @@ class OrderRepository {
                 }
 
                 logger.info('Nota fiscal armazenada.');
+
+                return data;
         } catch (error) {
             logger.error('Erro ao armazenar a nota fiscal.');
             throw error;

@@ -1,6 +1,6 @@
 import express from 'express';
 
-import uploadNF from '../config/multer.js';
+import { uploadNF, uploadCSV } from '../config/multer.js';
 
 // Importando os controllers
 import EmployeeController from '../controllers/employee.controller.js';
@@ -100,11 +100,16 @@ router.get('/reports/request',
 router.put('/reports/request',
     uploadNF,
     OrderController.uploadNF
-)
+);
 
 router.use('/notas_fiscais',
     express.static('./src/uploads/notas_fiscais')
-)
+);
+
+router.post('/reports/csv',
+    uploadCSV,
+    TimeSheetController.uploadTimeSheet
+);
 
 // Exportando a rota
 export default router;
