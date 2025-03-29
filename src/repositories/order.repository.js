@@ -40,26 +40,24 @@ class OrderRepository {
         }
     }
 
-    async update(status, quantidade, quantidade_entregue, numero_oc, idprd, data_entrega, ultima_atualizacao, recebedor, nota_fiscal) {
+    async update(idprd, nota_fiscal) {
         try {
-            logger.info('Atualizando ordem de compra.');
+            logger.info('Nota fiscal recebida');
 
-            const { data: updatedOrder, error } = await dataBase
+            const { data, error } = await dataBase
                 .from('orders')
-                .update({ status, quantidade, quantidade_entregue, numero_oc, idprd, data_entrega, ultima_atualizacao, recebedor, nota_fiscal })
-                .eq('numero_oc', numero_oc)
+                .update({nota_fiscal: nota_fiscal})
                 .eq('idprd', idprd)
-                .select('*');
+                .select('*')
 
-            if (!updatedOrder || error) {
-                logger.error('Não foi possível atualizar o pedido.', { error });
-                throw new AppError('Não foi possível atualizar o pedido.', 400);
-            }
+                if (!data || error) {
+                    logger.error('Não foi possível armazenar a nota fiscal.', { error });
+                    throw new AppError('Não foi possível armazenar a nota fiscal.', 404);
+                }
 
-            logger.info('Pedido atualizado com sucesso.', { updatedOrder });
-            return updatedOrder;
+                logger.info('Nota fiscal armazenada.');
         } catch (error) {
-            logger.error('Erro ao atualizar o pedido.', { error });
+            logger.error('Erro ao armazenar a nota fiscal.');
             throw error;
         }
     }

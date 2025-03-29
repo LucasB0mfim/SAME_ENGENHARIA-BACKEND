@@ -26,19 +26,17 @@ class OrderController {
         }
     }
 
-    async updateOrder(req, res) {
+    async uploadNF(req, res) {
         try {
-            const { status, quantidade, quantidade_entregue, numero_oc, idprd, data_entrega, ultima_atualizacao, recebedor } = req.body;
+            const { idprd } = req.body;
+            const nota_fiscal = req.file.filename;
 
-            const nota_fiscal = req.file ? `uploads/${req.file.filename}` : null; // Caminho relativo
+            await service.updateNF(idprd, nota_fiscal);
 
-            const order = await service.updateOrder(status, quantidade, quantidade_entregue, numero_oc, idprd, data_entrega, ultima_atualizacao, recebedor, nota_fiscal);
-
-            return res.status(200).json({
+            res.status(200).json({
                 success: true,
-                message: 'Ordem de compra atualizado com sucesso.',
-                order
-            });
+                message: 'Nota fiscal armazenada.'
+            })
         } catch (error) {
             if (error.statusCode) {
                 return res.status(error.statusCode).json({

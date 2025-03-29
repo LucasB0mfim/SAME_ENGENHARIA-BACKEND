@@ -1,12 +1,14 @@
 import repository from '../repositories/order.repository.js';
+import AppError from '../utils/errors/AppError.js';
 
 class OrderService {
     async getOrder() {
         return await repository.findAll();
     }
 
-    async updateOrder(status, quantidade, quantidade_entregue, numero_oc, idprd, data_entrega, ultima_atualizacao, recebedor, nota_fiscal) {
-        return await repository.update(status, quantidade, quantidade_entregue, numero_oc, idprd, data_entrega, ultima_atualizacao, recebedor, nota_fiscal);
+    async updateNF(idprd, nota_fiscal) {
+        if (!idprd || !nota_fiscal) throw new AppError('Os campos "idprd" e "nota_fiscal" são obrigatórios', 400);
+        await repository.update(idprd, nota_fiscal);
     }
 }
 

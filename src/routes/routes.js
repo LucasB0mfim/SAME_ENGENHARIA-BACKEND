@@ -1,6 +1,6 @@
 import express from 'express';
-import multer from 'multer';
-import upload from '../config/multer.js';
+
+import uploadNF from '../config/multer.js';
 
 // Importando os controllers
 import EmployeeController from '../controllers/employee.controller.js';
@@ -97,7 +97,14 @@ router.get('/reports/request',
     OrderController.getOrder
 );
 
-router.put('/reports/request', upload.single('nota_fiscal'), OrderController.updateOrder);
+router.put('/reports/request',
+    uploadNF,
+    OrderController.uploadNF
+)
+
+router.use('/notas_fiscais',
+    express.static('./src/uploads/notas_fiscais')
+)
 
 // Exportando a rota
 export default router;
