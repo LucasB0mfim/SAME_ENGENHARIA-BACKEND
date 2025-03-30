@@ -81,6 +81,11 @@ router.post('/reports/timesheet',
     TimeSheetController.getRecordsByName
 )
 
+router.post('/reports/csv',
+    uploadCSV,
+    TimeSheetController.uploadTimeSheet
+);
+
 router.post('/reports/timesheet/filters',
     TimeSheetController.getRecordsByFilters
 )
@@ -104,11 +109,6 @@ router.put('/reports/request',
 
 router.use('/notas_fiscais',
     express.static('./src/uploads/notas_fiscais')
-);
-
-router.post('/reports/csv',
-    uploadCSV,
-    TimeSheetController.uploadTimeSheet
 );
 
 // Exportando a rota
