@@ -17,12 +17,6 @@ const conexao = {
     }
 };
 
-// Estabelecendo a conexão
-try {
-    var pool = new sql.ConnectionPool(conexao);
-    console.log('Banco de dados SQL Server conectado com sucesso!');
-} catch (error) {
-    console.error('Erro ao conectar ao banco de dados:', error);
-}
+const pool = new sql.ConnectionPool(conexao);
 
 export default pool;
