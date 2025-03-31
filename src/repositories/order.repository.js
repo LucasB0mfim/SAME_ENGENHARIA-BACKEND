@@ -38,7 +38,7 @@ class OrderRepository {
         }
     }
 
-    async update(idprd, nota_fiscal) {
+    async upload(idprd, nota_fiscal) {
         let connection;
         try {
             logger.info('Nota fiscal recebida');
@@ -79,6 +79,39 @@ class OrderRepository {
             if (connection) {
                 connection.release();
             }
+        }
+    }
+
+    async update(oc, idprd, centro_custo, fornecedor, valor_total, material, quantidade, valor_unitario, data_entrega) {
+        try {
+            logger.info(`Atualizando pedido: ${idprd}`);
+
+            const { data, error } = await dataBase
+                .from('orders')
+                .upsert({
+                    idprd,
+                    oc,
+                    centro_custo,
+                    fornecedor,
+                    valor_total,
+                    material,
+                    quantidade,
+                    valor_unitario,
+                    data_entrega
+                })
+                .select('*');
+
+            if (error) {
+                logger.error('Não foi possível atualizar o pedido', { error });
+                throw new AppError('Não foi possível atualizar o pedido', 404);
+            }
+
+            logger.info(`Pedido: ${idprd} atualizado.`);
+
+            return data;
+        } catch (error) {
+            logger.error('Erro ao atualizar pedido.');
+            throw error;
         }
     }
 }
