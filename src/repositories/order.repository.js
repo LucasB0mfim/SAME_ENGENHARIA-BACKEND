@@ -1,116 +1,65 @@
 import logger from '../utils/logger/winston.js';
 import dataBase from '../database/dataBase.js';
 import AppError from '../utils/errors/AppError.js';
-import pool from '../database/sql-server.js';
 
 class OrderRepository {
     async findAll() {
-        let connection;
         try {
             logger.info('Buscando todos os registros de pedidos.');
 
-            // Obter conexão do pool
-            connection = await pool.connect();
+            const recordsPage = 1000;
+            let currentPage = 0;
+            let allRecords = [];
+            let hasMoreData = true;
 
-            // Criar a query de seleção
-            const query = `exec orders`;
+            while (hasMoreData) {
+                const { data: records, error } = await dataBase
+                    .from('orders')
+                    .select('*')
+                    .range(currentPage * recordsPage, (currentPage + 1) * recordsPage - 1);
 
-            // Executar a query
-            const result = await connection.request().query(query);
-            const records = result.recordset;
+                if (!records || error) {
+                    logger.error('Não foi possível encontrar os registros de pedidos.', { error });
+                    throw new AppError('Não foi possível encontrar os registros de pedidos.', 404);
+                }
 
-            if (!records) {
-                logger.error('Não foi possível encontrar os registros de pedidos.');
-                throw new AppError('Não foi possível encontrar os registros de pedidos.', 404);
+                if (records.length > 0) {
+                    allRecords = allRecords.concat(records);
+                    currentPage++;
+                } else {
+                    hasMoreData = false;
+                }
             }
 
-            logger.info(`${records.length} registros encontrados de pedidos.`);
+            logger.info(`${allRecords.length} registros encontrados de pedidos.`);
 
-            return records;
+            return allRecords;
         } catch (error) {
-            logger.error('Erro ao buscar os registros de pedidos.', { error });
+            logger.error('Erro ao buscar os registros de pedidos.');
             throw error;
-        } finally {
-            // Liberar a conexão de volta para o pool
-            if (connection) {
-                connection.release();
-            }
         }
     }
 
-    async upload(idprd, nota_fiscal) {
-        let connection;
+    async update(idprd, nota_fiscal) {
         try {
             logger.info('Nota fiscal recebida');
 
-            // Obter conexão do pool
-            connection = await pool.connect();
-
-            // Criar a query de atualização
-            const query = `
-                UPDATE orders 
-                SET nota_fiscal = @nota_fiscal 
-                WHERE idprd = @idprd;
-                
-                SELECT nota_fiscal 
-                FROM orders 
-                WHERE idprd = @idprd;
-            `;
-
-            // Executar a query com parâmetros
-            const result = await connection.request()
-                .input('nota_fiscal', sql.NVarChar, nota_fiscal)
-                .input('idprd', sql.Int, idprd)
-                .query(query);
-
-            if (!result.recordset || result.recordset.length === 0) {
-                logger.error('Não foi possível armazenar a nota fiscal.');
-                throw new AppError('Não foi possível armazenar a nota fiscal.', 404);
-            }
-
-            logger.info('Nota fiscal armazenada.');
-
-            return result.recordset[0];
-        } catch (error) {
-            logger.error('Erro ao armazenar a nota fiscal.', { error });
-            throw error;
-        } finally {
-            // Liberar a conexão de volta para o pool
-            if (connection) {
-                connection.release();
-            }
-        }
-    }
-
-    async update(oc, idprd, centro_custo, fornecedor, valor_total, material, quantidade, valor_unitario, data_entrega) {
-        try {
-            logger.info(`Atualizando pedido: ${idprd}`);
-
             const { data, error } = await dataBase
                 .from('orders')
-                .upsert({
-                    idprd,
-                    oc,
-                    centro_custo,
-                    fornecedor,
-                    valor_total,
-                    material,
-                    quantidade,
-                    valor_unitario,
-                    data_entrega
-                })
-                .select('*');
+                .update({nota_fiscal: nota_fiscal})
+                .eq('idprd', idprd)
+                .select('nota_fiscal')
 
-            if (error) {
-                logger.error('Não foi possível atualizar o pedido', { error });
-                throw new AppError('Não foi possível atualizar o pedido', 404);
-            }
+                if (!data || error) {
+                    logger.error('Não foi possível armazenar a nota fiscal.', { error });
+                    throw new AppError('Não foi possível armazenar a nota fiscal.', 404);
+                }
 
-            logger.info(`Pedido: ${idprd} atualizado.`);
+                logger.info('Nota fiscal armazenada.');
 
-            return data;
+                return data;
         } catch (error) {
-            logger.error('Erro ao atualizar pedido.');
+            logger.error('Erro ao armazenar a nota fiscal.');
             throw error;
         }
     }

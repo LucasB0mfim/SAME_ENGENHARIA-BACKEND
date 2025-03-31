@@ -102,10 +102,6 @@ router.get('/reports/request',
     OrderController.getOrder
 );
 
-router.post('/reports/request',
-    OrderController.updateOrder
-);
-
 router.put('/reports/request',
     uploadNF,
     OrderController.uploadNF
