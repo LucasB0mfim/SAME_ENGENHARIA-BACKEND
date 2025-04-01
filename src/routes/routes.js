@@ -104,7 +104,11 @@ router.get('/reports/request',
 
 router.put('/reports/request',
     uploadNF,
-    OrderController.uploadNF
+    OrderController.updateOrder
+);
+
+router.put('/order/update',
+    OrderController.updateStatus
 );
 
 router.use('/notas_fiscais',

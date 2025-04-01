@@ -1,5 +1,4 @@
 import service from '../services/order.service.js';
-import AppError from '../utils/errors/AppError.js';
 
 class OrderController {
     async getOrder(req, res) {
@@ -26,19 +25,42 @@ class OrderController {
         }
     }
 
-    async uploadNF(req, res) {
+    async updateOrder(req, res) {
         try {
-            const { idprd } = req.body;
+            const { idprd, numero_oc, quantidade, valor_unitario, valor_total, status, data_entrega, registrado, quantidade_entregue } = req.body;
             const nota_fiscal = req.file.filename;
 
-            await service.updateNF(idprd, nota_fiscal);
-            
-            const nota_fiscal_url = `${req.protocol}://${req.get('host')}/same-engenharia/api/notas_fiscais/${nota_fiscal}`;
+            const result = await service.updateOrder(idprd, numero_oc, quantidade, valor_unitario, valor_total, status, data_entrega, registrado, quantidade_entregue, nota_fiscal);
 
             res.status(200).json({
                 success: true,
                 message: 'Nota fiscal armazenada.',
-                nota_fiscal: nota_fiscal_url
+                result
+            })
+        } catch (error) {
+            if (error.statusCode) {
+                return res.status(error.statusCode).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+
+            return res.status(500).json({
+                success: false,
+                message: 'Erro no servidor.'
+            });
+        }
+    }
+
+    async updateStatus(req, res) {
+        try {
+            const { idprd, status, data_entrega, registrado, quantidade, quantidade_entregue } = req.body;
+            const result = await service.updateStatus(idprd, status, data_entrega, registrado, quantidade, quantidade_entregue);
+
+            res.status(200).json({
+                success: true,
+                message: 'Status Atualizado.',
+                result
             })
         } catch (error) {
             if (error.statusCode) {
