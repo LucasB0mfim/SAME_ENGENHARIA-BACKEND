@@ -19,50 +19,9 @@ class TrackingRepository {
                 logger.error('Erro ao retornar a tabela de tracking');
                 throw new AppError('Erro ao retornar a tabela de tracking', 404);
             }
-
-            logger.info('Tabela de tracking encontrada.');
-
-            const updatetrk = Array.from(
-                new Map(
-                    result.recordset.map(data => [
-                        data.id, // Usa 'id' como chave única
-                        {
-                            cotacao: data.cotacao,
-                            integracao: data.integracao,
-                            centro_custo: data.centro_custo,
-                            movimento: data.movimento,
-                            id: data.id,
-                            elaboracao_pedido: data.elaboracao_pedido,
-                            aprovacao_id: data.aprovacao_id,
-                            numero_oc: data.numero_oc,
-                            elaboracao_oc: data.elaboracao_oc,
-                            aprovacao_oc: data.aprovacao_oc,
-                            data_entrega: data.data_entrega,
-                            fornecedor: data.fornecedor,
-                            material: data.material,
-                            quantidade_total: data.quantidade_total,
-                            unidade: data.unidade,
-                            status: data.status,
-                            criacao: data.criacao
-                        }
-                    ])
-                ).values()
-            );
-
-            logger.info('Atualizando banco de dados auxiliar.');
-
-            const { data, error } = await dataBase
-                .from('tracking')
-                .upsert(updatetrk, { onConflict: 'id' })
-                .select('*');
-
-            if (!data || error) {
-                logger.error('Não foi possível transferir os dados para o Supabase', { error });
-                throw new AppError(`Não foi possível transferir os dados para o Supabase: ${error.message}`);
-            }
-
-            logger.info('Dados transferidos com sucesso.');
-            return data;
+            
+            logger.info(`Tabela de tracking encontrada. Total de registros: ${result.recordset.length}`);
+            return result.recordset;
         } catch (error) {
             console.error('Erro ao buscar todos os registros:', error);
             throw error;
