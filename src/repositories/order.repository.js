@@ -9,89 +9,13 @@ class OrderRepository {
         try {
             logger.info('Buscando todos os registros de pedidos.');
 
-            if (!pool.connected) {
-                await pool.connect();
-            }
-
-            const request = pool.request();
-
-            const result = await request.query('exec orders');
-
-            if (!result.recordset || result.recordset.length === 0) {
-                logger.error('Não foi possível encontrar os registros de pedidos.');
-                throw new AppError('Não foi possível encontrar os registros de pedidos.', 404);
-            }
-
-            logger.info('Registros encontrados de pedidos.');
-
-            // Mapear os dados do SQL Server
-            const ordersToCheck = Array.from(
-                new Map(
-                    result.recordset.map(data => [
-                        data.idprd, // Usa 'idprd' como chave única
-                        {
-                            idprd: data.idprd,
-                            data_criacao_oc: data.data_criacao_oc,
-                            numero_oc: data.numero_oc,
-                            material: data.material,
-                            quantidade: data.quantidade,
-                            unidade: data.unidade,
-                            valor_unitario: data.valor_unitario,
-                            valor_total: data.valor_total,
-                            fornecedor: data.fornecedor,
-                            previsao_entrega: data.previsao_entrega,
-                            centro_custo: data.centro_custo,
-                            usuario_criacao: data.usuario_criacao,
-                        }
-                    ])
-                ).values()
-            );
-
-            // Buscar todos os idprd existentes no Supabase
-            const { data: existingOrders, error: fetchError } = await dataBase
-                .from('orders')
-                .select('idprd');
-
-            if (fetchError) {
-                logger.error('Erro ao buscar idprd existentes no Supabase', { fetchError });
-                throw new AppError(`Erro ao verificar registros existentes: ${fetchError.message}`);
-            }
-
-            // Criar um Set com os idprd existentes
-            const existingIds = new Set(existingOrders.map(order => order.idprd));
-
-            // Filtrar apenas os pedidos cujo idprd NÃO existe no Supabase
-            const ordersToInsert = ordersToCheck.filter(order => !existingIds.has(order.idprd));
-
-            // Se houver novos registros, inseri-los no Supabase
-            if (ordersToInsert.length > 0) {
-                const { error: insertError } = await dataBase
-                    .from('orders')
-                    .insert(ordersToInsert);
-
-                if (insertError) {
-                    logger.error('Não foi possível transferir os dados para o Supabase', { insertError });
-                    throw new AppError(`Não foi possível transferir os dados para o Supabase: ${insertError.message}`);
-                }
-
-                logger.info('Novos dados transferidos com sucesso.');
-            } else {
-                logger.info('Nenhum novo pedido para inserir no Supabase.');
-            }
-
-            // Buscar todos os dados do Supabase, independentemente de inserção
-            const { data: allOrders, error: selectError } = await dataBase
+            const { data, error } = await dataBase
                 .from('orders')
                 .select('*');
 
-            if (selectError) {
-                logger.error('Erro ao buscar todos os registros do Supabase', { selectError });
-                throw new AppError(`Erro ao buscar registros do Supabase: ${selectError.message}`);
-            }
-
             logger.info('Dados do Supabase retornados com sucesso.');
 
-            return allOrders;
+            return data;
         } catch (error) {
             logger.error('Erro ao buscar os registros de pedidos.', { error });
             throw error;

@@ -33,12 +33,12 @@ class TimeSheetsService {
                     )
 
                     const headers = {
-                        "PERIODO": removeSpace["Período"].split(" - ")[0],
-                        "CHAPA": removeSpace["Matrícula"] === "-" ? null : removeSpace["Matrícula"],
-                        "NOME": removeSpace["Nome"],
-                        "JORNADA REALIZADA": removeSpace["Jornada realizada"],
-                        "FALTA": removeSpace["Falta"] || "NÃO CONSTA",
-                        "EVENTO ABONO": removeSpace["Evento Abono"] || "NÃO CONSTA",
+                        periodo: removeSpace["Período"].split(" - ")[0],
+                        chapa: removeSpace["Matrícula"] === "-" ? null : removeSpace["Matrícula"],
+                        nome: removeSpace["Nome"],
+                        jornada_realizada: removeSpace["Jornada realizada"],
+                        falta: removeSpace["Falta"] || "NÃO CONSTA",
+                        evento_abono: removeSpace["Evento Abono"] || "NÃO CONSTA",
                     }
 
                     result.push(headers)
