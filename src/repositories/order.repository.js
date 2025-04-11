@@ -35,6 +35,8 @@ class OrderRepository {
                 throw new AppError('Não foi possível atualizar a tabela: ', 404);
             }
 
+            logger.info(`${data.length} registros encontrados.`)
+
             return data;
         } catch (error) {
             logger.error('Erro ao sincronizar pedidos.', { error });
