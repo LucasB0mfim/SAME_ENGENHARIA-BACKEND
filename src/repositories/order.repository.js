@@ -27,7 +27,7 @@ class OrderRepository {
 
             const { data, error } = await dataBase
                 .from('orders')
-                .upsert(newOrder, { onConflict: 'idprd', ignoreDuplicates: true })
+                .upsert(newOrder, { onConflict: 'idprd' })
                 .select('*')
 
             if (!data || error) {
@@ -40,7 +40,7 @@ class OrderRepository {
             return data;
         } catch (error) {
             logger.error('Erro ao sincronizar pedidos.', { error });
-            throw err;
+            throw error;
         }
     }
 
