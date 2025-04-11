@@ -26,17 +26,27 @@ class OrderRepository {
                 usuario_criacao: item.usuario_criacao,
             }));
 
-            const { data, error } = await dataBase
+            // ATUALIZA A TABELA
+            const { error: upsertError } = await dataBase
                 .from('orders')
-                .upsert(newOrder, { onConflict: 'idprd', ignoreDuplicates: true })
-                .select('*')
+                .upsert(newOrder, { onConflict: 'idprd', ignoreDuplicates: true });
 
-            if (!data || error) {
-                logger.error('Não foi possível atualizar a tabela: ', { error });
+            if (upsertError) {
+                logger.error('Não foi possível atualizar a tabela: ', { error: upsertError });
                 throw new AppError('Não foi possível atualizar a tabela: ', 404);
             }
 
-            logger.info(`${data.length} registros encontrados.`)
+            // BUSCA OS REGISTROS
+            const { data, error } = await dataBase
+                .from('orders')
+                .select('*');
+
+            if (!data || error) {
+                logger.error('Não foi possível buscar os dados da tabela: ', { error });
+                throw new AppError('Não foi possível buscar os dados da tabela: ', 404);
+            }
+
+            logger.info(`${data.length} registros encontrados.`);
 
             return data;
         } catch (error) {
