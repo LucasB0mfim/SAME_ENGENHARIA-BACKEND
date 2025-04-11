@@ -6,60 +6,49 @@ import logger from '../utils/logger/winston.js';
 class ExperienceRepository {
     async findAll() {
         try {
-            logger.info('Solicitação para retornar a tabela de experiência.');
+            await pool.connect();
 
-            if (!pool.connected) {
-                await pool.connect();
+            const result = await pool.request().query('exec experience');
+
+            const newEmployee = result.recordset.map(item => ({
+                status: item.status,
+                estado: item.estado,
+                centro_custo: item.centro_custo,
+                funcao: item.funcao,
+                chapa: item.chapa,
+                funcionario: item.funcionario,
+                admissao: item.admissao,
+                primeiro_periodo: item.primeiro_periodo,
+                segundo_periodo: item.segundo_periodo,
+                viajar: item.viajar,
+                segmento: item.segmento
+            }));
+
+            // ATUALIZA A TABELA
+            const { error: upsertError } = await dataBase
+                .from('experience')
+                .upsert(newEmployee, { onConflict: 'funcionario', ignoreDuplicates: true });
+
+            if (upsertError) {
+                logger.error('Não foi possível atualizar a tabela: ', { error: upsertError });
+                throw new AppError('Não foi possível atualizar a tabela: ', 404);
             }
 
-            const request = pool.request();
-            const result = await request.query('exec experience');
-
-            if (!result.recordset || result.recordset.length === 0) {
-                logger.error('Erro ao retornar a tabela de experiência');
-                throw new AppError('Erro ao retornar a tabela de experiência', 404);
-            }
-
-            logger.info('Tabela de experiência encontrada.');
-
-            // Mapeia os dados e remove duplicatas com base em 'funcionario' (chave primária)
-            const updateExp = Array.from(
-                new Map(
-                    result.recordset.map(data => [
-                        data.funcionario, // Usa 'funcionario' como chave única
-                        {
-                            status: data.status,
-                            estado: data.estado,
-                            centro_custo: data.centro_custo,
-                            funcao: data.funcao,
-                            chapa: data.chapa,
-                            funcionario: data.funcionario,
-                            admissao: data.admissao,
-                            primeiro_periodo: data.primeiro_periodo,
-                            segundo_periodo: data.segundo_periodo,
-                            viajar: data.viajar,
-                            segmento: data.segmento
-                        }
-                    ])
-                ).values()
-            );
-
-            logger.info('Atualizando banco de dados auxiliar.');
-
+            // BUSCA OS REGISTROS
             const { data, error } = await dataBase
                 .from('experience')
-                .upsert(updateExp, { onConflict: 'funcionario' })
                 .select('*');
 
             if (!data || error) {
-                logger.error('Não foi possível transferir os dados para o Supabase', { error });
-                throw new AppError(`Não foi possível transferir os dados para o Supabase: ${error.message}`);
+                logger.error('Não foi possível buscar os dados da tabela: ', { error });
+                throw new AppError('Não foi possível buscar os dados da tabela: ', 404);
             }
 
-            logger.info('Dados transferidos com sucesso.');
-            return result.recordset;
+            logger.info(`${data.length} registros encontrados.`);
+
+            return data;
         } catch (error) {
-            console.error('Erro ao buscar todos os registros:', error);
+            logger.error('Erro ao sincronizar dados.', { error });
             throw error;
         }
     }
