@@ -7,18 +7,38 @@ class OrderRepository {
 
     async findAll() {
         try {
-            logger.info('Buscando todos os registros de pedidos.');
+            await pool.connect();
+            const result = await pool.request().query('exec orders').recordset;
+
+            const newOrder = result.map(item => ({
+                idprd: item.idprd,
+                data_criacao_oc: item.data_criacao_oc,
+                numero_oc: item.numero_oc,
+                material: item.material,
+                quantidade: item.quantidade,
+                unidade: item.unidade,
+                valor_unitario: item.valor_unitario,
+                valor_total: item.valor_total,
+                fornecedor: item.fornecedor,
+                previsao_entrega: item.previsao_entrega,
+                centro_custo: item.centro_custo,
+                usuario_criacao: item.usuario_criacao,
+            }));
 
             const { data, error } = await dataBase
                 .from('orders')
-                .select('*');
+                .upsert(newOrder, { onConflict: 'idprd', ignoreDuplicates: true })
+                .select('*')
 
-            logger.info('Dados do Supabase retornados com sucesso.');
+            if (!data || error) {
+                logger.error('Não foi possível atualizar a tabela: ', { error });
+                throw new AppError('Não foi possível atualizar a tabela: ', 404);
+            }
 
             return data;
         } catch (error) {
-            logger.error('Erro ao buscar os registros de pedidos.', { error });
-            throw error;
+            logger.error('Erro ao sincronizar pedidos.', { error });
+            throw err;
         }
     }
 
@@ -33,8 +53,8 @@ class OrderRepository {
                 .select('*')
 
             if (!data || error) {
-                logger.error('Não foi possível atualizar o pedido', { error });
-                throw new AppError('Não foi possível atualizar o pedido', 404);
+                logger.error('Falha na atualização da tabela orders');
+                throw new AppError('Falha na sincronização de pedidos com o banco de dados', 500);
             }
 
             logger.info('Nota fiscal armazenada.');
