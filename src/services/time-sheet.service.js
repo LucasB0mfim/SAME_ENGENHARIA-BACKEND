@@ -18,34 +18,36 @@ class TimeSheetsService {
     }
 
     async uploadTimeSheet(timeSheet) {
-
         if (!timeSheet) throw new AppError('O controle de ponto não foi fornecido.');
 
         const result = [];
         const stream = Readable.from(timeSheet.toString().replace(/^\uFEFF/, ''));
 
-        new Promise((resolve, reject) => {
+        await new Promise((resolve, reject) => {
             stream.pipe(csvParser({ separator: ';' }))
                 .on('data', (data) => {
-
                     const removeSpace = Object.fromEntries(
                         Object.entries(data).map(([key, value]) => [key.trim(), value.trim()])
-                    )
+                    );
+
+                    // Extrai a data no formato DD/MM/YYYY e converte para YYYY-MM-DD
+                    const [day, month, year] = removeSpace["Período"].split(" - ")[0].split('/');
+                    const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
 
                     const headers = {
-                        periodo: removeSpace["Período"].split(" - ")[0],
+                        periodo: formattedDate,
                         chapa: removeSpace["Matrícula"] === "-" ? null : removeSpace["Matrícula"],
                         nome: removeSpace["Nome"],
                         jornada_realizada: removeSpace["Jornada realizada"],
                         falta: removeSpace["Falta"] || "NÃO CONSTA",
                         evento_abono: removeSpace["Evento Abono"] || "NÃO CONSTA",
-                    }
+                    };
 
-                    result.push(headers)
+                    result.push(headers);
                 })
                 .on('end', () => resolve(result))
-                .on('error', (error) => reject(error))
-        })
+                .on('error', (error) => reject(error));
+        });
 
         return await repository.create(result);
     }
