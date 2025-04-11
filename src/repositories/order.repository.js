@@ -8,9 +8,10 @@ class OrderRepository {
     async findAll() {
         try {
             await pool.connect();
-            const result = await pool.request().query('exec orders').recordset;
 
-            const newOrder = result.map(item => ({
+            const result = await pool.request().query('exec orders');
+
+            const newOrder = result.recordset.map(item => ({
                 idprd: item.idprd,
                 data_criacao_oc: item.data_criacao_oc,
                 numero_oc: item.numero_oc,
@@ -27,7 +28,7 @@ class OrderRepository {
 
             const { data, error } = await dataBase
                 .from('orders')
-                .upsert(newOrder, { onConflict: 'idprd' })
+                .upsert(newOrder, { onConflict: 'idprd', ignoreDuplicates: true })
                 .select('*')
 
             if (!data || error) {
