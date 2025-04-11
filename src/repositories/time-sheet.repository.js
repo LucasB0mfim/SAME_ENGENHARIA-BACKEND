@@ -38,10 +38,10 @@ class TimeSheetsRepository {
 
             while (hasMoreData) {
                 const { data: records, error } = await dataBase
-                    .from('folha_ponto')
+                    .from('timesheet')
                     .select('*')
-                    .ilike('NOME', name)
-                    .order('PERIODO', { ascending: true })
+                    .ilike('nome', name)
+                    .order('periodo', { ascending: true })
                     .range(currentPage * recordsPage, (currentPage + 1) * recordsPage - 1);
 
                 if (!records || error) {
@@ -138,7 +138,7 @@ class TimeSheetsRepository {
 
             const { data, error } = await dataBase
                 .from('folha_ponto')
-                .upsert(timeSheet, { onConflict: ['NOME', 'PERIODO'] })
+                .upsert(timeSheet, { onConflict: ['nome', 'periodo'] })
                 .select('*')
 
             if (!data || error) {
