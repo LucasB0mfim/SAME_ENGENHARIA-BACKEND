@@ -7,49 +7,41 @@ class TrackingRepository {
     async findAll() {
         try {
             await pool.connect();
-            const request = pool.request();
-            const result = await request.query('exec tracking');
 
-            if (!result.recordset || result.recordset.length === 0) {
-                logger.error('Erro ao retornar a tabela de tracking');
-                throw new AppError('Erro ao retornar a tabela de tracking', 404);
-            }
+            const result = await pool.request().query('exec tracking');
 
-            const updatetrk = Array.from(
-                new Map(
-                    result.recordset.map(data => [
-                        data.id,
-                        {
-                            cotacao: data.cotacao,
-                            integracao: data.integracao,
-                            centro_custo: data.centro_custo,
-                            movimento: data.movimento,
-                            id: data.id,
-                            elaboracao_pedido: data.elaboracao_pedido,
-                            aprovacao_id: data.aprovacao_id,
-                            numero_oc: data.numero_oc,
-                            elaboracao_oc: data.elaboracao_oc,
-                            aprovacao_oc: data.aprovacao_oc,
-                            data_entrega: data.data_entrega,
-                            fornecedor: data.fornecedor,
-                            material: data.material,
-                            quantidade_total: data.quantidade_total,
-                            unidade: data.unidade,
-                            status: data.status,
-                            criacao: data.criacao
-                        }
-                    ])
-                ).values()
-            );
+            console.log(JSON.stringify(result.recordset, null, 2));
+
+
+            const newOrder = result.recordset.map(item => ({
+                cotacao: item.cotacao,
+                integracao: item.integracao,
+                centro_custo: item.centro_custo,
+                movimento: item.movimento,
+                id: item.id,
+                idprd: item.idprd,
+                elaboracao_pedido: item.elaboracao_pedido,
+                aprovacao_id: item.aprovacao_id,
+                numero_oc: item.numero_oc,
+                elaboracao_oc: item.elaboracao_oc,
+                aprovacao_oc: item.aprovacao_oc,
+                data_entrega: item.data_entrega,
+                fornecedor: item.fornecedor,
+                material: item.material,
+                quantidade_total: item.quantidade_total,
+                unidade: item.unidade,
+                status: item.status,
+                criacao: item.criacao
+            }));
 
             // ATUALIZA A TABELA
             const { error: upsertError } = await dataBase
                 .from('tracking')
-                .upsert(updatetrk, { onConflict: 'id' });
+                .upsert(newOrder, { onConflict: 'idprd' });
 
             if (upsertError) {
-                logger.error('Não foi possível atualizar os dados no Supabase', { error: upsertError });
-                throw new AppError('Não foi possível atualizar os dados no Supabase', 404);
+                logger.error('Não foi possível atualizar a tabela: ', { error: upsertError });
+                throw new AppError('Não foi possível atualizar a tabela: ', 404);
             }
 
             // BUSCA OS REGISTROS
@@ -58,14 +50,15 @@ class TrackingRepository {
                 .select('*');
 
             if (!data || error) {
-                logger.error('Não foi possível buscar os dados do Supabase', { error });
-                throw new AppError(`Não foi possível buscar os dados do Supabase: ${error?.message}`);
+                logger.error('Não foi possível buscar os dados da tabela: ', { error });
+                throw new AppError('Não foi possível buscar os dados da tabela: ', 404);
             }
 
-            logger.info(`${data.length} registros recuperados do Supabase.`);
+            logger.info(`${data.length} registros encontrados.`);
+
             return data;
         } catch (error) {
-            console.error('Erro ao buscar todos os registros:', error);
+            logger.error('Erro ao sincronizar pedidos.', { error });
             throw error;
         }
     }
