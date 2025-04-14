@@ -10,9 +10,6 @@ class TrackingRepository {
 
             const result = await pool.request().query('exec tracking');
 
-            console.log(JSON.stringify(result.recordset, null, 2));
-
-
             const newOrder = result.recordset.map(item => ({
                 cotacao: item.cotacao,
                 integracao: item.integracao,
