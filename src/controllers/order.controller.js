@@ -54,8 +54,8 @@ class OrderController {
 
     async updateStatus(req, res) {
         try {
-            const { idprd, status, data_entrega, registrado, quantidade, quantidade_entregue } = req.body;
-            const result = await service.updateStatus(idprd, status, data_entrega, registrado, quantidade, quantidade_entregue);
+            const { idprd, status, data_entrega, previsao_entrega, registrado, quantidade, quantidade_entregue } = req.body;
+            const result = await service.updateStatus(idprd, status, data_entrega, previsao_entrega, registrado, quantidade, quantidade_entregue);
 
             res.status(200).json({
                 success: true,

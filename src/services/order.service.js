@@ -9,8 +9,8 @@ class OrderService {
         return await repository.update(idprd, numero_oc, quantidade, valor_unitario, valor_total, status, data_entrega, registrado, quantidade_entregue, nota_fiscal);
     }
 
-    async updateStatus(idprd, status, data_entrega, registrado, quantidade, quantidade_entregue) {
-        return await repository.status(idprd, status, data_entrega, registrado, quantidade, quantidade_entregue);
+    async updateStatus(idprd, status, data_entrega, previsao_entrega, registrado, quantidade, quantidade_entregue) {
+        return await repository.status(idprd, status, data_entrega, previsao_entrega, registrado, quantidade, quantidade_entregue);
     }
 }
 

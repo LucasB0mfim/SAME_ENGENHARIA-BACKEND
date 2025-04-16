@@ -79,13 +79,13 @@ class OrderRepository {
         }
     }
 
-    async status(idprd, status, data_entrega, registrado, quantidade, quantidade_entregue) {
+    async status(idprd, status, data_entrega, previsao_entrega, registrado, quantidade, quantidade_entregue) {
         try {
             logger.info('Nota fiscal recebida');
 
             const { data, error } = await dataBase
                 .from('orders')
-                .update({ idprd, status, data_entrega, registrado, quantidade, quantidade_entregue })
+                .update({ idprd, status, data_entrega, previsao_entrega, registrado, quantidade, quantidade_entregue })
                 .eq('idprd', idprd)
                 .select('*')
 
