@@ -6,7 +6,7 @@ import logger from '../utils/logger/winston.js';
 class IndicatorRepository {
     async findCostCenter() {
         await pool.connect();
-        const result = await pool.request().query('exec financeiro');
+        const result = await pool.request().query('exec financial');
         return result;
     }
 }
