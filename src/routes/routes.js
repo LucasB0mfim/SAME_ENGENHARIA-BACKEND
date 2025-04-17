@@ -8,6 +8,7 @@ import TimeSheetController from '../controllers/time-sheet.controller.js';
 import ExperienceController from '../controllers/experience.controller.js';
 import TrackingController from '../controllers/tracking.controller.js';
 import OrderController from '../controllers/order.controller.js';
+import IndicatorController from '../controllers/indicator.controller.js';
 
 // Importando middlewares
 import authToken from '../middlewares/authToken.js';
@@ -113,6 +114,10 @@ router.put('/order/update',
 
 router.use('/notas_fiscais',
     express.static('./src/uploads/notas_fiscais')
+);
+
+router.use('/indicators/cost-center',
+    IndicatorController.getCostCenter
 );
 
 // Exportando a rota
