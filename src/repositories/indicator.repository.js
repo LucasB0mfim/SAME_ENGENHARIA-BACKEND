@@ -25,7 +25,7 @@ class IndicatorRepository {
             // ATUALIZA A TABELA
             const { error: upsertError } = await dataBase
                 .from('financial')
-                .upsert(costCenter);
+                .upsert(costCenter, { onConflict: 'nome_centro_custo' });
 
             if (upsertError) {
                 logger.error('Não foi possível atualizar a tabela: ', { error: upsertError });
