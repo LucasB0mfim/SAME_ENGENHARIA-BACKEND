@@ -137,7 +137,7 @@ class TimeSheetsRepository {
             logger.info('Controle de ponto recebido.');
 
             const { data, error } = await dataBase
-                .from('folha_ponto')
+                .from('timesheet')
                 .upsert(timeSheet, { onConflict: ['nome', 'periodo'] })
                 .select('*')
 
