@@ -38,6 +38,6 @@ export const updateSchema = z.object({
     newPassword: z.string()
         .min(8, 'Senha nova deve ter no mínimo 8 caracteres')
         .max(250, 'Tamanho máximo da senha: 250 caracteres')
-        .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
+        .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]+$/,
             'Senha nova deve conter letras maiúsculas, minúsculas, números e um caractere especial')
 });
