@@ -75,7 +75,7 @@ class TimeSheetsService {
                         nome: removeSpace["Nome"],
                         jornada_realizada: "08:00:00",
                         falta: "NÃO CONSTA",
-                        evento_abono: "NÃO CONSTA",
+                        evento_abono: "DIA EXTRA",
                     };
 
                     result.push(headers);
