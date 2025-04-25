@@ -23,7 +23,7 @@ class EmployeeRepository {
             const hashedPassword = await this.hashPassword(password);
 
             const { data: employee, error } = await dataBase
-                .from('employees')
+                .from('office')
                 .insert({
                     name,
                     email,
@@ -67,7 +67,7 @@ class EmployeeRepository {
             // }
 
             const { data: employee, error } = await dataBase
-                .from('employees')
+                .from('office')
                 .select('*')
                 .eq('email', email)
                 .single();
@@ -99,7 +99,7 @@ class EmployeeRepository {
             // }
 
             const { data: employee, error } = await dataBase
-                .from('employees')
+                .from('office')
                 .select('*')
                 .eq('email', email)
                 .single();
@@ -138,7 +138,7 @@ class EmployeeRepository {
             // }
 
             const { data: employees, error } = await dataBase
-                .from('employees')
+                .from('office')
                 .select('name, email, role, avatar')
 
             if (!employees || error) {
@@ -162,7 +162,7 @@ class EmployeeRepository {
             logger.info(`Atualizando colaborador: ${email}`);
 
             const { data: currentEmployee } = await dataBase
-                .from('employees')
+                .from('office')
                 .select('*')
                 .eq('email', email)
                 .single();
@@ -191,7 +191,7 @@ class EmployeeRepository {
             };
 
             const { data: newEmployee, error } = await dataBase
-                .from('employees')
+                .from('office')
                 .update(updateData)
                 .eq('email', email)
                 .select('username, email');
@@ -215,7 +215,7 @@ class EmployeeRepository {
             logger.info(`Excluindo colaborador: ${email}`);
 
             const { data: employee, error } = await dataBase
-                .from('employees')
+                .from('office')
                 .delete()
                 .eq('email', email)
                 .select('id, email, name');
