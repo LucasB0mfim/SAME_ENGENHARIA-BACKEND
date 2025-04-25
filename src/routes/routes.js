@@ -87,6 +87,11 @@ router.post('/reports/csv',
     TimeSheetController.uploadTimeSheet
 );
 
+router.post('/reports/extra-day',
+    uploadCSV,
+    TimeSheetController.AddExtraDay
+);
+
 router.post('/reports/timesheet/filters',
     TimeSheetController.getRecordsByFilters
 )

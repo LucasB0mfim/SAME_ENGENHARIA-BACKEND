@@ -51,6 +51,41 @@ class TimeSheetsService {
 
         return await repository.create(result);
     }
+
+    async AddExtraDay(timeSheet) {
+        if (!timeSheet) throw new AppError('O controle de ponto não foi fornecido.');
+
+        const result = [];
+        const stream = Readable.from(timeSheet.toString().replace(/^\uFEFF/, ''));
+
+        await new Promise((resolve, reject) => {
+            stream.pipe(csvParser({ separator: ';' }))
+                .on('data', (data) => {
+                    const removeSpace = Object.fromEntries(
+                        Object.entries(data).map(([key, value]) => [key.trim(), value.trim()])
+                    );
+
+                    // Extrai a data no formato DD/MM/YYYY e converte para YYYY-MM-DD
+                    const [day, month, year] = removeSpace["Data da Marcação"].split('/');
+                    const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+
+                    const headers = {
+                        periodo: formattedDate,
+                        chapa: removeSpace["Matrícula"] === "-" ? null : removeSpace["Matrícula"],
+                        nome: removeSpace["Nome"],
+                        jornada_realizada: "08:00:00",
+                        falta: "NÃO CONSTA",
+                        evento_abono: "NÃO CONSTA",
+                    };
+
+                    result.push(headers);
+                })
+                .on('end', () => resolve(result))
+                .on('error', (error) => reject(error));
+        });
+
+        return await repository.create(result);
+    }
 }
 
 export default new TimeSheetsService();

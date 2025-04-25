@@ -99,6 +99,31 @@ class TimeSheetsController {
             });
         }
     }
+
+    async AddExtraDay(req, res) {
+        try {
+            const timeSheet = req.file.buffer;
+            const result = await service.AddExtraDay(timeSheet);
+
+            res.status(200).json({
+                success: true,
+                message: 'Dia extra armazenado armazenado.',
+                result
+            })
+        } catch (error) {
+            if (error.statusCode) {
+                return res.status(error.statusCode).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+
+            return res.status(500).json({
+                success: false,
+                message: 'Erro no servidor.'
+            });
+        }
+    }
 }
 
 export default new TimeSheetsController();
