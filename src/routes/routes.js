@@ -9,6 +9,7 @@ import ExperienceController from '../controllers/experience.controller.js';
 import TrackingController from '../controllers/tracking.controller.js';
 import OrderController from '../controllers/order.controller.js';
 import IndicatorController from '../controllers/indicator.controller.js';
+import TiController from '../controllers/ti.controller.js';
 
 // Importando middlewares
 import authToken from '../middlewares/authToken.js';
@@ -67,13 +68,6 @@ router.get('/health',
     checkDatabaseHealth
 );
 
-router.get('/employee/dashboard', authToken, (req, res) => {
-    res.status(200).json({
-        success: true,
-        message: 'Bem-vindo a área de trabalho!'
-    });
-});
-
 router.get('/reports/timesheets',
     TimeSheetController.getAllRecords
 )
@@ -123,6 +117,14 @@ router.use('/notas_fiscais',
 
 router.use('/indicators/cost-center',
     IndicatorController.getCostCenter
+);
+
+router.get('/ti/tickets',
+    TiController.getTicket
+);
+
+router.post('/ti/tickets',
+    TiController.createTicket
 );
 
 // Exportando a rota
