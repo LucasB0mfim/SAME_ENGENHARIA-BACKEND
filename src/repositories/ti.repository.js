@@ -52,6 +52,35 @@ class TiRepository {
             throw error;
         }
     }
+
+    async update(id, status, resolution, responsible_technician, closing_date) {
+        try {
+            logger.info(`Atualizando ticket: ${id}`);
+
+            const { data, error } = await dataBase
+                .from('ti_tickets')
+                .update({
+                    status: status,
+                    resolution: resolution,
+                    responsible_technician: responsible_technician,
+                    closing_date: closing_date
+                })
+                .eq('id', id)
+                .select('*')
+
+            if (!data || error) {
+                logger.error('Falha ao atualizar ticket.', { error });
+                throw new AppError('Falha ao atualizar ticket.', 404);
+            }
+
+            logger.info(`Ticket atualizado com sucesso.`);
+
+            return data;
+        } catch (error) {
+            logger.error(`Erro ao atualizar ticket: ${error.message}`);
+            throw error;
+        }
+    }
 }
 
 export default new TiRepository();

@@ -49,6 +49,31 @@ class TiController {
             });
         }
     }
+
+    async updateTicket(req, res) {
+        try {
+            const {id, status, resolution, responsible_technician, closing_date} = req.body;
+            const ticket = await service.updateTicket(id, status, resolution, responsible_technician, closing_date);
+
+            return res.status(200).json({
+                success: true,
+                message: 'Ticket enviado com sucesso.',
+                ticket
+            });
+        } catch (error) {
+            if (error.statusCode) {
+                return res.status(error.statusCode).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+
+            return res.status(500).json({
+                success: false,
+                message: 'Erro no servidor.'
+            });
+        }
+    }
 }
 
 export default new TiController()

@@ -65,66 +65,86 @@ router.post('/auth/validate-token',
 );
 
 router.get('/health',
+    authToken,
     checkDatabaseHealth
 );
 
 router.get('/reports/timesheets',
+    authToken,
     TimeSheetController.getAllRecords
 )
 
 router.post('/reports/timesheet',
+    authToken,
     TimeSheetController.getRecordsByName
 )
 
 router.post('/reports/csv',
+    authToken,
     uploadCSV,
     TimeSheetController.uploadTimeSheet
 );
 
 router.post('/reports/extra-day',
+    authToken,
     uploadCSV,
     TimeSheetController.AddExtraDay
 );
 
 router.post('/reports/timesheet/filters',
+    authToken,
     TimeSheetController.getRecordsByFilters
 )
 
 router.get('/reports/experience',
+    authToken,
     ExperienceController.getExperience
 );
 
 router.get('/reports/tracking',
+    authToken,
     TrackingController.getTracking
 );
 
 router.get('/reports/request',
+    authToken,
     OrderController.getOrder
 );
 
 router.put('/reports/request',
+    authToken,
     uploadNF,
     OrderController.updateOrder
 );
 
 router.put('/order/update',
+    authToken,
     OrderController.updateStatus
 );
 
 router.use('/notas_fiscais',
+    authToken,
     express.static('./src/uploads/notas_fiscais')
 );
 
 router.use('/indicators/cost-center',
+    authToken,
     IndicatorController.getCostCenter
 );
 
 router.get('/ti/tickets',
+    authToken,
     TiController.getTicket
 );
 
 router.post('/ti/tickets',
+    authToken,
     TiController.createTicket
+);
+
+router.put('/ti/tickets',
+    authToken,
+    TiController.updateTicket
 );
 
 // Exportando a rota
