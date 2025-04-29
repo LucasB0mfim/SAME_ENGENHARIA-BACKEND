@@ -101,6 +101,11 @@ router.get('/reports/experience',
     ExperienceController.getExperience
 );
 
+router.put('/reports/experience',
+    authToken,
+    ExperienceController.updateModality
+);
+
 router.get('/reports/tracking',
     authToken,
     TrackingController.getTracking
