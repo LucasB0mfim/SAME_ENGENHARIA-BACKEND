@@ -20,7 +20,7 @@ class TimeSheetsService {
     async uploadTimeSheet(timeSheet) {
         if (!timeSheet) throw new AppError('O controle de ponto não foi fornecido.');
 
-        const costCenters = await repository.findByCostCenter();
+        const costCenters = await repository.findCostCenter();
 
         if (!costCenters || costCenters.length === 0) {
             throw new AppError('Não foi possível obter informações de centro de custo.');
@@ -42,11 +42,9 @@ class TimeSheetsService {
                     const employeeName = removeSpace["Nome"].toUpperCase();
                     const employeeMatricula = removeSpace["Matrícula"] === "-" ? null : removeSpace["Matrícula"];
 
-                    if (!employeeRecord) {
-                        employeeRecord = costCenters.find(cc =>
-                            cc.funcionario.toUpperCase() === employeeName
-                        );
-                    }
+                    employeeRecord = costCenters.find(cc =>
+                        cc.funcionario.toUpperCase() === employeeName
+                    );
 
                     const headers = {
                         periodo: formattedDate,
