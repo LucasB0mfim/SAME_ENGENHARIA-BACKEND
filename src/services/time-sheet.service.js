@@ -42,7 +42,7 @@ class TimeSheetsService {
                     const employeeName = removeSpace["Nome"].toUpperCase();
                     const employeeMatricula = removeSpace["Matrícula"] === "-" ? null : removeSpace["Matrícula"];
 
-                    employeeRecord = costCenters.find(cc =>
+                    const employeeRecord = costCenters.find(cc =>
                         cc.funcionario.toUpperCase() === employeeName
                     );
 
