@@ -132,7 +132,7 @@ router.use('/notas_fiscais',
     express.static('./src/uploads/notas_fiscais')
 );
 
-router.use('/indicators/cost-center',
+router.get('/indicators/cost-center',
     authToken,
     IndicatorController.getCostCenter
 );

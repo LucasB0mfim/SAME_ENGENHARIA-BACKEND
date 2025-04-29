@@ -1,4 +1,3 @@
-import dataBase from '../database/dataBase.js';
 import pool from '../database/sql-server.js';
 import AppError from '../utils/errors/AppError.js';
 import logger from '../utils/logger/winston.js';

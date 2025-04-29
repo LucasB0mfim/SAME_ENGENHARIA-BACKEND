@@ -1,5 +1,6 @@
-import logger from '../utils/logger/winston.js';
+import pool from '../database/sql-server.js';
 import dataBase from '../database/dataBase.js';
+import logger from '../utils/logger/winston.js';
 import AppError from '../utils/errors/AppError.js';
 
 class TimeSheetsRepository {
@@ -155,7 +156,7 @@ class TimeSheetsRepository {
         }
     }
 
-    async findByCostCenter() {
+    async findCostCenter() {
         let connection;
         try {
             logger.info('Buscando dados de centro de custo.');
