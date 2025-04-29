@@ -154,6 +154,43 @@ class TimeSheetsRepository {
             throw error;
         }
     }
+
+    async findByCostCenter() {
+        let connection;
+        try {
+            logger.info('Buscando dados de centro de custo.');
+            connection = await pool.connect();
+
+            const result = await connection.request().query('exec employees');
+
+            if (!result.recordset || result.recordset.length === 0) {
+                logger.error('Nenhum dado de centro de custo encontrado.');
+                throw new AppError('Nenhum dado de centro de custo encontrado.', 404);
+            }
+
+            logger.info(`${result.recordset.length} registros de centro de custo encontrados.`);
+
+            // Formata o resultado com a estrutura desejada
+            const formattedResult = {
+                success: true,
+                message: "Registros encontrados.",
+                records: result.recordset.map(record => ({
+                    chapa: record.chapa,
+                    centro_custo: record.centro_custo,
+                    funcionario: record.funcionario
+                }))
+            };
+
+            return formattedResult.records;
+        } catch (error) {
+            logger.error('Erro ao buscar dados de centro de custo:', error);
+            throw new AppError('Erro ao buscar dados de centro de custo.', 500);
+        } finally {
+            if (connection) {
+                connection.release();
+            }
+        }
+    }
 }
 
 export default new TimeSheetsRepository();

@@ -20,6 +20,12 @@ class TimeSheetsService {
     async uploadTimeSheet(timeSheet) {
         if (!timeSheet) throw new AppError('O controle de ponto não foi fornecido.');
 
+        const costCenters = await repository.findByCostCenter();
+
+        if (!costCenters || costCenters.length === 0) {
+            throw new AppError('Não foi possível obter informações de centro de custo.');
+        }
+
         const result = [];
         const stream = Readable.from(timeSheet.toString().replace(/^\uFEFF/, ''));
 
@@ -30,17 +36,26 @@ class TimeSheetsService {
                         Object.entries(data).map(([key, value]) => [key.trim(), value.trim()])
                     );
 
-                    // Extrai a data no formato DD/MM/YYYY e converte para YYYY-MM-DD
                     const [day, month, year] = removeSpace["Período"].split(" - ")[0].split('/');
                     const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
 
+                    const employeeName = removeSpace["Nome"].toUpperCase();
+                    const employeeMatricula = removeSpace["Matrícula"] === "-" ? null : removeSpace["Matrícula"];
+
+                    if (!employeeRecord) {
+                        employeeRecord = costCenters.find(cc =>
+                            cc.funcionario.toUpperCase() === employeeName
+                        );
+                    }
+
                     const headers = {
                         periodo: formattedDate,
-                        chapa: removeSpace["Matrícula"] === "-" ? null : removeSpace["Matrícula"],
-                        nome: removeSpace["Nome"],
+                        chapa: employeeMatricula,
+                        nome: employeeName,
                         jornada_realizada: removeSpace["Jornada realizada"],
                         falta: removeSpace["Falta"] || "NÃO CONSTA",
                         evento_abono: removeSpace["Evento Abono"] || "NÃO CONSTA",
+                        centro_custo: employeeRecord ? employeeRecord.centro_custo : 'NÃO CONSTA'
                     };
 
                     result.push(headers);
