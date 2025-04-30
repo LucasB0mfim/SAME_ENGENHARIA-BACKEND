@@ -32,22 +32,36 @@ class OrderRepository {
     async synchronize(data) {
         try {
             logger.info('Iniciando sincronização de dados...');
-    
-            const { data: records, error } = await dataBase
-                .from('orders')
-                .upsert(data, { onConflict: ['idprd'] })
-                .select();
-    
-            if (error) {
-                logger.error('Falha ao sincronizar dados: ', { error });
-                throw new AppError('Falha ao sincronizar dados.', 404);
+
+            const recordsPage = 1000;
+            let currentPage = 0;
+            let allRecords = [];
+            let hasMoreData = true;
+
+            while (hasMoreData) {
+                const { data: records, error } = await dataBase
+                    .from('orders')
+                    .upsert(data, { onConflict: ['idprd'] })
+                    .range(currentPage * recordsPage, (currentPage + 1) * recordsPage - 1);
+
+                if (!records || error) {
+                    logger.error('Falha ao sincronizar dados: ', { error });
+                    throw new AppError('Falha ao sincronizar dados.', 404);
+                }
+
+                if (records.length > 0) {
+                    allRecords = allRecords.concat(records);
+                    currentPage++;
+                } else {
+                    hasMoreData = false;
+                }
             }
-    
-            logger.info(`Dados sincronizados com sucesso. ${records.length} registros afetados.`);
-    
-            return records;
+
+            logger.info('Dados sincronizados com sucesso.');
+
+            return allRecords;
         } catch (error) {
-            logger.error('Erro no método de sincronização de dados.', error);
+            logger.error('Erro no método de sincronização de dados.');
             throw error;
         }
     }
