@@ -13,8 +13,8 @@ class TimeSheetsService {
         return await repository.findByName(name);
     }
 
-    async getRecordsByFilters(status, startDate, endDate) {
-        return await repository.findByFilters(status, startDate, endDate);
+    async getRecordsByFilters(costCenter, status, startDate, endDate) {
+        return await repository.findByFilters(costCenter, status, startDate, endDate);
     }
 
     async uploadTimeSheet(timeSheet) {

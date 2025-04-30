@@ -6,22 +6,36 @@ import AppError from '../utils/errors/AppError.js';
 class TimeSheetsRepository {
     async findAll() {
         try {
-            logger.info('Buscando todos os registros da folha de ponto.');
+            logger.info(`Buscando todos os registros da folha de ponto.`);
 
-            const { data: records, error } = await dataBase
-                .from('timesheet')
-                .select('*')
-                .order('periodo', { ascending: true })
+            const recordsPage = 1000;
+            let currentPage = 0;
+            let allRecords = [];
+            let hasMoreData = true;
 
-            if (!records || error) {
-                logger.error('Não foi possível encontrar os registros da folha de ponto.', { error });
-                throw new AppError('Não foi possível encontrar os registros da folha de ponto.', 404);
+            while (hasMoreData) {
+                const { data: records, error } = await dataBase
+                    .from('timesheet')
+                    .select('*')
+                    .order('periodo', { ascending: true })
+                    .range(currentPage * recordsPage, (currentPage + 1) * recordsPage - 1);
+
+                if (!records || error) {
+                    logger.error('Não foi possível encontrar os registros da folha de ponto.', { error });
+                    throw new AppError('Não foi possível encontrar os registros da folha de ponto.', 404);
+                }
+
+                if (records.length > 0) {
+                    allRecords = allRecords.concat(records);
+                    currentPage++;
+                } else {
+                    hasMoreData = false;
+                }
             }
 
+            logger.info(`${allRecords.length} registros encontrados.`);
 
-            logger.info(`${records.length} registros encontrados na folha de ponto.`);
-
-            return records;
+            return allRecords;
         } catch (error) {
             logger.error('Erro ao buscar os registros da folha de ponto.');
             throw error;
@@ -67,7 +81,7 @@ class TimeSheetsRepository {
         }
     }
 
-    async findByFilters(status, startDate, endDate) {
+    async findByFilters(costCenter, status, startDate, endDate) {
         try {
             const getCurrentDate = () => {
                 const today = new Date();
@@ -80,6 +94,7 @@ class TimeSheetsRepository {
             let finalStartDate = startDate;
             let finalEndDate = endDate;
             let finalStatus = status;
+            let finalCostCenter = costCenter;
 
             if (!startDate && !endDate) {
                 finalStartDate = '2025-01-15';
@@ -90,7 +105,7 @@ class TimeSheetsRepository {
                 finalStartDate = new Date();
             }
 
-            logger.info(`Buscando registros na folha de ponto com filtros: status='${status}', startDate='${finalStartDate}', endDate='${finalEndDate}'`);
+            logger.info(`Buscando registros na folha de ponto com filtros: costCenter='${costCenter}', status='${status}', startDate='${finalStartDate}', endDate='${finalEndDate}'`);
 
             let query = dataBase
                 .from('timesheet')
@@ -109,6 +124,11 @@ class TimeSheetsRepository {
                 query = query
             } else if (finalStatus) {
                 query = query.eq('evento_abono', finalStatus);
+            }
+
+            // Filtro de centro de custo
+            if (finalCostCenter && finalCostCenter !== 'Geral') {
+                query = query.eq('centro_custo', finalCostCenter);
             }
 
             // Filtros de data
