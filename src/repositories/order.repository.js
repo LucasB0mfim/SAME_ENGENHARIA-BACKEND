@@ -32,19 +32,38 @@ class OrderRepository {
     async synchronize(data) {
         try {
             logger.info('Iniciando sincronização de dados...');
-
+    
+            const ids = data.map(item => item.idprd);
+            const { data: existingRecords, error: queryError } = await dataBase
+                .from('orders')
+                .select('idprd')
+                .in('idprd', ids);
+    
+            if (queryError) {
+                logger.error('Falha ao verificar registros existentes: ', { queryError });
+                throw new AppError('Falha ao verificar registros existentes.', 404);
+            }
+    
+            const existingIds = existingRecords.map(record => record.idprd);
+            const newData = data.filter(item => !existingIds.includes(item.idprd));
+    
+            if (newData.length === 0) {
+                logger.info('Nenhum novo registro para adicionar.');
+                return [];
+            }
+    
             const { data: records, error } = await dataBase
                 .from('orders')
-                .upsert(data, { onConflict: ['idprd'] })
+                .insert(newData)
                 .select();
-
+    
             if (error) {
-                logger.error('Falha ao sincronizar dados: ', { error });
-                throw new AppError('Falha ao sincronizar dados.', 404);
+                logger.error('Falha ao adicionar novos dados: ', { error });
+                throw new AppError('Falha ao adicionar novos dados.', 404);
             }
-
-            logger.info('Dados sincronizados com sucesso.');
-
+    
+            logger.info(`Dados sincronizados com sucesso. ${newData.length} novos registros adicionados.`);
+    
             return records;
         } catch (error) {
             logger.error('Erro no método de sincronização de dados.', error);
