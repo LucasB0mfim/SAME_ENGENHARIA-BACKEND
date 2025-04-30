@@ -2,7 +2,8 @@ import repository from '../repositories/order.repository.js';
 
 class OrderService {
     async getOrder() {
-        return await repository.findAll();
+        const data = await repository.findAll();
+        return await repository.synchronize(data);
     }
 
     async updateOrder(idprd, numero_oc, quantidade, valor_unitario, valor_total, status, data_entrega, registrado, quantidade_entregue, nota_fiscal) {

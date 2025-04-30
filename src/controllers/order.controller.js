@@ -7,7 +7,7 @@ class OrderController {
 
             return res.status(200).json({
                 success: true,
-                message: 'Pedidos encontrados com sucesso.',
+                message: 'Registros encontrados com sucesso.',
                 order
             });
         } catch (error) {
@@ -62,6 +62,30 @@ class OrderController {
                 message: 'Status Atualizado.',
                 result
             })
+        } catch (error) {
+            if (error.statusCode) {
+                return res.status(error.statusCode).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+
+            return res.status(500).json({
+                success: false,
+                message: 'Erro no servidor.'
+            });
+        }
+    }
+
+    async synchronizeData(req, res) {
+        try {
+            const result = await service.synchronizeData();
+
+            return res.status(200).json({
+                success: true,
+                message: 'Dados sincronizados.',
+                result
+            });
         } catch (error) {
             if (error.statusCode) {
                 return res.status(error.statusCode).json({

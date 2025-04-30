@@ -6,51 +6,62 @@ import pool from '../database/sql-server.js';
 class OrderRepository {
 
     async findAll() {
+        let connection;
         try {
-            await pool.connect();
+            logger.info('Buscando registros da tabela Orders no SqlServer...')
 
-            const result = await pool.request().query('exec orders');
+            connection = await pool.connect();
+            const result = await connection.request().query('exec orders');
 
-            const newOrder = result.recordset.map(item => ({
-                idprd: item.idprd,
-                data_criacao_oc: item.data_criacao_oc,
-                numero_oc: item.numero_oc,
-                material: item.material,
-                quantidade: item.quantidade,
-                unidade: item.unidade,
-                valor_unitario: item.valor_unitario,
-                valor_total: item.valor_total,
-                fornecedor: item.fornecedor,
-                previsao_entrega: item.previsao_entrega,
-                centro_custo: item.centro_custo,
-                usuario_criacao: item.usuario_criacao,
-            }));
-
-            // ATUALIZA A TABELA
-            const { error: upsertError } = await dataBase
-                .from('orders')
-                .upsert(newOrder, { onConflict: 'idprd', ignoreDuplicates: true });
-
-            if (upsertError) {
-                logger.error('Não foi possível atualizar a tabela: ', { error: upsertError });
-                throw new AppError('Não foi possível atualizar a tabela: ', 404);
+            if (!result.recordset) {
+                logger.error('Nenhum dado encontrado na tabela.');
+                throw new AppError('Nenhum dado encontrado na tabela.', 404);
             }
 
-            // BUSCA OS REGISTROS
-            const { data, error } = await dataBase
-                .from('orders')
-                .select('*');
+            logger.info(`${result.recordset.length} registros encontrados.`);
 
-            if (!data || error) {
-                logger.error('Não foi possível buscar os dados da tabela: ', { error });
-                throw new AppError('Não foi possível buscar os dados da tabela: ', 404);
-            }
-
-            logger.info(`${data.length} registros encontrados.`);
-
-            return data;
+            return result.recordset;
         } catch (error) {
-            logger.error('Erro ao sincronizar pedidos.', { error });
+            logger.error('Não foi possível sincronizar dados: ', { error });
+            throw error;
+        } finally {
+            if (connection) connection.release();
+        }
+    }
+
+    async synchronize(data) {
+        try {
+            logger.info('Iniciando sincronização de dados...');
+
+            const recordsPage = 1000;
+            let currentPage = 0;
+            let allRecords = [];
+            let hasMoreData = true;
+
+            while (hasMoreData) {
+                const { data: records, error } = await dataBase
+                    .from('orders')
+                    .upsert(data, { onConflict: ['idprd'] })
+                    .range(currentPage * recordsPage, (currentPage + 1) * recordsPage - 1);
+
+                if (!records || error) {
+                    logger.error('Falha ao sincronizar dados: ', { error });
+                    throw new AppError('Falha ao sincronizar dados.', 404);
+                }
+
+                if (records.length > 0) {
+                    allRecords = allRecords.concat(records);
+                    currentPage++;
+                } else {
+                    hasMoreData = false;
+                }
+            }
+
+            logger.info('Dados sincronizados com sucesso.');
+
+            return allRecords;
+        } catch (error) {
+            logger.error('Erro no método de sincronização de dados.');
             throw error;
         }
     }
