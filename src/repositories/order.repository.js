@@ -1,28 +1,25 @@
-import logger from '../utils/logger/winston.js';
-import dataBase from '../database/dataBase.js';
-import AppError from '../utils/errors/AppError.js';
 import pool from '../database/sql-server.js';
+import dataBase from '../database/dataBase.js';
+
+import logger from '../utils/logger/winston.js';
+import AppError from '../utils/errors/AppError.js';
 
 class OrderRepository {
 
     async findAll() {
         let connection;
         try {
-            logger.info('Buscando registros da tabela Orders no SqlServer...')
-
             connection = await pool.connect();
-            const result = await connection.request().query('exec orders');
+            const data = await connection.request().query('exec orders');
 
-            if (!result.recordset) {
-                logger.error('Nenhum dado encontrado na tabela.');
-                throw new AppError('Nenhum dado encontrado na tabela.', 404);
+            if (data.recordset.length === 0) {
+                logger.warn('Nenhum dado encontrado na tabela orders (SQL Server).');
+                throw new AppError('Nenhum dado encontrado.', 404);
             }
 
-            logger.info(`${result.recordset.length} registros encontrados.`);
-
-            return result.recordset;
+            return data.recordset;
         } catch (error) {
-            logger.error('Não foi possível sincronizar dados: ', { error });
+            logger.error('Erro no método findAll (order): ', error);
             throw error;
         } finally {
             if (connection) connection.release();
@@ -31,23 +28,34 @@ class OrderRepository {
 
     async synchronize(data) {
         try {
-            logger.info('Iniciando sincronização de dados.');
-
-            const { data: record, error } = await dataBase
+            const { data: updateRecord, error: updateError } = await dataBase
                 .from('orders')
-                .upsert(data, { onConflict: 'idprd' })
-                .select('*');
+                .upsert(data, { onConflict: 'idprd', ignoreDuplicates: true })
 
-            if (error) {
-                logger.error('Erro ao sincronizar dados: ', { error });
-                throw new AppError('Não foi possível sincronizar os dados.', 404);
+            if (updateError) {
+                logger.error('Erro ao atualizar a tabela orders (supabase).');
+                throw new AppError('Erro na atualização.', 500);
             }
 
-            logger.info('Dados sincronizados com sucesso.');
+            const { data: record, error: recordError } = await dataBase
+                .from('orders')
+                .select('*')
+
+            if (record.length === 0) {
+                logger.warn('Nenhum dado encontrado na tabela orders (supabase).');
+                throw new AppError('Nenhum dado encontrado.', 404);
+            }
+
+            if (recordError) {
+                logger.error('Erro na consulta da tabela orders (supabase).');
+                throw new AppError('Erro na consulta da tabela orders.', 500);
+            }
+
+            logger.info('Consulta realizada na tabela orders (supabase).');
 
             return record;
         } catch (error) {
-            logger.error('Erro no método de sincronização de dados.', error);
+            logger.error('Erro no método synchronize: ', error);
             throw error;
         }
     }
