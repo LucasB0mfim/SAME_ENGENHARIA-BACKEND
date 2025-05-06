@@ -10,6 +10,7 @@ import TrackingController from '../controllers/tracking.controller.js';
 import OrderController from '../controllers/order.controller.js';
 import IndicatorController from '../controllers/indicator.controller.js';
 import TiController from '../controllers/ti.controller.js';
+import BenefitController from '../controllers/benefit.controller.js';
 
 // Importando middlewares
 import authToken from '../middlewares/authToken.js';
@@ -150,6 +151,16 @@ router.post('/ti/tickets',
 router.put('/ti/tickets',
     authToken,
     TiController.updateTicket
+);
+
+router.get('/reports/benefit',
+    authToken,
+    BenefitController.getEmployees
+);
+
+router.post('/reports/benefit',
+    authToken,
+    BenefitController.getBusinessDays
 );
 
 // Exportando a rota
