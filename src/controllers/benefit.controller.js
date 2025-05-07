@@ -50,6 +50,31 @@ class BenefitController {
             });
         }
     }
+
+    async createDate(req, res) {
+        try {
+            const { data, dias_uteis } = req.body;
+            const result = await service.createRecord(data, dias_uteis);
+
+            return res.status(200).json({
+                success: true,
+                message: 'Mês criado com sucesso.',
+                result
+            });
+        } catch (error) {
+            if (error.statusCode) {
+                return res.status(error.statusCode).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+
+            return res.status(500).json({
+                success: false,
+                message: 'Erro no servidor.'
+            });
+        }
+    }
 }
 
 export default new BenefitController();

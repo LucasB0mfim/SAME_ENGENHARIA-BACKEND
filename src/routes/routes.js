@@ -154,13 +154,16 @@ router.put('/ti/tickets',
 );
 
 router.get('/reports/benefit',
-    authToken,
     BenefitController.getEmployees
 );
 
 router.post('/reports/benefit',
     authToken,
     BenefitController.getBusinessDays
+);
+
+router.post('/test',
+    BenefitController.createDate
 );
 
 // Exportando a rota

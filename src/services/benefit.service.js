@@ -1,12 +1,13 @@
 import { eachDayOfInterval, isWeekend, parseISO } from 'date-fns';
 import repository from '../repositories/benefit.repository.js';
+import AppError from '../utils/errors/AppError.js';
 
 const API_KEY = '19453|qr5oUDy2XWjRq3Bf9fdxdwLCPNE7cglm';
 
 class TrackingService {
 
     async getEmployees() {
-        return await repository.findAll();
+        return await repository.findModel();
     }
 
     async getFullRecord(date) {
@@ -38,6 +39,22 @@ class TrackingService {
         const res = await fetch(`https://api.invertexto.com/v1/holidays/${year}?token=${API_KEY}`);
         const data = await res.json();
         return Object.values(data).map(f => f.date);
+    }
+
+    async createRecord(data, dias_uteis) {
+
+        if (!data || !dias_uteis) {
+            throw new AppError('Os campos data e dias_uteis são obrigatórios.', 400);
+        }
+
+        const modelData = await repository.findModel();
+
+        const fullRecord = modelData.map(record => {
+            const { id, ...rest } = record;
+            return { ...rest, data, dias_uteis };
+        });
+
+        return await repository.create(fullRecord);
     }
 }
 
