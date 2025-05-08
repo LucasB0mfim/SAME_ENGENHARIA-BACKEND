@@ -153,16 +153,28 @@ router.put('/ti/tickets',
     TiController.updateTicket
 );
 
-router.get('/reports/benefit',
-    BenefitController.getEmployees
+router.get('/benefit/employee',
+    BenefitController.findEmployee
 );
 
-router.post('/create/benefit-record',
-    BenefitController.createRecord
-);
-
-router.post('/create/benefit-employee',
+router.post('/benefit/employee',
     BenefitController.createEmployee
+);
+
+router.put('/benefit/employee',
+    BenefitController.updateEmployee
+);
+
+router.delete('/benefit/employee/:id',
+    BenefitController.deleteEmployee
+);
+
+router.post('/benefit/find-report',
+    BenefitController.findRecord
+);
+
+router.post('/benefit/create-report',
+    BenefitController.createRecord
 );
 
 // Exportando a rota
