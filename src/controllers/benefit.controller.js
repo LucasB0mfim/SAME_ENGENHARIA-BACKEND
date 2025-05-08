@@ -26,14 +26,14 @@ class BenefitController {
         }
     }
 
-    async getBusinessDays(req, res) {
+    async createRecord(req, res) {
         try {
-            const { date } = req.body;
-            const result = await service.getFullRecord(date);
+            const { data, dias_uteis } = req.body;
+            const result = await service.createRecord(data, dias_uteis);
 
             return res.status(200).json({
                 success: true,
-                message: 'Registros encontrados.',
+                message: 'Mês criado com sucesso.',
                 result
             });
         } catch (error) {
@@ -51,10 +51,10 @@ class BenefitController {
         }
     }
 
-    async createDate(req, res) {
+    async createEmployee(req, res) {
         try {
-            const { data, dias_uteis } = req.body;
-            const result = await service.createRecord(data, dias_uteis);
+            const { nome, posicao, setor, contrato, centro_custo, vr, vt, vc, vem } = req.body;
+            const result = await service.createEmployee(nome, posicao, setor, contrato, centro_custo, vr, vt, vc, vem);
 
             return res.status(200).json({
                 success: true,

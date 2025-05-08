@@ -157,13 +157,12 @@ router.get('/reports/benefit',
     BenefitController.getEmployees
 );
 
-router.post('/reports/benefit',
-    authToken,
-    BenefitController.getBusinessDays
+router.post('/create/benefit-record',
+    BenefitController.createRecord
 );
 
-router.post('/test',
-    BenefitController.createDate
+router.post('/create/benefit-employee',
+    BenefitController.createEmployee
 );
 
 // Exportando a rota
