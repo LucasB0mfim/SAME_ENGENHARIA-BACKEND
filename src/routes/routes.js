@@ -154,26 +154,32 @@ router.put('/ti/tickets',
 );
 
 router.get('/benefit/employee',
+    authToken,
     BenefitController.findEmployee
 );
 
 router.post('/benefit/employee',
+    authToken,
     BenefitController.createEmployee
 );
 
 router.put('/benefit/employee',
+    authToken,
     BenefitController.updateEmployee
 );
 
 router.delete('/benefit/employee/:id',
+    authToken,
     BenefitController.deleteEmployee
 );
 
 router.post('/benefit/find-report',
+    authToken,
     BenefitController.findRecord
 );
 
 router.post('/benefit/create-report',
+    authToken,
     BenefitController.createRecord
 );
 
