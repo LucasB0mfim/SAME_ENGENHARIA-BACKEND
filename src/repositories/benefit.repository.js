@@ -22,13 +22,13 @@ class BenefitRepository {
         }
     }
 
-    async createEmployee(nome, posicao, setor, contrato, centro_custo, vr, vt, vc, vem) {
+    async createEmployee(nome, funcao, setor, contrato, centro_custo, vr, vt, vc, vem) {
         try {
             const { data, error } = await dataBase
                 .from('beneficiary')
                 .insert({
                     nome: nome,
-                    posicao: posicao,
+                    funcao: funcao,
                     setor: setor,
                     contrato: contrato,
                     centro_custo: centro_custo,
@@ -51,13 +51,13 @@ class BenefitRepository {
         }
     }
 
-    async update(id, nome, posicao, setor, contrato, centro_custo, vr, vt, vc, vem) {
+    async update(id, nome, funcao, setor, contrato, centro_custo, vr, vt, vc, vem) {
         try {
             const { data, error } = await dataBase
                 .from('beneficiary')
                 .update({
                     nome: nome,
-                    posicao: posicao,
+                    funcao: funcao,
                     setor: setor,
                     contrato: contrato,
                     centro_custo: centro_custo,

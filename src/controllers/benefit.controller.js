@@ -28,8 +28,8 @@ class BenefitController {
 
     async createEmployee(req, res) {
         try {
-            const { nome, posicao, setor, contrato, centro_custo, vr, vt, vc, vem } = req.body;
-            const result = await service.createEmployee(nome, posicao, setor, contrato, centro_custo, vr, vt, vc, vem);
+            const { nome, funcao, setor, contrato, centro_custo, vr, vt, vc, vem } = req.body;
+            const result = await service.createEmployee(nome, funcao, setor, contrato, centro_custo, vr, vt, vc, vem);
 
             return res.status(200).json({
                 success: true,
@@ -53,8 +53,8 @@ class BenefitController {
 
     async updateEmployee(req, res) {
         try {
-            const { id, nome, posicao, setor, contrato, centro_custo, vr, vt, vc, vem } = req.body;
-            const result = await service.updateEmployee(id, nome, posicao, setor, contrato, centro_custo, vr, vt, vc, vem);
+            const { id, nome, funcao, setor, contrato, centro_custo, vr, vt, vc, vem } = req.body;
+            const result = await service.updateEmployee(id, nome, funcao, setor, contrato, centro_custo, vr, vt, vc, vem);
 
             return res.status(200).json({
                 success: true,
