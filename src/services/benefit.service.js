@@ -6,22 +6,22 @@ class TrackingService {
         return await repository.findEmployee();
     }
 
-    async createEmployee(nome, funcao, setor, contrato, centro_custo, vr, vt, vc, vem) {
+    async createEmployee(nome, funcao, setor, contrato, centro_custo, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem) {
         
         if (!nome || !funcao || !setor || !contrato || !centro_custo) {
-            throw new AppError('Os campos "nome", "funcao", "setor", "contrato", "centro_custo", "vr", "vt", "vc", "vem" são obrigatórios.', 400);
+            throw new AppError('Os campos "nome", "funcao", "setor", "contrato", "centro_custo" são obrigatórios.', 400);
         }
         
-        return await repository.createEmployee(nome, funcao, setor, contrato, centro_custo, vr, vt, vc, vem);
+        return await repository.createEmployee(nome, funcao, setor, contrato, centro_custo, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem);
     }
 
-    async updateEmployee(id, nome, funcao, setor, contrato, centro_custo, vr, vt, vc, vem) {
+    async updateEmployee(id, nome, funcao, setor, contrato, centro_custo, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem) {
         
         if (!id || !nome || !funcao || !setor || !contrato || !centro_custo) {
-            throw new AppError('Os campos "id", "nome", "funcao", "setor", "contrato", "centro_custo", "vr", "vt", "vc", "vem" são obrigatórios.', 400);
+            throw new AppError('Os campos "id", "nome", "funcao", "setor", "contrato", "centro_custo" são obrigatórios.', 400);
         }
         
-        return await repository.update(id, nome, funcao, setor, contrato, centro_custo, vr, vt, vc, vem);
+        return await repository.update(id, nome, funcao, setor, contrato, centro_custo, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem);
     }
 
     async deleteEmployee(id) {
