@@ -28,8 +28,8 @@ class BenefitController {
 
     async createEmployee(req, res) {
         try {
-            const { nome, funcao, setor, contrato, centro_custo, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, extra } = req.body;
-            const result = await service.createEmployee(nome, funcao, setor, contrato, centro_custo, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, extra);
+            const { nome, funcao, setor, contrato, centro_custo, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem } = req.body;
+            const result = await service.createEmployee(nome, funcao, setor, contrato, centro_custo, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem);
 
             return res.status(200).json({
                 success: true,
@@ -53,8 +53,8 @@ class BenefitController {
 
     async updateEmployee(req, res) {
         try {
-            const { id, nome, funcao, setor, contrato, centro_custo, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, extra } = req.body;
-            const result = await service.updateEmployee(id, nome, funcao, setor, contrato, centro_custo, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, extra);
+            const { id, nome, funcao, setor, contrato, centro_custo, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem } = req.body;
+            const result = await service.updateEmployee(id, nome, funcao, setor, contrato, centro_custo, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem);
 
             return res.status(200).json({
                 success: true,
@@ -128,8 +128,8 @@ class BenefitController {
 
     async createRecord(req, res) {
         try {
-            const { ano_mes, dias_uteis } = req.body;
-            const result = await service.createRecord(ano_mes, dias_uteis);
+            const { ano_mes, dias_uteis, dias_nao_uteis } = req.body;
+            const result = await service.createRecord(ano_mes, dias_uteis, dias_nao_uteis);
 
             return res.status(200).json({
                 success: true,
