@@ -22,7 +22,7 @@ class BenefitRepository {
         }
     }
 
-    async createEmployee(nome, funcao, setor, contrato, centro_custo, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem) {
+    async createEmployee(nome, funcao, setor, contrato, centro_custo, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, extra) {
         try {
             const { data, error } = await dataBase
                 .from('beneficiary')
@@ -37,7 +37,8 @@ class BenefitRepository {
                     vc_caju: vc_caju,
                     vc_vr: vc_vr,
                     vt_caju: vt_caju,
-                    vt_vem: vt_vem
+                    vt_vem: vt_vem,
+                    extra: extra
                 })
                 .select('*');
 
@@ -53,7 +54,7 @@ class BenefitRepository {
         }
     }
 
-    async update(id, nome, funcao, setor, contrato, centro_custo, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem) {
+    async update(id, nome, funcao, setor, contrato, centro_custo, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, extra) {
         try {
             const { data, error } = await dataBase
                 .from('beneficiary')
@@ -69,6 +70,7 @@ class BenefitRepository {
                     vc_vr: vc_vr,
                     vt_caju: vt_caju,
                     vt_vem: vt_vem,
+                    extra: extra
                 })
                 .eq('id', id)
                 .select('*');
