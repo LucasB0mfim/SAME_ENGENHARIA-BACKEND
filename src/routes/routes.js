@@ -32,6 +32,7 @@ router.get('/employees',
 );
 
 router.get('/employee',
+    authToken,
     EmployeeController.getEmployeeByToken
 );
 

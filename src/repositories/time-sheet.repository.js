@@ -153,6 +153,27 @@ class TimeSheetsRepository {
         }
     }
 
+    async findByMonth(startDate, finalDate) {
+        try {
+            const { data, error } = await dataBase
+                .from('timesheet')
+                .select('*')
+                .gte('periodo', startDate)
+                .lte('periodo', finalDate)
+                .order('periodo', { ascending: true })
+
+            if (!data || error) {
+                logger.error('Erro ao consultar tabela timesheet.', { error });
+                throw new AppError('Erro ao consultar.', 404);
+            }
+
+            return data;
+        } catch (error) {
+            logger.error('Erro ao buscar registros na folha de ponto:', error);
+            throw error;
+        }
+    }
+
     async create(timeSheet) {
         try {
             logger.info('Controle de ponto recebido.');
