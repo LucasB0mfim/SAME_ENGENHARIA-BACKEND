@@ -105,12 +105,18 @@ class BenefitRepository {
         }
     }
 
-    async findRecord(correctDate) {
+    async findRecord(correctDate, centro_custo) {
         try {
-            const { data, error } = await dataBase
+            let query = dataBase
                 .from('beneficiaries')
                 .select('*')
-                .eq('data', correctDate)
+                .eq('data', correctDate);
+
+            if (centro_custo) {
+                query = query.eq('centro_custo', centro_custo);
+            }
+
+            const { data, error } = await query;
 
             if (error) {
                 logger.error('Erro ao consultar a tabela beneficiary:', error);

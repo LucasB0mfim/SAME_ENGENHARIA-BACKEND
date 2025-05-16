@@ -34,7 +34,7 @@ class TrackingService {
         return await repository.delete(id);
     }
 
-    async findRecord(data) {
+    async findRecord(data, centro_custo) {
         if (!data) {
             throw new AppError('O campo data é obrigatório.', 400);
         }
@@ -45,7 +45,7 @@ class TrackingService {
         const lastDay = new Date(year, month, 0).getDate();
         const finalDate = `${year}-${month}-${String(lastDay).padStart(2, '0')}`;
 
-        const employees = await repository.findRecord(startDate);
+        const employees = await repository.findRecord(startDate, centro_custo);
         const timesheet = await timesheetRepository.findByMonth(startDate, finalDate);
 
         const records = employees.map(employee => {

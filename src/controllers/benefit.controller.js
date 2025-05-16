@@ -103,8 +103,8 @@ class BenefitController {
 
     async findRecord(req, res) {
         try {
-            const { data } = req.body;
-            const result = await service.findRecord(data);
+            const { data, centro_custo } = req.body;
+            const result = await service.findRecord(data, centro_custo);
 
             return res.status(200).json({
                 success: true,
