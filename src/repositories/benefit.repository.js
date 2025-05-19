@@ -85,7 +85,7 @@ class BenefitRepository {
         }
     }
 
-    async delete(id) {
+    async update(id) {
         try {
             const { data, error } = await dataBase
                 .from('beneficiary')
@@ -151,6 +151,30 @@ class BenefitRepository {
             return data;
         } catch (error) {
             logger.error('Erro no create:', error);
+            throw error;
+        }
+    }
+
+    async updateRecord(nome, date, dias_uteis, dias_nao_uteis) {
+        try {
+            const { data, error } = await dataBase
+                .from('beneficiaries')
+                .update({
+                    dias_uteis: dias_uteis,
+                    dias_nao_uteis: dias_nao_uteis
+                })
+                .eq('nome', nome)
+                .eq('data', date)
+                .select('*');
+
+            if (error) {
+                logger.error('Erro atualizar colaborador na tabela beneficiaries:', error)
+                throw new AppError('Erro ao atualizar: ' + error.message, 500);
+            }
+
+            return data;
+        } catch (error) {
+            logger.error('Erro no update:', error);
             throw error;
         }
     }

@@ -184,5 +184,10 @@ router.post('/benefit/create-report',
     BenefitController.createRecord
 );
 
+router.post('/benefit/update',
+    authToken,
+    BenefitController.updateRecord
+);
+
 // Exportando a rota
 export default router;

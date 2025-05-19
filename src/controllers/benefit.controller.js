@@ -150,6 +150,31 @@ class BenefitController {
             });
         }
     }
+
+    async updateRecord(req, res) {
+        try {
+            const { nome, data, dias_uteis, dias_nao_uteis } = req.body;
+            const result = await service.updateRecord(nome, data, dias_uteis, dias_nao_uteis);
+
+            return res.status(200).json({
+                success: true,
+                message: 'Registro atualizado com sucesso.',
+                result
+            });
+        } catch (error) {
+            if (error.statusCode) {
+                return res.status(error.statusCode).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+
+            return res.status(500).json({
+                success: false,
+                message: 'Erro no servidor.'
+            });
+        }
+    }
 }
 
 export default new BenefitController();

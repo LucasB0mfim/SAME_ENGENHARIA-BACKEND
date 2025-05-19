@@ -102,6 +102,17 @@ class TrackingService {
 
         return await repository.createRecord(records);
     }
+
+    async updateRecord(nome, data, dias_uteis, dias_nao_uteis) {
+
+        if (!nome || !data || !dias_uteis || !dias_nao_uteis) {
+            throw new AppError('Os campos "nome", "data", "dias_uteis" e "dias_nao_uteis" são obrigatórios.', 400);
+        }
+
+        const [year, month] = data.split('-');
+        const fullData = `${year}-${month}-01`;
+        return await repository.updateRecord(nome, fullData, dias_uteis, dias_nao_uteis);
+    }
 }
 
 export default new TrackingService();
