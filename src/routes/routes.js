@@ -103,6 +103,10 @@ router.get('/reports/experience',
     ExperienceController.getExperience
 );
 
+router.get('/download/experience',
+    ExperienceController.convertToExcel,
+);
+
 router.put('/reports/experience',
     authToken,
     ExperienceController.updateModality

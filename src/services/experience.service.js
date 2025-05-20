@@ -13,6 +13,11 @@ class ExperienceService {
 
         return await repository.update(chapa, viajar, segmento);
     }
+
+    async getExperienceData() {
+        const datas = await repository.findAll();
+        return datas;
+    }
 }
 
 export default new ExperienceService();
