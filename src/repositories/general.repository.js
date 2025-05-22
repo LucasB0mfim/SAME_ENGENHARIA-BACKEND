@@ -27,7 +27,8 @@ class NoticeRepository {
         try {
             const { data, error } = await dataBase
                 .from('comment')
-                .select('*');
+                .select('*')
+                .order('created_at', { ascending: false })
 
             if (!data || error) {
                 logger.error('Não foi possível buscar os dados da tabela: ', { error });
