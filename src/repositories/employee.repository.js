@@ -131,22 +131,14 @@ class EmployeeRepository {
         try {
             logger.info('Buscando todos os colaboradores');
 
-            // const cachedEmployees = await cache.get('employees:all');
-            // if (cachedEmployees) {
-            //     logger.info('Cache hit for all employees');
-            //     return cachedEmployees;
-            // }
-
             const { data: employees, error } = await dataBase
                 .from('office')
-                .select('name, email, role, avatar')
+                .select('*')
 
             if (!employees || error) {
                 logger.error('Falha ao buscar colaboradores', { error });
                 throw new AppError('Não foi possível retornar os colaboradores.', 404);
             }
-
-            // await cache.set('employees:all', response, 1800);
 
             logger.info(`Foram encontrados ${employees.length} colaboradores`);
 

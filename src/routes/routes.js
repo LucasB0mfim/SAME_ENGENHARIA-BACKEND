@@ -11,6 +11,7 @@ import OrderController from '../controllers/order.controller.js';
 import IndicatorController from '../controllers/indicator.controller.js';
 import TiController from '../controllers/ti.controller.js';
 import BenefitController from '../controllers/benefit.controller.js';
+import GeneralController from '../controllers/general.controller.js';
 
 // Importando middlewares
 import authToken from '../middlewares/authToken.js';
@@ -191,6 +192,21 @@ router.post('/benefit/create-report',
 router.post('/benefit/update',
     authToken,
     BenefitController.updateRecord
+);
+
+router.get('/notice',
+    authToken,
+    GeneralController.getNotice
+);
+
+router.get('/comment',
+    authToken,
+    GeneralController.getComment
+);
+
+router.post('/comment',
+    authToken,
+    GeneralController.sendComment
 );
 
 // Exportando a rota
