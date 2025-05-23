@@ -85,7 +85,7 @@ class BenefitRepository {
         }
     }
 
-    async update(id) {
+    async delete(id) {
         try {
             const { data, error } = await dataBase
                 .from('beneficiary')
