@@ -153,21 +153,39 @@ class TimeSheetsRepository {
         }
     }
 
-    async findByMonth(startDate, finalDate) {
-        try {
-            const { data, error } = await dataBase
-                .from('timesheet')
-                .select('*')
-                .gte('periodo', startDate)
-                .lte('periodo', finalDate)
-                .order('periodo', { ascending: true })
+    async findByMonth(startDate, endDate) {
+        const perPage = 1000;
+        let page = 0;
+        let allData = [];
+        let hasMore = true;
 
-            if (!data || error) {
-                logger.error('Erro ao consultar tabela timesheet.', { error });
-                throw new AppError('Erro ao consultar.', 404);
+        try {
+            while (hasMore) {
+                const from = page * perPage;
+                const to = from + perPage - 1;
+
+                const { data, error } = await dataBase
+                    .from('timesheet')
+                    .select('*')
+                    .gte('periodo', startDate)
+                    .lte('periodo', endDate)
+                    .range(from, to);
+
+                if (error) {
+                    logger.error('Erro ao consultar tabela timesheet.', { error });
+                    throw new AppError('Erro ao consultar tabela timesheet.', 500);
+                }
+
+                if (data) {
+                    allData = allData.concat(data);
+                    hasMore = data.length === perPage;
+                    page++;
+                } else {
+                    hasMore = false;
+                }
             }
 
-            return data;
+            return allData;
         } catch (error) {
             logger.error('Erro ao buscar registros na folha de ponto:', error);
             throw error;

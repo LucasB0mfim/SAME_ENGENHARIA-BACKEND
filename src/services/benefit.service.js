@@ -39,14 +39,49 @@ class TrackingService {
             throw new AppError('O campo data é obrigatório.', 400);
         }
 
+        if (data.split('-')[1] < 1 || data.split('-')[1] > 12) {
+            throw new AppError('Mês inválido.', 400);
+        }
+
+        const CurrentDate = new Date().getFullYear();
+
+        if (data.split('-')[0] < 2025 || data.split('-')[0] > CurrentDate) {
+            throw new AppError('Ano inválido.', 400);
+        }
+
         const [year, month] = data.split('-');
 
-        const startDate = `${year}-${month}-01`;
-        const lastDay = new Date(year, month, 0).getDate();
-        const finalDate = `${year}-${month}-${String(lastDay).padStart(2, '0')}`;
+        const date = `${year}-${month}-01`;
 
-        const employees = await repository.findRecord(startDate, centro_custo);
-        const timesheet = await timesheetRepository.findByMonth(startDate, finalDate);
+        const monthNumber = Number(month);
+
+        let lastMonth = '';
+        let monthBeforeLast = '';
+        let lastYear = year;
+        let yearBeforeLast = year;
+
+        if (monthNumber === 1) {
+            lastMonth = '12';
+            lastYear = (Number(year) - 1).toString();
+
+            monthBeforeLast = '11';
+            yearBeforeLast = (Number(year) - 1).toString();
+        } else if (monthNumber === 2) {
+            lastMonth = '01';
+            lastYear = year;
+
+            monthBeforeLast = '12';
+            yearBeforeLast = (Number(year) - 1).toString();
+        } else {
+            lastMonth = (monthNumber - 1).toString().padStart(2, '0');
+            monthBeforeLast = (monthNumber - 2).toString().padStart(2, '0');
+        }
+
+        const firstMonth = `${yearBeforeLast}-${monthBeforeLast}-16`;
+        const secondMonth = `${lastYear}-${lastMonth}-15`;
+
+        const employees = await repository.findRecord(date, centro_custo);
+        const timesheet = await timesheetRepository.findByMonth(firstMonth, secondMonth);
 
         const records = employees.map(employee => {
             const mergeData = timesheet
