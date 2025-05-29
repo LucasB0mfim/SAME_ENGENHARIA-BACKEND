@@ -53,7 +53,7 @@ router.delete('/employee',
     EmployeeController.deleteEmployee
 );
 
-router.post('/auth/employee/login',
+router.post('auth/employee/login',
     authLogin(loginSchema),
     EmployeeController.authenticateEmployee
 );
