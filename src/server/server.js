@@ -22,7 +22,7 @@ app.use(bodyParser.json());
 app.use(cors(config));
 
 // Rota padrão para todos os endpoints
-app.use(routes);
+app.use('/api', routes);
 
 // Responsável por escutar a porta definida pela variável 'PORT'
 app.listen(PORT, () => {
