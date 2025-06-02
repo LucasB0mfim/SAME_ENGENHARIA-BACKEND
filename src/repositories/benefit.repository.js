@@ -110,7 +110,8 @@ class BenefitRepository {
             let query = dataBase
                 .from('beneficiaries')
                 .select('*')
-                .eq('data', correctDate);
+                .eq('data', correctDate)
+                .order('nome', { ascending: true });
 
             if (centro_custo) {
                 query = query.eq('centro_custo', centro_custo);
