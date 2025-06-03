@@ -17,6 +17,7 @@ class TimeSheetsRepository {
                 const { data: records, error } = await dataBase
                     .from('timesheet')
                     .select('*')
+                    .order('nome', { ascending: true })
                     .order('periodo', { ascending: true })
                     .range(currentPage * recordsPage, (currentPage + 1) * recordsPage - 1);
 
@@ -109,7 +110,9 @@ class TimeSheetsRepository {
 
             let query = dataBase
                 .from('timesheet')
-                .select('*');
+                .select('*')
+                .order('nome', { ascending: true })
+                .order('periodo', { ascending: true })
 
             // Filtros específicos para cada status
             if (status === 'Injustificado') {

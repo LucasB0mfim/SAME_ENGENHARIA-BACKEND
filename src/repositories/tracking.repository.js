@@ -6,7 +6,7 @@ class TrackingRepository {
     async findAll() {
         let connection;
         try {
-            logger.info('Buscando registros de pedidos.')
+            logger.info('Buscando registros de pedidos.');
 
             connection = await pool.connect();
             const result = await connection.request().query('exec tracking');
@@ -18,7 +18,9 @@ class TrackingRepository {
 
             logger.info(`${result.recordset.length} registros encontrados.`);
 
-            return result.recordset;
+            const orderedResult = result.recordset.sort((a, b) => b.id - a.id);
+
+            return orderedResult;
         } catch (error) {
             logger.error('Erro ao sincronizar pedidos.', { error });
             throw error;

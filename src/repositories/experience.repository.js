@@ -8,7 +8,8 @@ class ExperienceRepository {
         try {
             const { data, error } = await dataBase
                 .from('experience')
-                .select('*');
+                .select('*')
+                .order('funcionario', { ascending: true });
 
             if (!data || error) {
                 logger.error('Não foi possível buscar os dados da tabela: ', { error });
