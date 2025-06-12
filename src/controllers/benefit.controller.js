@@ -1,3 +1,6 @@
+import fs from 'fs';
+import path from 'path';
+
 import service from '../services/benefit.service.js';
 
 class BenefitController {
@@ -175,6 +178,27 @@ class BenefitController {
             });
         }
     }
-}
+
+    async generatePaymentFile(req, res) {
+        try {
+            const { data } = req.body;
+            const { conteudo, nomeArquivo } = await service.generatePaymentFile(data);
+            res.setHeader('Content-Type', 'text/plain');
+            res.setHeader('Content-Disposition', `attachment; filename="${nomeArquivo}"`);
+            return res.status(200).send(conteudo);
+        } catch (error) {
+            if (error.statusCode) {
+                return res.status(error.statusCode).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+            return res.status(500).json({
+                success: false,
+                message: 'Erro no servidor.'
+            });
+        }
+    }
+};
 
 export default new BenefitController();

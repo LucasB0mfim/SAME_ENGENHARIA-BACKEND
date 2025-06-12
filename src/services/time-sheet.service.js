@@ -85,7 +85,7 @@ class TimeSheetsService {
                     const headers = {
                         periodo: formattedDate,
                         chapa: removeSpace["Matrícula"] === "-" ? null : removeSpace["Matrícula"],
-                        nome: removeSpace["Nome"],
+                        nome: removeSpace["Nome"].toUpperCase(),
                         jornada_realizada: "08:00:00",
                         falta: "NÃO CONSTA",
                         evento_abono: "Dia extra",
