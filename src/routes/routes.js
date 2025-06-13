@@ -196,7 +196,6 @@ router.post('/benefit/update',
 );
 
 router.post('/benefit/txt',
-    authToken,
     BenefitController.donwloadVrTxt
 );
 
