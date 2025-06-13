@@ -179,10 +179,10 @@ class BenefitController {
         }
     }
 
-    async generatePaymentFile(req, res) {
+    async donwloadVrTxt(req, res) {
         try {
             const { data } = req.body;
-            const { conteudo, nomeArquivo } = await service.generatePaymentFile(data);
+            const { conteudo, nomeArquivo } = await service.generateVrTxt(data);
             res.setHeader('Content-Type', 'text/plain');
             res.setHeader('Content-Disposition', `attachment; filename="${nomeArquivo}"`);
             return res.status(200).send(conteudo);

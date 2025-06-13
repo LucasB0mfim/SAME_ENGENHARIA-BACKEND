@@ -145,6 +145,150 @@ class TrackingService {
         return await repository.updateRecord(nome, fullData, dias_uteis, dias_nao_uteis);
     }
 
+    async generateVrTxt(data) {
+
+        if (!data) {
+            throw new AppError('O campo "data" é obrigatório.', 400);
+        }
+
+        const employeeCPF = await this.findEmployee();
+        const employeeValue = await this.findRecord(data, null);
+
+        // Mapear beneficiários, filtrando por vr_vr > 0
+        const beneficiarios = employeeValue
+            .filter((item) => item.vr_vr && item.vr_vr > 0).map((employee) => {
+
+                if (!employee.nome) {
+                    return null;
+                }
+
+                const employeeData = employeeCPF.find((item) => {
+                    return item.nome && employee.nome && item.nome.trim().toUpperCase() === employee.nome.trim().toUpperCase();
+                });
+
+                if (!employeeData) {
+                    return null;
+                }
+
+                return {
+                    cpf: String(employeeData.cpf) || 'N/A',
+                    nome: employee.nome || 'N/A',
+                    data_nascimento: this.#formatedDate(employeeData.data_nascimento) || 'N/A',
+                    valor: employee.total || 0
+                };
+            }).filter(item => item !== null);
+
+        const agora = new Date();
+        const dataHora = [
+            agora.getDate().toString().padStart(2, '0'),
+            (agora.getMonth() + 1).toString().padStart(2, '0'),
+            agora.getFullYear(),
+            agora.getHours().toString().padStart(2, '0'),
+            agora.getMinutes().toString().padStart(2, '0'),
+            agora.getSeconds().toString().padStart(2, '0')
+        ];
+
+        const nomeArquivo = `23187835000106_${dataHora[0]}${dataHora[1]}${dataHora[2]}${dataHora[3]}${dataHora[4]}${dataHora[5]}.txt`;
+        const CNPJ = '23187835000106';
+        const DATA_PROCESSAMENTO = dataHora.slice(0, 3).join('');
+
+        let numeroLinha = 1;
+
+        // Linha 0 - Cabeçalho da empresa
+        const linha0 = this.#posicionarCampos([
+            { texto: '00011' + CNPJ + 'SAME CONSTRUTORA LTDA', coluna: 1 },
+            { texto: this.#padZeros(numeroLinha++, 9), coluna: 342 }
+        ]) + '\n';
+
+        // Linha 1 - Endereço da empresa
+        const linha1 = this.#posicionarCampos([
+            { texto: '10' + CNPJ + '01', coluna: 1 },
+            { texto: 'Same Construtora ltda', coluna: 47 },
+            { texto: 'Rua', coluna: 127 },
+            { texto: 'Arthur Lopes', coluna: 147 },
+            { texto: '000218B', coluna: 187 },
+            { texto: 'Imbiribeira', coluna: 213 },
+            { texto: 'Recife', coluna: 243 },
+            { texto: 'PE51200180', coluna: 273 },
+            { texto: 'Recursos Humanos', coluna: 273 + 'PE51200180'.length },
+            { texto: this.#padZeros(numeroLinha++, 9), coluna: 342 }
+        ]) + '\n';
+
+        // Linhas dos beneficiários
+        let linhasBeneficiarios = [];
+        let linhasValores = [];
+
+        beneficiarios.forEach((beneficiario) => {
+            const cpfFormatado = beneficiario.cpf.replace(/\D/g, '').padStart(11, '0');
+            const linhaBeneficiario = this.#posicionarCampos([
+                { texto: '30' + CNPJ + cpfFormatado + '01', coluna: 1 },
+                { texto: beneficiario.nome, coluna: 80 },
+                { texto: beneficiario.data_nascimento.replace(/\D/g, ''), coluna: 144 },
+                { texto: this.#padZeros(numeroLinha++, 9), coluna: 342 }
+            ]) + '\n';
+            linhasBeneficiarios.push(linhaBeneficiario);
+        });
+
+        // Linha de separação (código 50)
+        const linhaSeparacao = this.#posicionarCampos([
+            { texto: '50' + CNPJ + 'MBF' + DATA_PROCESSAMENTO, coluna: 1 },
+            { texto: this.#padZeros(numeroLinha++, 9), coluna: 342 }
+        ]) + '\n';
+
+        // Linhas de valores
+        beneficiarios.forEach((beneficiario) => {
+            const cpfFormatado = beneficiario.cpf.replace(/\D/g, '').padStart(11, '0');
+            const valorFormatado = this.#padZeros(Math.round(beneficiario.valor * 100), 11);
+            const linhaValor = this.#posicionarCampos([
+                { texto: '60' + CNPJ + 'MBF' + cpfFormatado, coluna: 1 },
+                { texto: valorFormatado, coluna: 71 },
+                { texto: this.#padZeros(numeroLinha++, 9), coluna: 342 }
+            ]) + '\n';
+            linhasValores.push(linhaValor);
+        });
+
+        // Linha final (código 99)
+        const linhaFinal = this.#posicionarCampos([
+            { texto: '99' + CNPJ, coluna: 1 },
+            { texto: this.#padZeros(numeroLinha++, 9), coluna: 342 }
+        ]) + '\n';
+
+        // Juntar todas as linhas
+        const conteudo = linha0 + linha1 + linhasBeneficiarios.join('') + linhaSeparacao + linhasValores.join('') + linhaFinal;
+
+        console.log(`Layout VR gerado com sucesso: ${nomeArquivo}`);
+
+        return {
+            nomeArquivo,
+            conteudo
+        };
+    }
+
+    #formatedDate(date) {
+        const [year, month, day] = date.split("-");
+        return `${day}${month}${year}`
+    }
+
+    // MÉTODOS AUXILIARES PARA GERAR TXT
+    #posicionarCampos(campos) {
+        let linha = '';
+        let posicaoAtual = 1;
+        campos.forEach(({ texto, coluna }) => {
+            while (posicaoAtual < coluna) {
+                linha += ' ';
+                posicaoAtual++;
+            }
+            linha += texto;
+            posicaoAtual += texto.length;
+        });
+        return linha;
+    }
+
+    #padZeros(value, length) {
+        return value.toString().padStart(length, '0');
+    }
+
+    // MÉTODOS AUXILIARES PARA CÁLCULOS
     #calculateVrCajuDay(item) {
         const vr = item.vr_caju;
         return vr > 50 ? vr / item.dias_uteis : vr;
@@ -158,7 +302,6 @@ class TrackingService {
     #calculateVrCajuMonth(item) {
         const vrDay = this.#calculateVrCajuDay(item);
         const daysWorked = this.#daysWorked(item.dias_uteis, item.timesheet, item.contrato);
-
         if (vrDay > 25 && vrDay < 35) {
             return parseFloat((vrDay * (daysWorked + item.dias_nao_uteis)).toFixed(2));
         }
@@ -168,7 +311,6 @@ class TrackingService {
     #calculateVrVrMonth(item) {
         const vrDay = this.#calculateVrVrDay(item);
         const daysWorked = this.#daysWorked(item.dias_uteis, item.timesheet, item.contrato);
-
         if (vrDay > 25 && vrDay < 35) {
             return parseFloat((vrDay * (daysWorked + item.dias_nao_uteis)).toFixed(2));
         }
@@ -189,18 +331,16 @@ class TrackingService {
         const vrDay = this.#calculateVrCajuDay(item);
         const vtDay = this.#calculateVtCajuDay(item);
         const daysWorked = this.#daysWorked(item.dias_uteis, item.timesheet, item.contrato);
-
         if (vrDay > 25 && vrDay < 35) {
             return parseFloat((vtDay * (daysWorked + item.dias_nao_uteis)).toFixed(2));
         }
-        return parseFloat((vtDay * daysWorked).toFixed(2));
+        return parseFloat((vrDay * daysWorked).toFixed(2));
     }
 
     #calculateVtVemMonth(item) {
         const vrDay = this.#calculateVrDay(item);
         const vtDay = this.#calculateVtVemDay(item);
         const daysWorked = this.#daysWorked(item.dias_uteis, item.timesheet, item.contrato);
-
         if (vrDay > 25 && vrDay < 35) {
             return parseFloat((vtDay * (daysWorked + item.dias_nao_uteis)).toFixed(2));
         }
@@ -237,7 +377,6 @@ class TrackingService {
     #calculateVrMonth(item) {
         const vrDay = this.#calculateVrDay(item);
         const daysWorked = this.#daysWorked(item.dias_uteis, item.timesheet, item.contrato);
-
         if (vrDay > 25 && vrDay < 35) {
             return parseFloat((vrDay * (daysWorked + item.dias_nao_uteis)).toFixed(2));
         }
@@ -254,7 +393,6 @@ class TrackingService {
         const vtDay = this.#calculateVtDay(item);
         const vtFixed = item.vt_caju + item.vt_vem;
         const daysWorked = this.#daysWorked(item.dias_uteis, item.timesheet, item.contrato);
-
         if (vtFixed > 50) {
             return vtFixed;
         } else if (vrDay > 25 && vrDay < 35) {
@@ -277,7 +415,6 @@ class TrackingService {
         return parseFloat((this.#calculateVtMonth(item) + this.#calculateVrMonth(item) + this.#calculateVcMonth(item)).toFixed(2));
     }
 
-    // ========== MÉTODOS AUXILIARES ========== //
     #daysWorked(businessDays, timesheet, contract) {
         if (contract === 'ESTÁGIO') {
             return businessDays - this.#medicalCertificateCounter(timesheet);

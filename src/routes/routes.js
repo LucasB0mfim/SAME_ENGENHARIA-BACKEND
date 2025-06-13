@@ -195,6 +195,11 @@ router.post('/benefit/update',
     BenefitController.updateRecord
 );
 
+router.post('/benefit/txt',
+    authToken,
+    BenefitController.donwloadVrTxt
+);
+
 router.get('/notice',
     authToken,
     GeneralController.getNotice
