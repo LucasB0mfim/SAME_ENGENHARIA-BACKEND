@@ -9,7 +9,6 @@ import ExperienceController from '../controllers/experience.controller.js';
 import TrackingController from '../controllers/tracking.controller.js';
 import OrderController from '../controllers/order.controller.js';
 import IndicatorController from '../controllers/indicator.controller.js';
-import TiController from '../controllers/ti.controller.js';
 import BenefitController from '../controllers/benefit.controller.js';
 import GeneralController from '../controllers/general.controller.js';
 
@@ -143,21 +142,6 @@ router.use('/notas_fiscais',
 router.get('/indicators/cost-center',
     authToken,
     IndicatorController.getCostCenter
-);
-
-router.get('/ti/tickets',
-    authToken,
-    TiController.getTicket
-);
-
-router.post('/ti/tickets',
-    authToken,
-    TiController.createTicket
-);
-
-router.put('/ti/tickets',
-    authToken,
-    TiController.updateTicket
 );
 
 router.get('/benefit/employee',

@@ -127,7 +127,7 @@ class TrackingService {
 
         const record = await repository.findEmployee();
         const records = record.map(item => {
-            const { id, ...rest } = item;
+            const { id, cpf, data_nascimento, ...rest } = item;
             return { ...rest, data, dias_uteis, dias_nao_uteis };
         })
 
