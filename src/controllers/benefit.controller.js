@@ -199,6 +199,31 @@ class BenefitController {
             });
         }
     }
+
+    async getBenefitMedia(req, res) {
+        try {
+            const { data, centro_custo } = req.body;
+            const result = await service.getBenefitMedia(data, centro_custo);
+
+            return res.status(200).json({
+                success: true,
+                message: 'Registro encontrados com sucesso.',
+                result
+            });
+        } catch (error) {
+            if (error.statusCode) {
+                return res.status(error.statusCode).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+
+            return res.status(500).json({
+                success: false,
+                message: 'Erro no servidor.'
+            });
+        }
+    }
 };
 
 export default new BenefitController();

@@ -3,7 +3,7 @@ import AppError from '../utils/errors/AppError.js';
 import repository from '../repositories/benefit.repository.js';
 import timesheetRepository from '../repositories/time-sheet.repository.js';
 
-class TrackingService {
+class BenefitService {
     async findEmployee() {
         return await repository.findEmployee();
     }
@@ -33,6 +33,35 @@ class TrackingService {
         }
 
         return await repository.delete(id);
+    }
+
+    async createRecord(ano_mes, dias_uteis, dias_nao_uteis) {
+
+        if (!ano_mes || !dias_uteis || !dias_nao_uteis) {
+            throw new AppError('Os campos "ano_mes" e "dias_uteis" são obrigatórios.', 400);
+        }
+
+        const [year, month] = ano_mes.split('-');
+        const data = `${year}-${month}-01`;
+
+        const record = await repository.findEmployee();
+        const records = record.map(item => {
+            const { id, cpf, data_nascimento, ...rest } = item;
+            return { ...rest, data, dias_uteis, dias_nao_uteis };
+        })
+
+        return await repository.createRecord(records);
+    }
+
+    async updateRecord(nome, data, dias_uteis, dias_nao_uteis) {
+
+        if (!nome || !data || !dias_uteis || !dias_nao_uteis) {
+            throw new AppError('Os campos "nome", "data", "dias_uteis" e "dias_nao_uteis" são obrigatórios.', 400);
+        }
+
+        const [year, month] = data.split('-');
+        const fullData = `${year}-${month}-01`;
+        return await repository.updateRecord(nome, fullData, dias_uteis, dias_nao_uteis);
     }
 
     async findRecord(data, centro_custo) {
@@ -95,54 +124,99 @@ class TrackingService {
         return dataMerge.map((item) => {
             return {
                 ...item,
-                vc_vr_month: this.#calculateVcVrMonth(item),
-                vr_caju_month: this.#calculateVrCajuMonth(item),
-                vr_vr_month: this.#calculateVrVrMonth(item),
-                vt_caju_month: this.#calculateVtCajuMonth(item),
-                vt_vem_month: this.#calculateVtVemMonth(item),
-                vc_day: this.#calculateVcDay(item),
-                vr_day: this.#calculateVrDay(item),
-                vt_day: this.#calculateVtDay(item),
-                vc_month: this.#calculateVcMonth(item),
-                vr_month: this.#calculateVrMonth(item),
-                vt_month: this.#calculateVtMonth(item),
-                vc_caju_month: this.#calculateVcCajuMonth(item),
-                total: this.#calculateBenefits(item),
-                days_worked: this.#daysWorked(item.dias_uteis, item.timesheet, item.contrato),
+                days_worked: this.#daysWorked(item),
                 extra_days: this.#extraDaysCounter(item.timesheet),
                 absences: this.#absenceCounter(item.timesheet),
-                medical_certificates: this.#medicalCertificateCounter(item.timesheet)
+                medical_certificates: this.#medicalCertificateCounter(item.timesheet),
+                vr_day: this.#vr_day(item),
+                vr_month: this.#vr_month(item),
+                vc_day: this.#vc_day(item),
+                vc_month: this.#vc_month(item),
+                vt_day: this.#vt_day(item),
+                vt_month: this.#vt_month(item),
+                total_benefit: this.#totalBenefit(item)
             }
         })
     }
 
-    async createRecord(ano_mes, dias_uteis, dias_nao_uteis) {
+    async getBenefitMedia(data, centro_custo) {
+        const records = await this.findRecord(data, centro_custo);
+        const employees = records.length;
 
-        if (!ano_mes || !dias_uteis || !dias_nao_uteis) {
-            throw new AppError('Os campos "ano_mes" e "dias_uteis" são obrigatórios.', 400);
+        // Inicializa totais
+        let total_caju = 0;
+        let vr_caju_total = 0;
+        let vc_caju_total = 0;
+        let vt_caju_total = 0;
+
+        let total_vr = 0;  // Soma exata como no TXT
+        let vr_vr_total = 0;
+        let vc_vr_total = 0;
+        let vt_vem_total = 0;
+
+        // Para cálculo das médias
+        let total_geral = 0;
+        let total_txt_mbf = 0;
+
+        for (const employee of records) {
+            // Calcula valores individuais
+            const vrCajuMonth = this.#vr_caju_month(employee);
+            const vcCajuMonth = this.#vc_caju_month(employee);
+            const vtCajuMonth = this.#vt_caju_month(employee);
+
+            const vrVrMonth = this.#vr_vr_month(employee);
+            const vcVrMonth = this.#vc_vr_month(employee);
+            const vtVemMonth = this.#vt_vem_month(employee);
+
+            // Soma para totais CAJU (todos os funcionários)
+            vr_caju_total += vrCajuMonth;
+            vc_caju_total += vcCajuMonth;
+            vt_caju_total += vtCajuMonth;
+            total_caju += vrCajuMonth + vcCajuMonth + vtCajuMonth;
+
+            // Soma para totais VR (apenas funcionários com vr_vr > 0, como no TXT)
+            if (employee.vr_vr > 0) {
+                const vrMonth = this.#vr_month(employee);
+                const vcMonth = this.#vc_month(employee);
+                const valorVR = Math.round((vrMonth + vcMonth) * 100) / 100;
+
+                total_vr += valorVR;
+                total_txt_mbf += valorVR;
+
+                // Atualiza totais VR/VC separadamente (opcional, se necessário para relatórios)
+                vr_vr_total += vrVrMonth;
+                vc_vr_total += vcVrMonth;
+            }
+
+            // Soma VT VEM (todos os funcionários)
+            vt_vem_total += vtVemMonth;
+
+            // Total geral (todos os benefícios de todos os funcionários)
+            total_geral += vrCajuMonth + vcCajuMonth + vtCajuMonth +
+                vrVrMonth + vcVrMonth + vtVemMonth;
         }
 
-        const [year, month] = ano_mes.split('-');
-        const data = `${year}-${month}-01`;
+        // Cálculo das médias
+        const total_media = employees > 0 ? total_geral / employees : 0;
+        const vr_media = employees > 0 ? (vr_caju_total + vr_vr_total) / employees : 0;
+        const vt_media = employees > 0 ? (vt_caju_total + vt_vem_total) / employees : 0;
 
-        const record = await repository.findEmployee();
-        const records = record.map(item => {
-            const { id, cpf, data_nascimento, ...rest } = item;
-            return { ...rest, data, dias_uteis, dias_nao_uteis };
-        })
-
-        return await repository.createRecord(records);
-    }
-
-    async updateRecord(nome, data, dias_uteis, dias_nao_uteis) {
-
-        if (!nome || !data || !dias_uteis || !dias_nao_uteis) {
-            throw new AppError('Os campos "nome", "data", "dias_uteis" e "dias_nao_uteis" são obrigatórios.', 400);
-        }
-
-        const [year, month] = data.split('-');
-        const fullData = `${year}-${month}-01`;
-        return await repository.updateRecord(nome, fullData, dias_uteis, dias_nao_uteis);
+        return {
+            total_caju: Number(total_caju.toFixed(2)),
+            vr_caju_total: Number(vr_caju_total.toFixed(2)),
+            vc_caju_total: Number(vc_caju_total.toFixed(2)),
+            vt_caju_total: Number(vt_caju_total.toFixed(2)),
+            total_vr: Number(total_vr.toFixed(2)),  // Valor que deve bater com o TXT
+            vr_vr_total: Number(vr_vr_total.toFixed(2)),
+            vc_vr_total: Number(vc_vr_total.toFixed(2)),
+            vt_vem_total: Number(vt_vem_total.toFixed(2)),
+            total_geral: Number(total_geral.toFixed(2)),
+            total_media: total_media.toFixed(2),
+            vr_media: Number(vr_media.toFixed(2)),
+            vt_media: Number(vt_media.toFixed(2)),
+            total_txt_mbf: Number(total_txt_mbf.toFixed(2)),  // Deve ser igual a total_vr
+            employees
+        };
     }
 
     async generateVrTxt(data) {
@@ -174,7 +248,7 @@ class TrackingService {
                     cpf: String(employeeData.cpf) || 'N/A',
                     nome: employee.nome || 'N/A',
                     data_nascimento: this.#formatedDate(employeeData.data_nascimento) || 'N/A',
-                    valor: employee.total || 0
+                    valor: this.#calculateVR(employee.vr_month, employee.vc_month) || 0
                 };
             }).filter(item => item !== null);
 
@@ -264,162 +338,144 @@ class TrackingService {
         };
     }
 
-    #formatedDate(date) {
-        const [year, month, day] = date.split("-");
-        return `${day}${month}${year}`
-    }
+    // ========== MÉTODOS PARA CALCUAR BENEFÍCIOS ========== //
+    #vr_day(employee) {
+        const vr_day = employee.vr_caju + employee.vr_vr;
 
-    // MÉTODOS AUXILIARES PARA GERAR TXT
-    #posicionarCampos(campos) {
-        let linha = '';
-        let posicaoAtual = 1;
-        campos.forEach(({ texto, coluna }) => {
-            while (posicaoAtual < coluna) {
-                linha += ' ';
-                posicaoAtual++;
-            }
-            linha += texto;
-            posicaoAtual += texto.length;
-        });
-        return linha;
-    }
-
-    #padZeros(value, length) {
-        return value.toString().padStart(length, '0');
-    }
-
-    // MÉTODOS AUXILIARES PARA CÁLCULOS
-    #calculateVrCajuDay(item) {
-        const vr = item.vr_caju;
-        return vr > 50 ? vr / item.dias_uteis : vr;
-    }
-
-    #calculateVrVrDay(item) {
-        const vr = item.vr_vr;
-        return vr > 50 ? vr / item.dias_uteis : vr;
-    }
-
-    #calculateVrCajuMonth(item) {
-        const vrDay = this.#calculateVrCajuDay(item);
-        const daysWorked = this.#daysWorked(item.dias_uteis, item.timesheet, item.contrato);
-        if (vrDay > 25 && vrDay < 35) {
-            return parseFloat((vrDay * (daysWorked + item.dias_nao_uteis)).toFixed(2));
+        if (vr_day > 100) {
+            return vr_day / employee.dias_uteis;
+        } else {
+            return vr_day;
         }
-        return parseFloat((vrDay * daysWorked).toFixed(2));
     }
 
-    #calculateVrVrMonth(item) {
-        const vrDay = this.#calculateVrVrDay(item);
-        const daysWorked = this.#daysWorked(item.dias_uteis, item.timesheet, item.contrato);
-        if (vrDay > 25 && vrDay < 35) {
-            return parseFloat((vrDay * (daysWorked + item.dias_nao_uteis)).toFixed(2));
+    #vr_month(employee) {
+        const vr_day = employee.vr_caju + employee.vr_vr;
+
+        if (vr_day > 100) {
+            return Number((vr_day).toFixed(2));
+        } else if (vr_day > 25) {
+            return Number((vr_day * this.#daysWorked(employee)).toFixed(2));
+        } else {
+            return Number((vr_day * this.#daysWorked(employee)).toFixed(2));
         }
-        return parseFloat((vrDay * daysWorked).toFixed(2));
     }
 
-    #calculateVtCajuDay(item) {
-        const vtDay = item.vt_caju;
-        return vtDay > 50 ? vtDay / item.dias_uteis : vtDay;
-    }
+    #vr_caju_month(employee) {
+        const vr_day = employee.vr_caju;
 
-    #calculateVtVemDay(item) {
-        const vtDay = item.vt_vem;
-        return vtDay > 50 ? vtDay / item.dias_uteis : vtDay;
-    }
-
-    #calculateVtCajuMonth(item) {
-        const vrDay = this.#calculateVrCajuDay(item);
-        const vtDay = this.#calculateVtCajuDay(item);
-        const daysWorked = this.#daysWorked(item.dias_uteis, item.timesheet, item.contrato);
-        if (vrDay > 25 && vrDay < 35) {
-            return parseFloat((vtDay * (daysWorked + item.dias_nao_uteis)).toFixed(2));
+        if (vr_day > 100) {
+            return vr_day;
+        } else if (vr_day > 25) {
+            return vr_day * this.#daysWorked(employee);
+        } else {
+            return vr_day * this.#daysWorked(employee);
         }
-        return parseFloat((vrDay * daysWorked).toFixed(2));
     }
 
-    #calculateVtVemMonth(item) {
-        const vrDay = this.#calculateVrDay(item);
-        const vtDay = this.#calculateVtVemDay(item);
-        const daysWorked = this.#daysWorked(item.dias_uteis, item.timesheet, item.contrato);
-        if (vrDay > 25 && vrDay < 35) {
-            return parseFloat((vtDay * (daysWorked + item.dias_nao_uteis)).toFixed(2));
+    #vr_vr_month(employee) {
+        const vr_day = employee.vr_vr;
+
+        if (vr_day > 100) {
+            return vr_day;
+        } else if (vr_day > 25) {
+            return vr_day * this.#daysWorked(employee);
+        } else {
+            return vr_day * this.#daysWorked(employee);
         }
-        return parseFloat((vtDay * daysWorked).toFixed(2));
     }
 
-    #calculateVcCajuDay(item) {
-        const vcDay = item.vc_caju;
-        return vcDay > 50 ? vcDay / item.dias_uteis : vcDay;
-    }
+    #vc_day(employee) {
+        const vc_day = employee.vc_caju + employee.vc_vr;
 
-    #calculateVcVrDay(item) {
-        const vcDay = item.vc_vr;
-        return vcDay > 50 ? vcDay / item.dias_uteis : vcDay;
-    }
-
-    #calculateVcCajuMonth(item) {
-        const vcDay = this.#calculateVcCajuDay(item);
-        const daysWorked = this.#daysWorked(item.dias_uteis, item.timesheet, item.contrato);
-        return parseFloat((vcDay * daysWorked).toFixed(2));
-    }
-
-    #calculateVcVrMonth(item) {
-        const vcDay = this.#calculateVcVrDay(item);
-        const daysWorked = this.#daysWorked(item.dias_uteis, item.timesheet, item.contrato);
-        return parseFloat((vcDay * daysWorked).toFixed(2));
-    }
-
-    #calculateVrDay(item) {
-        const vr = item.vr_caju + item.vr_vr;
-        return vr > 50 ? vr / item.dias_uteis : vr;
-    }
-
-    #calculateVrMonth(item) {
-        const vrDay = this.#calculateVrDay(item);
-        const daysWorked = this.#daysWorked(item.dias_uteis, item.timesheet, item.contrato);
-        if (vrDay > 25 && vrDay < 35) {
-            return parseFloat((vrDay * (daysWorked + item.dias_nao_uteis)).toFixed(2));
+        if (vc_day > 100) {
+            return vc_day / employee.dias_uteis;
+        } else {
+            return vc_day;
         }
-        return parseFloat((vrDay * daysWorked).toFixed(2));
     }
 
-    #calculateVtDay(item) {
-        const vtDay = item.vt_caju + item.vt_vem;
-        return vtDay > 50 ? parseFloat((vtDay / item.dias_uteis).toFixed(2)) : vtDay;
-    }
+    #vc_month(employee) {
+        const vc_day = employee.vc_caju + employee.vc_vr;
 
-    #calculateVtMonth(item) {
-        const vrDay = this.#calculateVrDay(item);
-        const vtDay = this.#calculateVtDay(item);
-        const vtFixed = item.vt_caju + item.vt_vem;
-        const daysWorked = this.#daysWorked(item.dias_uteis, item.timesheet, item.contrato);
-        if (vtFixed > 50) {
-            return vtFixed;
-        } else if (vrDay > 25 && vrDay < 35) {
-            return parseFloat((vtDay * (daysWorked + item.dias_nao_uteis)).toFixed(2));
+        if (vc_day > 100) {
+            return Number((vc_day).toFixed(2));
+        } else {
+            return Number((vc_day * this.#daysWorked(employee)).toFixed(2));
         }
-        return parseFloat((vtDay * daysWorked).toFixed(2));
     }
 
-    #calculateVcDay(item) {
-        const vcDay = item.vc_caju + item.vc_vr;
-        return vcDay > 50 ? parseFloat((vcDay / item.dias_uteis).toFixed(2)) : vcDay;
-    }
+    #vc_caju_month(employee) {
+        const vc_day = employee.vc_caju;
 
-    #calculateVcMonth(item) {
-        const vcDay = this.#calculateVcDay(item);
-        return vcDay > 50 ? vcDay : parseFloat((vcDay * this.#daysWorked(item.dias_uteis, item.timesheet, item.contrato)).toFixed(2));
-    }
-
-    #calculateBenefits(item) {
-        return parseFloat((this.#calculateVtMonth(item) + this.#calculateVrMonth(item) + this.#calculateVcMonth(item)).toFixed(2));
-    }
-
-    #daysWorked(businessDays, timesheet, contract) {
-        if (contract === 'ESTÁGIO') {
-            return businessDays - this.#medicalCertificateCounter(timesheet);
+        if (vc_day > 100) {
+            return vc_day;
+        } else {
+            return vc_day * this.#daysWorked(employee);
         }
-        return businessDays + this.#extraDaysCounter(timesheet) - this.#absenceCounter(timesheet) - this.#medicalCertificateCounter(timesheet);
+    }
+
+    #vc_vr_month(employee) {
+        const vc_day = employee.vc_vr;
+
+        if (vc_day > 100) {
+            return vc_day;
+        } else {
+            return vc_day * this.#daysWorked(employee);
+        }
+    }
+
+    #vt_day(employee) {
+        const vt_day = employee.vt_caju + employee.vt_vem;
+
+        if (vt_day > 100) {
+            return vt_day / employee.dias_uteis;
+        } else {
+            return vt_day;
+        }
+    }
+
+    #vt_month(employee) {
+        const vt_day = employee.vt_caju + employee.vt_vem;
+
+        if (vt_day > 100) {
+            return Number((vt_day).toFixed(2));
+        } else {
+            return Number((vt_day * this.#daysWorked(employee)).toFixed(2));
+        }
+    }
+
+    #vt_caju_month(employee) {
+        const vt_day = employee.vt_caju;
+
+        if (vt_day > 100) {
+            return vt_day;
+        } else {
+            return vt_day * this.#daysWorked(employee);
+        }
+    }
+
+    #vt_vem_month(employee) {
+        const vt_day = employee.vt_vem;
+
+        if (vt_day > 100) {
+            return vt_day;
+        } else {
+            return vt_day * this.#daysWorked(employee);
+        }
+    }
+
+    // ========== MÉTODOS AUXILIARES ========== //
+    #daysWorked(employee) {
+        const vr_day = employee.vr_caju + employee.vr_vr;
+
+        if (employee.contrato === 'ESTÁGIO') {
+            return employee.dias_uteis - this.#medicalCertificateCounter(employee.timesheet);
+        } else if (vr_day > 25 && vr_day < 50) {
+            return employee.dias_uteis + employee.dias_nao_uteis - this.#absenceCounter(employee.timesheet) - this.#medicalCertificateCounter(employee.timesheet);
+        } else {
+            return employee.dias_uteis + this.#extraDaysCounter(employee.timesheet) - this.#absenceCounter(employee.timesheet) - this.#medicalCertificateCounter(employee.timesheet);
+        }
     }
 
     #extraDaysCounter(timesheet) {
@@ -446,6 +502,39 @@ class TrackingService {
         const dayOfWeek = date.getDay();
         return dayOfWeek === 0 || dayOfWeek === 6;
     }
+
+    #totalBenefit(employee) {
+        return Number((this.#vr_month(employee) + this.#vc_month(employee) + this.#vt_month(employee)).toFixed(2));
+    }
+
+    // ========== MÉTODOS PARA GERAR TXT ========== //
+    #formatedDate(date) {
+        const [year, month, day] = date.split("-");
+        return `${day}${month}${year}`
+    }
+
+    #calculateVR(vr, vc) {
+        // Garantir o mesmo arredondamento que no getBenefitMedia
+        return Math.round((vr + vc) * 100) / 100;
+    }
+
+    #posicionarCampos(campos) {
+        let linha = '';
+        let posicaoAtual = 1;
+        campos.forEach(({ texto, coluna }) => {
+            while (posicaoAtual < coluna) {
+                linha += ' ';
+                posicaoAtual++;
+            }
+            linha += texto;
+            posicaoAtual += texto.length;
+        });
+        return linha;
+    }
+
+    #padZeros(value, length) {
+        return value.toString().padStart(length, '0');
+    }
 }
 
-export default new TrackingService();
+export default new BenefitService();

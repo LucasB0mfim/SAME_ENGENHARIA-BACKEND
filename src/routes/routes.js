@@ -169,6 +169,11 @@ router.post('/benefit/find-report',
     BenefitController.findRecord
 );
 
+router.post('/benefit/medias',
+    authToken,
+    BenefitController.getBenefitMedia
+);
+
 router.post('/benefit/create-report',
     authToken,
     BenefitController.createRecord
