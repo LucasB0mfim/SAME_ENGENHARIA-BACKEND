@@ -2,6 +2,7 @@ import AppError from '../utils/errors/AppError.js';
 
 import repository from '../repositories/benefit.repository.js';
 import timesheetRepository from '../repositories/time-sheet.repository.js';
+import logger from '../utils/logger/winston.js';
 
 class BenefitService {
     async findEmployee() {
@@ -46,7 +47,7 @@ class BenefitService {
 
         const record = await repository.findEmployee();
         const records = record.map(item => {
-            const { id, cpf, data_nascimento, ...rest } = item;
+            const { id, ...rest } = item;
             return { ...rest, data, dias_uteis, dias_nao_uteis };
         })
 
@@ -141,116 +142,70 @@ class BenefitService {
 
     async getBenefitMedia(data, centro_custo) {
         const records = await this.findRecord(data, centro_custo);
-        const employees = records.length;
 
-        // Inicializa totais
-        let total_caju = 0;
-        let vr_caju_total = 0;
-        let vc_caju_total = 0;
-        let vt_caju_total = 0;
+        const vr_vr_total = records.reduce((acc, value) => {
+            if (value.vr_vr > 0) return acc + value.vr_month;
+            return acc;
+        }, 0);
 
-        let total_vr = 0;  // Soma exata como no TXT
-        let vr_vr_total = 0;
-        let vc_vr_total = 0;
-        let vt_vem_total = 0;
+        const vc_vr_total = records.reduce((acc, value) => {
+            if (value.vc_vr > 0) return acc + value.vc_month;
+            return acc;
+        }, 0);
 
-        // Para cálculo das médias
-        let total_geral = 0;
-        let total_txt_mbf = 0;
+        const vt_vem_total = records.reduce((acc, value) => {
+            if (value.vt_vem > 0) return acc + value.vt_month;
+            return acc;
+        }, 0);
 
-        for (const employee of records) {
-            // Calcula valores individuais
-            const vrCajuMonth = this.#vr_caju_month(employee);
-            const vcCajuMonth = this.#vc_caju_month(employee);
-            const vtCajuMonth = this.#vt_caju_month(employee);
+        const vr_caju_total = records.reduce((acc, value) => {
+            if (value.vr_caju > 0) return acc + value.vr_month;
+            return acc;
+        }, 0);
 
-            const vrVrMonth = this.#vr_vr_month(employee);
-            const vcVrMonth = this.#vc_vr_month(employee);
-            const vtVemMonth = this.#vt_vem_month(employee);
+        const vc_caju_total = records.reduce((acc, value) => {
+            if (value.vc_caju > 0) return acc + value.vc_month;
+            return acc;
+        }, 0);
 
-            // Soma para totais CAJU (todos os funcionários)
-            vr_caju_total += vrCajuMonth;
-            vc_caju_total += vcCajuMonth;
-            vt_caju_total += vtCajuMonth;
-            total_caju += vrCajuMonth + vcCajuMonth + vtCajuMonth;
+        const vt_caju_total = records.reduce((acc, value) => {
+            if (value.vt_caju > 0) return acc + value.vt_month;
+            return acc;
+        }, 0);
 
-            // Soma para totais VR (apenas funcionários com vr_vr > 0, como no TXT)
-            if (employee.vr_vr > 0) {
-                const vrMonth = this.#vr_month(employee);
-                const vcMonth = this.#vc_month(employee);
-                const valorVR = Math.round((vrMonth + vcMonth) * 100) / 100;
-
-                total_vr += valorVR;
-                total_txt_mbf += valorVR;
-
-                // Atualiza totais VR/VC separadamente (opcional, se necessário para relatórios)
-                vr_vr_total += vrVrMonth;
-                vc_vr_total += vcVrMonth;
-            }
-
-            // Soma VT VEM (todos os funcionários)
-            vt_vem_total += vtVemMonth;
-
-            // Total geral (todos os benefícios de todos os funcionários)
-            total_geral += vrCajuMonth + vcCajuMonth + vtCajuMonth +
-                vrVrMonth + vcVrMonth + vtVemMonth;
-        }
-
-        // Cálculo das médias
-        const total_media = employees > 0 ? total_geral / employees : 0;
-        const vr_media = employees > 0 ? (vr_caju_total + vr_vr_total) / employees : 0;
-        const vt_media = employees > 0 ? (vt_caju_total + vt_vem_total) / employees : 0;
+        const total_vr = vr_vr_total + vc_vr_total
+        const total_caju = vr_caju_total + vc_caju_total + vt_caju_total;
+        const total_geral = total_vr + total_caju + vt_vem_total;
 
         return {
-            total_caju: Number(total_caju.toFixed(2)),
-            vr_caju_total: Number(vr_caju_total.toFixed(2)),
-            vc_caju_total: Number(vc_caju_total.toFixed(2)),
-            vt_caju_total: Number(vt_caju_total.toFixed(2)),
-            total_vr: Number(total_vr.toFixed(2)),  // Valor que deve bater com o TXT
-            vr_vr_total: Number(vr_vr_total.toFixed(2)),
-            vc_vr_total: Number(vc_vr_total.toFixed(2)),
-            vt_vem_total: Number(vt_vem_total.toFixed(2)),
-            total_geral: Number(total_geral.toFixed(2)),
-            total_media: total_media.toFixed(2),
-            vr_media: Number(vr_media.toFixed(2)),
-            vt_media: Number(vt_media.toFixed(2)),
-            total_txt_mbf: Number(total_txt_mbf.toFixed(2)),  // Deve ser igual a total_vr
-            employees
-        };
+            total_vr_vr: vr_vr_total,
+            total_vc_vr: vc_vr_total,
+            total_card_vr: total_vr,
+            total_vt_vem: vt_vem_total,
+            total_vr_caju: vr_caju_total,
+            total_vc_caju: vc_caju_total,
+            total_vt_caju: vt_caju_total,
+            total_card_caju: total_caju,
+            total: total_geral
+        }
     }
 
-    async generateVrTxt(data) {
+    async generateVrTxt(data, centro_custo) {
 
-        if (!data) {
-            throw new AppError('O campo "data" é obrigatório.', 400);
-        }
+        if (!data) throw new AppError('O campo "data" é obrigatório.', 400);
+        if (!centro_custo) throw new AppError('O campo "centro_custo" é obrigatório.', 400);
 
-        const employeeCPF = await this.findEmployee();
-        const employeeValue = await this.findRecord(data, null);
+        const employeeValue = await this.findRecord(data, centro_custo);
 
-        // Mapear beneficiários, filtrando por vr_vr > 0
-        const beneficiarios = employeeValue
-            .filter((item) => item.vr_vr && item.vr_vr > 0).map((employee) => {
+        const beneficiarios = employeeValue.filter((item) => item.vr_vr && item.vr_vr > 0).map((employee) => {
 
-                if (!employee.nome) {
-                    return null;
-                }
-
-                const employeeData = employeeCPF.find((item) => {
-                    return item.nome && employee.nome && item.nome.trim().toUpperCase() === employee.nome.trim().toUpperCase();
-                });
-
-                if (!employeeData) {
-                    return null;
-                }
-
-                return {
-                    cpf: String(employeeData.cpf) || 'N/A',
-                    nome: employee.nome || 'N/A',
-                    data_nascimento: this.#formatedDate(employeeData.data_nascimento) || 'N/A',
-                    valor: this.#calculateVR(employee.vr_month, employee.vc_month) || 0
-                };
-            }).filter(item => item !== null);
+            return {
+                cpf: String(employee.cpf) || 'N/A',
+                nome: employee.nome || 'N/A',
+                data_nascimento: this.#formatedDate(employee.data_nascimento) || 'N/A',
+                valor: this.#calculateVR(employee.vr_month, employee.vc_month) || 0
+            };
+        })
 
         const agora = new Date();
         const dataHora = [
@@ -330,7 +285,7 @@ class BenefitService {
         // Juntar todas as linhas
         const conteudo = linha0 + linha1 + linhasBeneficiarios.join('') + linhaSeparacao + linhasValores.join('') + linhaFinal;
 
-        console.log(`Layout VR gerado com sucesso: ${nomeArquivo}`);
+        logger.info(`Layout VR gerado com sucesso: ${nomeArquivo}`);
 
         return {
             nomeArquivo,
@@ -351,30 +306,6 @@ class BenefitService {
 
     #vr_month(employee) {
         const vr_day = employee.vr_caju + employee.vr_vr;
-
-        if (vr_day > 100) {
-            return Number((vr_day).toFixed(2));
-        } else if (vr_day > 25) {
-            return Number((vr_day * this.#daysWorked(employee)).toFixed(2));
-        } else {
-            return Number((vr_day * this.#daysWorked(employee)).toFixed(2));
-        }
-    }
-
-    #vr_caju_month(employee) {
-        const vr_day = employee.vr_caju;
-
-        if (vr_day > 100) {
-            return vr_day;
-        } else if (vr_day > 25) {
-            return vr_day * this.#daysWorked(employee);
-        } else {
-            return vr_day * this.#daysWorked(employee);
-        }
-    }
-
-    #vr_vr_month(employee) {
-        const vr_day = employee.vr_vr;
 
         if (vr_day > 100) {
             return vr_day;
@@ -399,26 +330,6 @@ class BenefitService {
         const vc_day = employee.vc_caju + employee.vc_vr;
 
         if (vc_day > 100) {
-            return Number((vc_day).toFixed(2));
-        } else {
-            return Number((vc_day * this.#daysWorked(employee)).toFixed(2));
-        }
-    }
-
-    #vc_caju_month(employee) {
-        const vc_day = employee.vc_caju;
-
-        if (vc_day > 100) {
-            return vc_day;
-        } else {
-            return vc_day * this.#daysWorked(employee);
-        }
-    }
-
-    #vc_vr_month(employee) {
-        const vc_day = employee.vc_vr;
-
-        if (vc_day > 100) {
             return vc_day;
         } else {
             return vc_day * this.#daysWorked(employee);
@@ -439,26 +350,6 @@ class BenefitService {
         const vt_day = employee.vt_caju + employee.vt_vem;
 
         if (vt_day > 100) {
-            return Number((vt_day).toFixed(2));
-        } else {
-            return Number((vt_day * this.#daysWorked(employee)).toFixed(2));
-        }
-    }
-
-    #vt_caju_month(employee) {
-        const vt_day = employee.vt_caju;
-
-        if (vt_day > 100) {
-            return vt_day;
-        } else {
-            return vt_day * this.#daysWorked(employee);
-        }
-    }
-
-    #vt_vem_month(employee) {
-        const vt_day = employee.vt_vem;
-
-        if (vt_day > 100) {
             return vt_day;
         } else {
             return vt_day * this.#daysWorked(employee);
@@ -471,6 +362,8 @@ class BenefitService {
 
         if (employee.contrato === 'ESTÁGIO') {
             return employee.dias_uteis - this.#medicalCertificateCounter(employee.timesheet);
+        } else if (employee.funcao === 'ENCARREGADO') {
+            return employee.dias_uteis;
         } else if (vr_day > 25 && vr_day < 50) {
             return employee.dias_uteis + employee.dias_nao_uteis - this.#absenceCounter(employee.timesheet) - this.#medicalCertificateCounter(employee.timesheet);
         } else {
