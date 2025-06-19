@@ -184,7 +184,7 @@ router.post('/benefit/update',
     BenefitController.updateRecord
 );
 
-router.post('benefit/donwload/layout-vr',
+router.post('/benefit/donwload/layout-vr',
     authToken,
     BenefitController.donwloadVrTxt
 );
