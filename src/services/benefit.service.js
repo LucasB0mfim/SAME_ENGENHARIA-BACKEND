@@ -143,50 +143,67 @@ class BenefitService {
     async getBenefitMedia(data, centro_custo) {
         const records = await this.findRecord(data, centro_custo);
 
-        const vr_vr_total = records.reduce((acc, value) => {
+        const employeesLenght = records.length;
+
+        const vr_vr = records.reduce((acc, value) => {
             if (value.vr_vr > 0) return acc + value.vr_month;
             return acc;
         }, 0);
 
-        const vc_vr_total = records.reduce((acc, value) => {
+        const vc_vr = records.reduce((acc, value) => {
             if (value.vc_vr > 0) return acc + value.vc_month;
             return acc;
         }, 0);
 
-        const vt_vem_total = records.reduce((acc, value) => {
+        const vt_vem = records.reduce((acc, value) => {
             if (value.vt_vem > 0) return acc + value.vt_month;
             return acc;
         }, 0);
 
-        const vr_caju_total = records.reduce((acc, value) => {
+        const vr_caju = records.reduce((acc, value) => {
             if (value.vr_caju > 0) return acc + value.vr_month;
             return acc;
         }, 0);
 
-        const vc_caju_total = records.reduce((acc, value) => {
+        const vc_caju = records.reduce((acc, value) => {
             if (value.vc_caju > 0) return acc + value.vc_month;
             return acc;
         }, 0);
 
-        const vt_caju_total = records.reduce((acc, value) => {
+        const vt_caju = records.reduce((acc, value) => {
             if (value.vt_caju > 0) return acc + value.vt_month;
             return acc;
         }, 0);
 
-        const total_vr = vr_vr_total + vc_vr_total
-        const total_caju = vr_caju_total + vc_caju_total + vt_caju_total;
-        const total_geral = total_vr + total_caju + vt_vem_total;
+        const total_vr_card = vr_vr + vc_vr;
+        const total_caju_card = vr_caju + vc_caju + vt_caju;
+        const sum_vr = vr_vr + vr_caju;
+        const sum_vc = vc_vr + vc_caju;
+        const sum_vt = vt_vem + vt_caju;
+        const sum_cards = total_vr_card + total_caju_card;
+        const sum_all = total_vr_card + total_caju_card + vt_vem;
+        const media_all = sum_all / employeesLenght;
+        const media_vr = sum_vr / employeesLenght;
+        const media_vt = sum_vt / employeesLenght;
 
         return {
-            total_vr_vr: vr_vr_total,
-            total_vc_vr: vc_vr_total,
-            total_card_vr: total_vr,
-            total_vt_vem: vt_vem_total,
-            total_vr_caju: vr_caju_total,
-            total_vc_caju: vc_caju_total,
-            total_vt_caju: vt_caju_total,
-            total_card_caju: total_caju,
-            total: total_geral
+            employees: employeesLenght,
+            vr_caju: vr_caju,
+            vr_vr: vr_vr,
+            vc_caju: vc_caju,
+            vc_vr: vc_vr,
+            vt_caju: vt_caju,
+            vt_vem: vt_vem,
+            sum_vr: sum_vr,
+            sum_vc: sum_vc,
+            sum_vt: sum_vt,
+            total_caju: total_caju_card,
+            total_vr: total_vr_card,
+            sum_cards: sum_cards,
+            sum_all: sum_all,
+            media_all: media_all,
+            media_vr: media_vr,
+            media_vt: media_vt
         }
     }
 
@@ -197,17 +214,19 @@ class BenefitService {
 
         const employeeValue = await this.findRecord(data, centro_custo);
 
-        const beneficiarios = employeeValue.filter((item) => item.vr_vr && item.vr_vr > 0).map((employee) => {
-
-            return {
-                cpf: String(employee.cpf) || 'N/A',
-                nome: employee.nome || 'N/A',
-                data_nascimento: this.#formatedDate(employee.data_nascimento) || 'N/A',
-                valor: this.#calculateVR(employee.vr_month, employee.vc_month) || 0
-            };
-        })
+        const employeeData = employeeValue
+            .filter((item) => item.vr_vr > 0 || item.vc_vr > 0)
+            .map((employee) => {
+                return {
+                    cpf: String(employee.cpf),
+                    nome: employee.nome,
+                    data_nascimento: this.#formatedDate(employee.data_nascimento),
+                    valor: employee.vr_month + employee.vc_month
+                }
+            });
 
         const agora = new Date();
+
         const dataHora = [
             agora.getDate().toString().padStart(2, '0'),
             (agora.getMonth() + 1).toString().padStart(2, '0'),
@@ -223,13 +242,11 @@ class BenefitService {
 
         let numeroLinha = 1;
 
-        // Linha 0 - Cabeçalho da empresa
         const linha0 = this.#posicionarCampos([
             { texto: '00011' + CNPJ + 'SAME CONSTRUTORA LTDA', coluna: 1 },
             { texto: this.#padZeros(numeroLinha++, 9), coluna: 342 }
         ]) + '\n';
 
-        // Linha 1 - Endereço da empresa
         const linha1 = this.#posicionarCampos([
             { texto: '10' + CNPJ + '01', coluna: 1 },
             { texto: 'Same Construtora ltda', coluna: 47 },
@@ -243,11 +260,10 @@ class BenefitService {
             { texto: this.#padZeros(numeroLinha++, 9), coluna: 342 }
         ]) + '\n';
 
-        // Linhas dos beneficiários
         let linhasBeneficiarios = [];
         let linhasValores = [];
 
-        beneficiarios.forEach((beneficiario) => {
+        employeeData.forEach((beneficiario) => {
             const cpfFormatado = beneficiario.cpf.replace(/\D/g, '').padStart(11, '0');
             const linhaBeneficiario = this.#posicionarCampos([
                 { texto: '30' + CNPJ + cpfFormatado + '01', coluna: 1 },
@@ -258,14 +274,12 @@ class BenefitService {
             linhasBeneficiarios.push(linhaBeneficiario);
         });
 
-        // Linha de separação (código 50)
         const linhaSeparacao = this.#posicionarCampos([
             { texto: '50' + CNPJ + 'MBF' + DATA_PROCESSAMENTO, coluna: 1 },
             { texto: this.#padZeros(numeroLinha++, 9), coluna: 342 }
         ]) + '\n';
 
-        // Linhas de valores
-        beneficiarios.forEach((beneficiario) => {
+        employeeData.forEach((beneficiario) => {
             const cpfFormatado = beneficiario.cpf.replace(/\D/g, '').padStart(11, '0');
             const valorFormatado = this.#padZeros(Math.round(beneficiario.valor * 100), 11);
             const linhaValor = this.#posicionarCampos([
@@ -276,13 +290,11 @@ class BenefitService {
             linhasValores.push(linhaValor);
         });
 
-        // Linha final (código 99)
         const linhaFinal = this.#posicionarCampos([
             { texto: '99' + CNPJ, coluna: 1 },
             { texto: this.#padZeros(numeroLinha++, 9), coluna: 342 }
         ]) + '\n';
 
-        // Juntar todas as linhas
         const conteudo = linha0 + linha1 + linhasBeneficiarios.join('') + linhaSeparacao + linhasValores.join('') + linhaFinal;
 
         logger.info(`Layout VR gerado com sucesso: ${nomeArquivo}`);
@@ -404,11 +416,6 @@ class BenefitService {
     #formatedDate(date) {
         const [year, month, day] = date.split("-");
         return `${day}${month}${year}`
-    }
-
-    #calculateVR(vr, vc) {
-        // Garantir o mesmo arredondamento que no getBenefitMedia
-        return Math.round((vr + vc) * 100) / 100;
     }
 
     #posicionarCampos(campos) {
