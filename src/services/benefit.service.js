@@ -108,8 +108,8 @@ class BenefitService {
             monthBeforeLast = (monthNumber - 2).toString().padStart(2, '0');
         }
 
-        const firstMonth = `${yearBeforeLast}-${monthBeforeLast}-16`;
-        const secondMonth = `${lastYear}-${lastMonth}-15`;
+        const firstMonth = `${yearBeforeLast}-${monthBeforeLast}-22`;
+        const secondMonth = `${lastYear}-${lastMonth}-21`;
 
         const employees = await repository.findRecord(date, centro_custo);
         const timesheets = await timesheetRepository.findByMonth(firstMonth, secondMonth);
