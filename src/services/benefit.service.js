@@ -36,6 +36,15 @@ class BenefitService {
         return await repository.delete(id);
     }
 
+    async deleteEmployeeRecord(id) {
+
+        if (!id) {
+            throw new AppError('O campo "id" é obrigatório.', 400);
+        }
+
+        return await repository.deleteRecord(id);
+    }
+
     async createRecord(ano_mes, dias_uteis, dias_nao_uteis) {
 
         if (!ano_mes || !dias_uteis || !dias_nao_uteis) {
@@ -54,15 +63,15 @@ class BenefitService {
         return await repository.createRecord(records);
     }
 
-    async updateRecord(nome, data, dias_uteis, dias_nao_uteis) {
+    async updateRecord(nome, data, dias_uteis, dias_nao_uteis, reembolso) {
 
-        if (!nome || !data || !dias_uteis || !dias_nao_uteis) {
-            throw new AppError('Os campos "nome", "data", "dias_uteis" e "dias_nao_uteis" são obrigatórios.', 400);
+        if (!nome || !data || !dias_uteis || !dias_nao_uteis || !reembolso) {
+            throw new AppError('Os campos "nome", "data", "dias_uteis", "dias_nao_uteis" e "reembolso" são obrigatórios.', 400);
         }
 
         const [year, month] = data.split('-');
         const fullData = `${year}-${month}-01`;
-        return await repository.updateRecord(nome, fullData, dias_uteis, dias_nao_uteis);
+        return await repository.updateRecord(nome, fullData, dias_uteis, dias_nao_uteis, reembolso);
     }
 
     async findRecord(data, centro_custo) {
@@ -129,13 +138,13 @@ class BenefitService {
                 extra_days: this.#extraDaysCounter(item.timesheet),
                 absences: this.#absenceCounter(item.timesheet),
                 medical_certificates: this.#medicalCertificateCounter(item.timesheet),
-                vr_day: this.#vr_day(item),
-                vr_month: this.#vr_month(item),
-                vc_day: this.#vc_day(item),
-                vc_month: this.#vc_month(item),
-                vt_day: this.#vt_day(item),
-                vt_month: this.#vt_month(item),
-                total_benefit: this.#totalBenefit(item)
+                vr_day: Number(this.#vr_day(item).toFixed(2)),
+                vr_month: Number(this.#vr_month(item).toFixed(2)),
+                vc_day: Number(this.#vc_day(item).toFixed(2)),
+                vc_month: Number(this.#vc_month(item).toFixed(2)),
+                vt_day: Number(this.#vt_day(item).toFixed(2)),
+                vt_month: Number(this.#vt_month(item).toFixed(2)),
+                total_benefit: Number(this.#totalBenefit(item).toFixed(2))
             }
         })
     }
@@ -175,13 +184,17 @@ class BenefitService {
             return acc;
         }, 0);
 
+        const reembolso = records.reduce((acc, value) => {
+            return acc + value.reembolso;
+        }, 0);
+
         const total_vr_card = vr_vr + vc_vr;
         const total_caju_card = vr_caju + vc_caju + vt_caju;
-        const sum_vr = vr_vr + vr_caju;
+        const sum_vr = vr_vr + vr_caju + reembolso;
         const sum_vc = vc_vr + vc_caju;
         const sum_vt = vt_vem + vt_caju;
         const sum_cards = total_vr_card + total_caju_card;
-        const sum_all = total_vr_card + total_caju_card + vt_vem;
+        const sum_all = total_vr_card + total_caju_card + vt_vem + reembolso;
         const media_all = sum_all / employeesLenght;
         const media_vr = sum_vr / employeesLenght;
         const media_vt = sum_vt / employeesLenght;
@@ -373,7 +386,7 @@ class BenefitService {
         const vr_day = employee.vr_caju + employee.vr_vr;
 
         if (employee.contrato === 'ESTÁGIO') {
-            return employee.dias_uteis - this.#medicalCertificateCounter(employee.timesheet);
+            return employee.dias_uteis;
         } else if (employee.funcao === 'ENCARREGADO') {
             return employee.dias_uteis;
         } else if (vr_day > 25 && vr_day < 50) {
@@ -409,7 +422,7 @@ class BenefitService {
     }
 
     #totalBenefit(employee) {
-        return Number((this.#vr_month(employee) + this.#vc_month(employee) + this.#vt_month(employee)).toFixed(2));
+        return (this.#vr_month(employee) + this.#vc_month(employee) + this.#vt_month(employee) + employee.reembolso);
     }
 
     // ========== MÉTODOS PARA GERAR TXT ========== //

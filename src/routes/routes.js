@@ -164,6 +164,11 @@ router.delete('/benefit/employee/:id',
     BenefitController.deleteEmployee
 );
 
+router.delete('/benefit/employee/delete/record/:id',
+    authToken,
+    BenefitController.deleteEmployeeRecord
+);
+
 router.post('/benefit/find-report',
     authToken,
     BenefitController.findRecord

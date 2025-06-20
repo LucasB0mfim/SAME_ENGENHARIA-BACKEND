@@ -105,6 +105,26 @@ class BenefitRepository {
         }
     }
 
+    async deleteRecord(id) {
+        try {
+            const { data, error } = await dataBase
+                .from('beneficiaries')
+                .delete()
+                .eq('id', id)
+                .select('*');
+
+            if (error) {
+                logger.error('Erro deletar colaborador na tabela beneficiary:', error)
+                throw new AppError('Erro ao deletar: ' + error.message, 500);
+            }
+
+            return data;
+        } catch (error) {
+            logger.error('Erro no delete:', error);
+            throw error;
+        }
+    }
+
     async findRecord(correctDate, centro_custo) {
         try {
             let query = dataBase
@@ -156,13 +176,14 @@ class BenefitRepository {
         }
     }
 
-    async updateRecord(nome, date, dias_uteis, dias_nao_uteis) {
+    async updateRecord(nome, date, dias_uteis, dias_nao_uteis, reembolso) {
         try {
             const { data, error } = await dataBase
                 .from('beneficiaries')
                 .update({
                     dias_uteis: dias_uteis,
-                    dias_nao_uteis: dias_nao_uteis
+                    dias_nao_uteis: dias_nao_uteis,
+                    reembolso: reembolso
                 })
                 .eq('nome', nome)
                 .eq('data', date)

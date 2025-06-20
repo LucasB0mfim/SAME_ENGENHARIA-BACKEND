@@ -104,6 +104,31 @@ class BenefitController {
         }
     }
 
+    async deleteEmployeeRecord(req, res) {
+        try {
+            const { id } = req.params;
+            const result = await service.deleteEmployeeRecord(id);
+
+            return res.status(200).json({
+                success: true,
+                message: 'Colaborador deletado com sucesso.',
+                result
+            });
+        } catch (error) {
+            if (error.statusCode) {
+                return res.status(error.statusCode).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+
+            return res.status(500).json({
+                success: false,
+                message: 'Erro no servidor.'
+            });
+        }
+    }
+
     async findRecord(req, res) {
         try {
             const { data, centro_custo } = req.body;
@@ -156,8 +181,8 @@ class BenefitController {
 
     async updateRecord(req, res) {
         try {
-            const { nome, data, dias_uteis, dias_nao_uteis } = req.body;
-            const result = await service.updateRecord(nome, data, dias_uteis, dias_nao_uteis);
+            const { nome, data, dias_uteis, dias_nao_uteis, reembolso } = req.body;
+            const result = await service.updateRecord(nome, data, dias_uteis, dias_nao_uteis, reembolso);
 
             return res.status(200).json({
                 success: true,
