@@ -194,6 +194,11 @@ router.post('/benefit/donwload/layout-vr',
     BenefitController.donwloadVrTxt
 );
 
+router.post('/benefit/donwload/layout-vem',
+    authToken,
+    BenefitController.donwloadVemTxt
+);
+
 router.get('/notice',
     authToken,
     GeneralController.getNotice

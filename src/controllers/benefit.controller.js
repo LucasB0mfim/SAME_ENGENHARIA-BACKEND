@@ -225,6 +225,29 @@ class BenefitController {
         }
     }
 
+    async donwloadVemTxt(req, res) {
+        try {
+            const { data, centro_custo } = req.body;
+            const { conteudo, nomeArquivo } = await service.generateVemTxt(data, centro_custo);
+
+            res.setHeader('Content-Type', 'text/plain');
+            res.setHeader('Content-Disposition', `attachment; filename="${nomeArquivo}"`);
+            return res.status(200).send(conteudo);
+        } catch (error) {
+            if (error.statusCode) {
+                return res.status(error.statusCode).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+            return res.status(500).json({
+                success: false,
+                message: 'Erro no servidor.'
+            });
+        }
+    }
+
+
     async getBenefitMedia(req, res) {
         try {
             const { data, centro_custo } = req.body;
