@@ -385,7 +385,7 @@ class BenefitService {
     #daysWorked(employee) {
         const vr_day = employee.vr_caju + employee.vr_vr;
 
-        if (employee.contrato === 'ESTÁGIO' || employee.contrato === 'PJ') {
+        if (employee.contrato === 'ESTÁGIO' || employee.contrato === 'PJ' || employee.centro_custo === 'ESCRITÓRIO') {
             return employee.dias_uteis;
         } else if (employee.funcao === 'ENCARREGADO') {
             return employee.dias_uteis;
