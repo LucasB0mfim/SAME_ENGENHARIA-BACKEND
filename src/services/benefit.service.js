@@ -228,7 +228,7 @@ class BenefitService {
         const employeeValue = await this.findRecord(data, centro_custo);
 
         const employeeData = employeeValue
-            .filter((item) => item.vr_vr > 0 && item.vc_vr > 0)
+            .filter((item) => item.vr_vr > 0 || item.vc_vr > 0)
             .map((employee) => {
                 return {
                     cpf: String(employee.cpf),
@@ -323,40 +323,28 @@ class BenefitService {
         if (!data) throw new AppError('O campo "data" é obrigatório.', 400);
         if (!centro_custo) throw new AppError('O campo "centro_custo" é obrigatório.', 400);
 
-        const employeeValue = await this.findRecord(data, centro_custo);
-
-        const filteredEmployees = employeeValue.filter(emp => emp.vt_vem > 0);
+        const employees = await this.findRecord(data, centro_custo);
+        const filteredEmployees = employees.filter(emp => emp.vt_vem > 0);
 
         const linhas = ['0200'];
 
         filteredEmployees.forEach(employee => {
-            const cpf = String(employee.cpf).padStart(11, '0');
-            const diasUteis = employee.dias_uteis;
-            const valorDia = String(employee.vt_day).replace('.', '');
-            const nome = employee.nome.toUpperCase();
+            const cpf = String(employee.cpf).replace(/\D/g, '').padStart(11, '0');
+            const diasUteis = parseInt(employee.dias_uteis, 10) || 0;
+            const valorDia = Math.round(employee.vt_day * 100);
+            const nome = String(employee.nome || '').trim().toUpperCase();
+
             linhas.push(`${cpf}|${diasUteis}|${valorDia}|${nome}`);
         });
 
         const conteudo = linhas.join('\n');
-
-        const agora = new Date();
-        const dataHora = [
-            agora.getDate().toString().padStart(2, '0'),
-            (agora.getMonth() + 1).toString().padStart(2, '0'),
-            agora.getFullYear(),
-            agora.getHours().toString().padStart(2, '0'),
-            agora.getMinutes().toString().padStart(2, '0'),
-            agora.getSeconds().toString().padStart(2, '0')
-        ];
-
-        const nomeArquivo = `layout_vem_${dataHora.join('')}.txt`;
+        const nomeArquivo = 'layoutVem.txt';
 
         return {
             nomeArquivo,
             conteudo
         };
     }
-
 
     // ========== MÉTODOS PARA CALCUAR BENEFÍCIOS ========== //
     #vr_day(employee) {
