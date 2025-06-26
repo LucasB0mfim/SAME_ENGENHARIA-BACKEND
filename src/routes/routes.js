@@ -11,6 +11,7 @@ import OrderController from '../controllers/order.controller.js';
 import IndicatorController from '../controllers/indicator.controller.js';
 import BenefitController from '../controllers/benefit.controller.js';
 import GeneralController from '../controllers/general.controller.js';
+import FinancialController from '../controllers/financial.controller.js';
 
 // Importando middlewares
 import authToken from '../middlewares/authToken.js';
@@ -218,6 +219,12 @@ router.post('/comment',
     authToken,
     GeneralController.sendComment
 );
+
+router.get('/financial/track',
+    authToken,
+    FinancialController.getTrack
+);
+
 
 // Exportando a rota
 export default router;
