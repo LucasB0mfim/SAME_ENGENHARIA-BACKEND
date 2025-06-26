@@ -125,6 +125,26 @@ class BenefitRepository {
         }
     }
 
+    async deleteMonth(data) {
+        try {
+            const { data: record, error } = await dataBase
+                .from('beneficiaries')
+                .delete()
+                .eq('data', data)
+                .select('*');
+
+            if (error) {
+                logger.error('Erro deletar mês na tabela beneficiaries:', error)
+                throw new AppError('Erro ao deletar: ' + error.message, 500);
+            }
+
+            return record;
+        } catch (error) {
+            logger.error('Erro no delete:', error);
+            throw error;
+        }
+    }
+
     async findRecord(correctDate, centro_custo) {
         try {
             let query = dataBase

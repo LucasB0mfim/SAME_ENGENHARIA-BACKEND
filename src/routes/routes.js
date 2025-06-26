@@ -159,14 +159,19 @@ router.put('/benefit/employee',
     BenefitController.updateEmployee
 );
 
-router.delete('/benefit/employee/:id',
+router.delete('/benefit/delete/employee/:id',
     authToken,
     BenefitController.deleteEmployee
 );
 
-router.delete('/benefit/employee/delete/record/:id',
+router.delete('/benefit/delete/record/:id',
     authToken,
     BenefitController.deleteEmployeeRecord
+);
+
+router.delete('/benefit/delete/:month',
+    authToken,
+    BenefitController.deleteMonth
 );
 
 router.post('/benefit/find-report',

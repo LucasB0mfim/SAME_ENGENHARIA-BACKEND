@@ -204,6 +204,31 @@ class BenefitController {
         }
     }
 
+    async deleteMonth(req, res) {
+        try {
+            const { month } = req.params;
+            const result = await service.deleteMonth(month);
+
+            return res.status(200).json({
+                success: true,
+                message: 'Mês deletado com sucesso.',
+                result
+            });
+        } catch (error) {
+            if (error.statusCode) {
+                return res.status(error.statusCode).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+
+            return res.status(500).json({
+                success: false,
+                message: 'Erro no servidor.'
+            });
+        }
+    }
+
     async donwloadVrTxt(req, res) {
         try {
             const { data, centro_custo } = req.body;
@@ -246,7 +271,6 @@ class BenefitController {
             });
         }
     }
-
 
     async getBenefitMedia(req, res) {
         try {

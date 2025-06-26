@@ -74,6 +74,12 @@ class BenefitService {
         return await repository.updateRecord(nome, fullData, dias_uteis, dias_nao_uteis, reembolso);
     }
 
+    async deleteMonth(month) {
+        if (!month) throw new AppError('O campo "data" é obrigatório.', 400);
+        const correctDate = `${month}-01`;
+        return await repository.deleteMonth(correctDate);
+    }
+
     async findRecord(data, centro_custo) {
         if (!data) {
             throw new AppError('O campo data é obrigatório.', 400);
@@ -151,11 +157,10 @@ class BenefitService {
 
     async getBenefitMedia(data, centro_custo) {
         const records = await this.findRecord(data, centro_custo);
-
         const employeesLenght = records.length;
 
         const vr_vr = records.reduce((acc, value) => {
-            if (value.vr_vr > 0) return acc + value.vr_month;
+            if (value.vr_vr > 0) return acc + value.vr_month + value.reembolso;
             return acc;
         }, 0);
 
@@ -170,7 +175,7 @@ class BenefitService {
         }, 0);
 
         const vr_caju = records.reduce((acc, value) => {
-            if (value.vr_caju > 0) return acc + value.vr_month;
+            if (value.vr_caju > 0) return acc + value.vr_month + value.reembolso;
             return acc;
         }, 0);
 
@@ -184,17 +189,13 @@ class BenefitService {
             return acc;
         }, 0);
 
-        const reembolso = records.reduce((acc, value) => {
-            return acc + value.reembolso;
-        }, 0);
-
         const total_vr_card = vr_vr + vc_vr;
         const total_caju_card = vr_caju + vc_caju + vt_caju;
-        const sum_vr = vr_vr + vr_caju + reembolso;
+        const sum_vr = vr_vr + vr_caju;
         const sum_vc = vc_vr + vc_caju;
         const sum_vt = vt_vem + vt_caju;
         const sum_cards = total_vr_card + total_caju_card;
-        const sum_all = total_vr_card + total_caju_card + vt_vem + reembolso;
+        const sum_all = total_vr_card + total_caju_card + vt_vem;
         const media_all = sum_all / employeesLenght;
         const media_vr = sum_vr / employeesLenght;
         const media_vt = sum_vt / employeesLenght;
