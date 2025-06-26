@@ -330,7 +330,7 @@ class BenefitService {
 
         filteredEmployees.forEach(employee => {
             const cpf = String(employee.cpf).replace(/\D/g, '').padStart(11, '0');
-            const diasUteis = parseInt(employee.dias_uteis, 10) || 0;
+            const diasUteis = parseInt(employee.days_worked, 10) || 0;
             const valorDia = Math.round(employee.vt_day * 100);
             const nome = String(employee.nome || '').trim().toUpperCase();
 
