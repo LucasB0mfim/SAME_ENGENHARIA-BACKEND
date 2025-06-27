@@ -5,23 +5,82 @@ import logger from '../utils/logger/winston.js';
 
 class ExperienceRepository {
     async findAll() {
+        let connection;
         try {
-            const { data, error } = await dataBase
-                .from('experience')
-                .select('*')
-                .order('funcionario', { ascending: true });
+            connection = await pool.connect();
+            const result = await connection.request().query('exec experience');
+            const sqlData = result.recordset;
 
-            if (!data || error) {
-                logger.error('Não foi possível buscar os dados da tabela: ', { error });
-                throw new AppError('Não foi possível buscar os dados da tabela: ', 404);
+            if (!sqlData || sqlData.length === 0) {
+                logger.error('Nenhum dado encontrado na tabela experience do SQL Server.');
+                throw new AppError('Nenhum dado encontrado na tabela experience do SQL Server.', 404);
             }
 
-            logger.info(`${data.length} registros encontrados.`);
+            const { data: supabaseData, error: selectError } = await dataBase
+                .from('experience')
+                .select('*');
 
-            return data;
+            if (selectError) {
+                logger.error('Erro ao consultar tabela experience no Supabase.', { error: selectError });
+                throw new AppError('Não foi possível consultar tabela experience no Supabase.', 404);
+            }
+
+            const sqlMap = new Map();
+            sqlData.forEach(item => {
+                const key = item.chapa || item.funcionario;
+                sqlMap.set(key, item);
+            });
+
+            const supabaseMap = new Map();
+            supabaseData?.forEach(item => {
+                const key = item.chapa || item.funcionario;
+                supabaseMap.set(key, item);
+            });
+
+            const operations = [];
+
+            for (const [key] of supabaseMap) {
+                if (!sqlMap.has(key)) {
+                    operations.push(
+                        dataBase.from('experience')
+                            .delete()
+                            .eq('chapa', key)
+                            .then()
+                    );
+                }
+            }
+
+            for (const [key, sqlItem] of sqlMap) {
+                const supabaseItem = supabaseMap.get(key);
+
+                if (!supabaseItem || JSON.stringify(supabaseItem) !== JSON.stringify(sqlItem)) {
+                    operations.push(
+                        dataBase.from('experience')
+                            .upsert(sqlItem)
+                            .then()
+                    );
+                }
+            }
+
+            await Promise.all(operations);
+
+            const { data: finalData, error: finalError } = await dataBase
+                .from('experience')
+                .select('*');
+
+            if (finalError) {
+                logger.error('Erro ao consultar tabela experience após sincronização.', { error: finalError });
+                throw new AppError('Não foi possível consultar tabela experience após sincronização.', 404);
+            }
+
+            return finalData;
         } catch (error) {
             logger.error('Erro ao sincronizar dados.', { error });
             throw error;
+        } finally {
+            if (connection) {
+                await connection.close();
+            }
         }
     }
 

@@ -7,16 +7,8 @@ class ExperienceService {
     }
 
     async updateModality(chapa, viajar, segmento) {
-        if (!chapa || !viajar || !segmento) {
-            throw new AppError('Todos os campos são obrigatórios');
-        }
-
+        if (!chapa || !viajar || !segmento) throw new AppError('Todos os campos são obrigatórios');
         return await repository.update(chapa, viajar, segmento);
-    }
-
-    async getExperienceData() {
-        const datas = await repository.findAll();
-        return datas;
     }
 }
 
