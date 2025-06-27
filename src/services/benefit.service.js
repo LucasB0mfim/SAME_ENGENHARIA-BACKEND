@@ -360,9 +360,9 @@ class BenefitService {
 
         filteredEmployee.forEach(employee => {
             const cpf = String(employee.cpf).replace(/\D/g, '').padStart(11, '0');
-            const vr = Math.round(employee.vr_month * 100);
-            const vc = Math.round(employee.vc_month * 100);
-            const vt = Math.round(employee.vt_month * 100);
+            const vr = employee.vr_month;
+            const vc = employee.vc_month;
+            const vt = employee.vt_month;
             const transport = vt + vc;
             const total = vr + vc + vt
 
