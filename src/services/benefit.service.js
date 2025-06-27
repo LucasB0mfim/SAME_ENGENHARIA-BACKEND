@@ -353,7 +353,7 @@ class BenefitService {
         if (!centro_custo) throw new AppError('O campo "centro_custo" é obrigatório.', 400);
 
         const employee = await this.findRecord(data, centro_custo);
-        const filteredEmployee = employee.filter((item) => item.vr_caju > 0 || item.vc_caju > 0 || item.vt_vem > 0);
+        const filteredEmployee = employee.filter((item) => item.vr_caju > 0 || item.vc_caju > 0 || item.vt_caju > 0);
         const row = ['CPF;Matricula (opcional);Valor Fixo em Auxilio Alimentacao;Mobilidade;Valor Fixo em Mobilidade;Cultura;Valor Fixo em Cultura;Saude;Valor Fixo em Saude;Educacao;Valor Fixo em Educacao;Home Office;Valor Fixo em Home Office;Saldo livre;Saldo Multi'];
 
         filteredEmployee.forEach(employee => {
