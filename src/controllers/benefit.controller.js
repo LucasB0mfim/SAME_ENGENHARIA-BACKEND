@@ -272,6 +272,28 @@ class BenefitController {
         }
     }
 
+    async donwloadCajuTxt(req, res) {
+        try {
+            const { data, centro_custo } = req.body;
+            const { content, fileName } = await service.generateCajuTxt(data, centro_custo);
+
+            res.setHeader('Content-Type', 'text/plain');
+            res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+            return res.status(200).send(content);
+        } catch (error) {
+            if (error.statusCode) {
+                return res.status(error.statusCode).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+            return res.status(500).json({
+                success: false,
+                message: 'Erro no servidor.'
+            });
+        }
+    }
+
     async getBenefitMedia(req, res) {
         try {
             const { data, centro_custo } = req.body;

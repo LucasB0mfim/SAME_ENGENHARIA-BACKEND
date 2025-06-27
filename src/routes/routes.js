@@ -200,6 +200,11 @@ router.post('/benefit/donwload/layout-vr',
     BenefitController.donwloadVrTxt
 );
 
+router.post('/benefit/donwload/layout-caju',
+    authToken,
+    BenefitController.donwloadCajuTxt
+);
+
 router.post('/benefit/donwload/layout-vem',
     authToken,
     BenefitController.donwloadVemTxt

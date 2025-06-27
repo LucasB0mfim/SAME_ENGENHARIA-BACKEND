@@ -347,6 +347,39 @@ class BenefitService {
         };
     }
 
+    async generateCajuTxt(data, centro_custo) {
+
+        if (!data) throw new AppError('O campo "data" é obrigatório.', 400);
+        if (!centro_custo) throw new AppError('O campo "centro_custo" é obrigatório.', 400);
+
+        const employee = await this.findRecord(data, centro_custo);
+        const filteredEmployee = employee.filter((item) => item.vr_caju > 0 || item.vc_caju > 0 || item.vt_vem > 0);
+        const row = [];
+
+        filteredEmployee.forEach(employee => {
+            const cpf = String(employee.cpf).replace(/\D/g, '').padStart(11, '0');
+            const vr = employee.vt_month;
+            const vc = employee.vc_month;
+            const vt = employee.vt_month;
+            const transport = vt + vc;
+            const total = vr + vc + vt
+
+            if (employee.centro_custo === 'ESCRITÓRIO' || employee.centro_custo === 'PLANEJAMENTO' || employee.contrato === 'ESTÁGIO' || employee.funcao === 'ALMOXARIFE') {
+                row.push(`${cpf};0;0;0;0;0;0;0;0;0;0;0;0;${total};0`);
+            } else {
+                row.push(`${cpf};0;${vr};${transport};0;0;0;0;0;0;0;0;0;0;0`);
+            }
+        });
+
+        const nameFile = 'layoutCaju.txt';
+        const content = row.join('\n');
+
+        return {
+            nameFile,
+            content
+        }
+    }
+
     // ========== MÉTODOS PARA CALCUAR BENEFÍCIOS ========== //
     #vr_day(employee) {
         const vr_day = employee.vr_caju + employee.vr_vr;
