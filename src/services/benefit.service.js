@@ -365,9 +365,9 @@ class BenefitService {
             const total = vr + vc + vt
 
             if (employee.centro_custo === 'ESCRITÓRIO' || employee.centro_custo === 'PLANEJAMENTO' || employee.contrato === 'ESTÁGIO' || employee.funcao === 'ALMOXARIFE') {
-                row.push(`${cpf};0;0;0;0;0;0;0;0;0;0;0;0;${total};0`);
+                row.push(`${cpf};;0;0;0;0;0;0;0;0;0;0;0;${total};0`);
             } else {
-                row.push(`${cpf};0;${vr};${transport};0;0;0;0;0;0;0;0;0;0;0`);
+                row.push(`${cpf};;${vr};${transport};0;0;0;0;0;0;0;0;0;0;0`);
             }
         });
 
