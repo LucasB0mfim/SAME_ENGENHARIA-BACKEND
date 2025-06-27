@@ -356,11 +356,13 @@ class BenefitService {
         const filteredEmployee = employee.filter((item) => item.vr_caju > 0 || item.vc_caju > 0 || item.vt_caju > 0);
         const row = ['CPF;Matricula (opcional);Valor Fixo em Auxilio Alimentacao;Mobilidade;Valor Fixo em Mobilidade;Cultura;Valor Fixo em Cultura;Saude;Valor Fixo em Saude;Educacao;Valor Fixo em Educacao;Home Office;Valor Fixo em Home Office;Saldo livre;Saldo Multi'];
 
+        console.log(filteredEmployee)
+
         filteredEmployee.forEach(employee => {
             const cpf = String(employee.cpf).replace(/\D/g, '').padStart(11, '0');
-            const vr = employee.vt_month;
-            const vc = employee.vc_month;
-            const vt = employee.vt_month;
+            const vr = Math.round(employee.vr_month * 100);
+            const vc = Math.round(employee.vc_month * 100);
+            const vt = Math.round(employee.vt_month * 100);
             const transport = vt + vc;
             const total = vr + vc + vt
 
