@@ -319,70 +319,85 @@ class BenefitService {
         };
     }
 
-    async generateVemTxt(data, centro_custo) {
+    async generateCajuTxt(data, centro_custo, benefit) {
 
-        if (!data) throw new AppError('O campo "data" é obrigatório.', 400);
-        if (!centro_custo) throw new AppError('O campo "centro_custo" é obrigatório.', 400);
+        if (!data || !centro_custo || !benefit) {
+            throw new AppError('Os campos "data", "centro_custo", "benefit" são obrigatórios.', 400);
+        }
 
         const employees = await this.findRecord(data, centro_custo);
-        const filteredEmployees = employees.filter(emp => emp.vt_vem > 0);
+        const filename = benefit === 'VR' ? 'layout_caju_vr.txt' : 'layout_caju_vt.txt';
+        const rows = ['CPF;Matricula (opcional);Valor Fixo em Auxilio Alimentacao;Mobilidade;Valor Fixo em Mobilidade;Cultura;Valor Fixo em Cultura;Saude;Valor Fixo em Saude;Educacao;Valor Fixo em Educacao;Home Office;Valor Fixo em Home Office;Saldo livre;Saldo Multi'];
 
-        const linhas = ['0200'];
+        const isSpecialCase = (employee) =>
+            employee.centro_custo === 'ESCRITÓRIO' ||
+            employee.contrato === 'ESTÁGIO' ||
+            employee.contrato === 'PJ' ||
+            employee.funcao === 'ALMOXARIFE';
 
-        filteredEmployees.forEach(employee => {
-            const cpf = String(employee.cpf).replace(/\D/g, '').padStart(11, '0');
-            const diasUteis = parseInt(employee.days_worked, 10) || 0;
-            const valorDia = Math.round(employee.vt_day * 100);
-            const nome = String(employee.nome || '').trim().toUpperCase();
+        employees.forEach((employee) => {
+            const cpf = employee.cpf || '00000000000';
+            const vr = employee.vr_caju > 0 ? employee.vr_month : 0;
+            const bus = employee.vt_caju > 0 ? employee.vt_month : 0;
+            const fuel = employee.vc_caju > 0 ? employee.vc_month : 0;
+            const vt = bus + fuel;
 
-            linhas.push(`${cpf}|${diasUteis}|${valorDia}|${nome}`);
+            if (benefit === 'VR' && vr > 0) {
+                if (isSpecialCase(employee)) {
+                    rows.push(`${cpf};;0;0;0;0;0;0;0;0;0;0;0;${vr};0`);
+                } else {
+                    rows.push(`${cpf};;${vr};0;0;0;0;0;0;0;0;0;0;0;0`);
+                }
+            };
+
+            if (benefit === 'VT' && vt > 0) {
+                if (isSpecialCase(employee)) {
+                    rows.push(`${cpf};;0;0;0;0;0;0;0;0;0;0;0;${vt};0`);
+                } else {
+                    rows.push(`${cpf};;${vt};0;0;0;0;0;0;0;0;0;0;0;0`);
+                }
+            };
         });
 
-        const conteudo = linhas.join('\n');
-        const nomeArquivo = 'layoutVem.txt';
+        logger.info(`Arquivo ${filename} gerado com sucesso.`);
 
         return {
-            nomeArquivo,
-            conteudo
+            filename,
+            content: rows.join('\n')
         };
+
     }
 
-    async generateCajuTxt(data, centro_custo) {
+    async generateVemTxt(data, centro_custo) {
 
-        if (!data) throw new AppError('O campo "data" é obrigatório.', 400);
-        if (!centro_custo) throw new AppError('O campo "centro_custo" é obrigatório.', 400);
+        if (!data || !centro_custo) {
+            throw new AppError('Os campos "data" e "centro_custo" são obrigatórios.', 404);
+        }
 
-        const employee = await this.findRecord(data, centro_custo);
-        const filteredEmployee = employee.filter((item) => item.vr_caju > 0 || item.vc_caju > 0 || item.vt_caju > 0);
-        const row = ['CPF;Matricula (opcional);Valor Fixo em Auxilio Alimentacao;Mobilidade;Valor Fixo em Mobilidade;Cultura;Valor Fixo em Cultura;Saude;Valor Fixo em Saude;Educacao;Valor Fixo em Educacao;Home Office;Valor Fixo em Home Office;Saldo livre;Saldo Multi'];
+        const employees = await this.findRecord(data, centro_custo);
+        const filename = 'layout_vem.txt';
+        const rows = ['0200'];
 
-        console.log(filteredEmployee)
+        employees.forEach((employee) => {
+            const cpf = employee.cpf || '00000000000';
+            const days_worked = employee.days_worked || 0;
+            const vt = employee.vt_vem > 0 ? Math.round(employee.vt_month / days_worked) * 100 : 0;
+            const name = employee.nome.trim().toUpperCase() || 'N/A';
 
-        filteredEmployee.forEach(employee => {
-            const cpf = String(employee.cpf).replace(/\D/g, '').padStart(11, '0');
-            const vr = employee.vr_month;
-            const vc = employee.vc_month;
-            const vt = employee.vt_month;
-            const transport = vt + vc;
-            const total = vr + vc + vt
-
-            if (employee.centro_custo === 'ESCRITÓRIO' || employee.centro_custo === 'PLANEJAMENTO' || employee.contrato === 'ESTÁGIO' || employee.funcao === 'ALMOXARIFE') {
-                row.push(`${cpf};;0;0;0;0;0;0;0;0;0;0;0;${total};0`);
-            } else {
-                row.push(`${cpf};;${vr};${transport};0;0;0;0;0;0;0;0;0;0;0`);
+            if (vt > 0) {
+                rows.push(`${cpf}|${days_worked}|${vt}|${name}`);
             }
         });
 
-        const nameFile = 'layoutCaju.txt';
-        const content = row.join('\n');
+        logger.info(`Arquivo ${filename} gerado com sucesso.`);
 
         return {
-            nameFile,
-            content
+            filename,
+            content: rows.join('\n')
         }
     }
 
-    // ========== MÉTODOS PARA CALCUAR BENEFÍCIOS ========== //
+    // ========== MÉTODOS PARA CALCULAR BENEFÍCIOS ========== //
     #vr_day(employee) {
         const vr_day = employee.vr_caju + employee.vr_vr;
 
@@ -445,7 +460,7 @@ class BenefitService {
         }
     }
 
-    // ========== MÉTODOS AUXILIARES ========== //
+    // ========== MÉTODOS AUXILIARES PARA CALCULAR FALTAS ========== //
     #daysWorked(employee) {
         const vr_day = employee.vr_caju + employee.vr_vr;
 
@@ -489,7 +504,7 @@ class BenefitService {
         return (this.#vr_month(employee) + this.#vc_month(employee) + this.#vt_month(employee) + employee.reembolso);
     }
 
-    // ========== MÉTODOS PARA GERAR TXT ========== //
+    // ========== MÉTODOS AUXILIARES PARA GERAR O LAYOUT DO CAJU ========== //
     #formatedDate(date) {
         const [year, month, day] = date.split("-");
         return `${day}${month}${year}`
