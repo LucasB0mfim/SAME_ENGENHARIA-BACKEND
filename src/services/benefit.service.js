@@ -65,8 +65,8 @@ class BenefitService {
 
     async updateRecord(nome, data, dias_uteis, dias_nao_uteis, reembolso) {
 
-        if (!nome || !data || !dias_uteis || !dias_nao_uteis || !reembolso) {
-            throw new AppError('Os campos "nome", "data", "dias_uteis", "dias_nao_uteis" e "reembolso" são obrigatórios.', 400);
+        if (!nome || !data) {
+            throw new AppError('Os campos "nome" e "data" são obrigatórios.', 400);
         }
 
         const [year, month] = data.split('-');
@@ -140,19 +140,19 @@ class BenefitService {
         return dataMerge.map((item) => {
             return {
                 ...item,
-                days_worked: this.#daysWorked(item),
-                extra_days: this.#extraDaysCounter(item.timesheet),
-                absences: this.#absenceCounter(item.timesheet),
-                medical_certificates: this.#medicalCertificateCounter(item.timesheet),
-                vr_day: Number(this.#vr_day(item).toFixed(2)),
-                vr_month: Number(this.#vr_month(item).toFixed(2)),
-                vc_day: Number(this.#vc_day(item).toFixed(2)),
-                vc_month: Number(this.#vc_month(item).toFixed(2)),
-                vt_day: Number(this.#vt_day(item).toFixed(2)),
-                vt_month: Number(this.#vt_month(item).toFixed(2)),
-                total_benefit: Number(this.#totalBenefit(item).toFixed(2))
-            }
-        })
+                days_worked: Math.max(0, this.#daysWorked(item)),
+                extra_days: Math.max(0, this.#extraDaysCounter(item.timesheet)),
+                absences: Math.max(0, this.#absenceCounter(item.timesheet)),
+                medical_certificates: Math.max(0, this.#medicalCertificateCounter(item.timesheet)),
+                vr_day: Math.max(0, Number(this.#vr_day(item).toFixed(2))),
+                vr_month: Math.max(0, Number(this.#vr_month(item).toFixed(2))),
+                vc_day: Math.max(0, Number(this.#vc_day(item).toFixed(2))),
+                vc_month: Math.max(0, Number(this.#vc_month(item).toFixed(2))),
+                vt_day: Math.max(0, Number(this.#vt_day(item).toFixed(2))),
+                vt_month: Math.max(0, Number(this.#vt_month(item).toFixed(2))),
+                total_benefit: Math.max(0, Number(this.#totalBenefit(item).toFixed(2)))
+            };
+        });
     }
 
     async getBenefitMedia(data, centro_custo) {
