@@ -99,17 +99,17 @@ router.post('/reports/timesheet/filters',
     TimeSheetController.getRecordsByFilters
 )
 
-router.get('/reports/experience',
+router.get('/experience/reports',
     authToken,
     ExperienceController.getExperience
 );
 
-router.get('/download/experience',
+router.get('experience/download',
     authToken,
     ExperienceController.convertToExcel,
 );
 
-router.put('/reports/experience',
+router.put('/experience/update',
     authToken,
     ExperienceController.updateModality
 );

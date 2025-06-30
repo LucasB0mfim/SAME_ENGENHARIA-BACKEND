@@ -54,7 +54,7 @@ class ExperienceController {
 
     async convertToExcel(req, res) {
         try {
-            const datas = await service.getExperienceData();
+            const datas = await service.getExperience();
 
             const worksheet = xlsx.utils.json_to_sheet(datas);
             const workbook = xlsx.utils.book_new();
