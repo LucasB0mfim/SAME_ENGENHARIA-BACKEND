@@ -229,13 +229,13 @@ class BenefitController {
         }
     }
 
-    async donwloadVrTxt(req, res) {
+    async downloadLayoutVr(req, res) {
         try {
-            const { data, centro_custo } = req.body;
-            const { conteudo, nomeArquivo } = await service.generateVrTxt(data, centro_custo);
+            const { data, centro_custo, benefit } = req.body;
+            const { content, filename } = await service.generateVrTxt(data, centro_custo, benefit);
             res.setHeader('Content-Type', 'text/plain');
-            res.setHeader('Content-Disposition', `attachment; filename="${nomeArquivo}"`);
-            return res.status(200).send(conteudo);
+            res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+            return res.status(200).send(content);
         } catch (error) {
             if (error.statusCode) {
                 return res.status(error.statusCode).json({
@@ -250,7 +250,7 @@ class BenefitController {
         }
     }
 
-    async donwloadVemTxt(req, res) {
+    async downloadLayoutVem(req, res) {
         try {
             const { data, centro_custo } = req.body;
             const { content, filename } = await service.generateVemTxt(data, centro_custo);
@@ -273,7 +273,7 @@ class BenefitController {
         }
     }
 
-    async donwloadCajuTxt(req, res) {
+    async downloadLayoutCaju(req, res) {
         try {
             const { data, centro_custo, benefit } = req.body;
             const { content, filename } = await service.generateCajuTxt(data, centro_custo, benefit);

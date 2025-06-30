@@ -197,17 +197,17 @@ router.post('/benefit/update',
 
 router.post('/benefit/donwload/layout-vr',
     authToken,
-    BenefitController.donwloadVrTxt
+    BenefitController.downloadLayoutVr
 );
 
 router.post('/benefit/donwload/layout-caju',
     authToken,
-    BenefitController.donwloadCajuTxt
+    BenefitController.downloadLayoutCaju
 );
 
 router.post('/benefit/donwload/layout-vem',
     authToken,
-    BenefitController.donwloadVemTxt
+    BenefitController.downloadLayoutVem
 );
 
 router.get('/notice',

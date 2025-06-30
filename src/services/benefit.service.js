@@ -221,48 +221,31 @@ class BenefitService {
         }
     }
 
-    async generateVrTxt(data, centro_custo) {
+    async generateVrTxt(data, centro_custo, benefit) {
 
-        if (!data) throw new AppError('O campo "data" é obrigatório.', 400);
-        if (!centro_custo) throw new AppError('O campo "centro_custo" é obrigatório.', 400);
+        if (!data || !centro_custo || !benefit) {
+            throw new AppError('O campo "data", "centro_custo" e "benefit" são obrigatórios.', 400);
+        }
 
-        const employeeValue = await this.findRecord(data, centro_custo);
+        const employees = await this.findRecord(data, centro_custo);
+        const filename = benefit === 'VR' ? 'layout_vr_vr.txt' : 'layout_vr_vt.txt';
+        const cnpj = '23187835000106';
 
-        const employeeData = employeeValue
-            .filter((item) => item.vr_vr > 0 || item.vc_vr > 0)
-            .map((employee) => {
-                return {
-                    cpf: String(employee.cpf),
-                    nome: employee.nome,
-                    data_nascimento: this.#formatedDate(employee.data_nascimento),
-                    valor: employee.vr_month + employee.vc_month
-                }
-            });
+        const currentDate = new Date();
+        const day = String(currentDate.getDate()).padStart(2, '0');
+        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+        const year = currentDate.getFullYear();
+        const DATA_PROCESSAMENTO = `${day}${month}${year}`;
 
-        const agora = new Date();
+        let row = 1;
 
-        const dataHora = [
-            agora.getDate().toString().padStart(2, '0'),
-            (agora.getMonth() + 1).toString().padStart(2, '0'),
-            agora.getFullYear(),
-            agora.getHours().toString().padStart(2, '0'),
-            agora.getMinutes().toString().padStart(2, '0'),
-            agora.getSeconds().toString().padStart(2, '0')
-        ];
-
-        const nomeArquivo = `23187835000106_${dataHora[0]}${dataHora[1]}${dataHora[2]}${dataHora[3]}${dataHora[4]}${dataHora[5]}.txt`;
-        const CNPJ = '23187835000106';
-        const DATA_PROCESSAMENTO = dataHora.slice(0, 3).join('');
-
-        let numeroLinha = 1;
-
-        const linha0 = this.#posicionarCampos([
-            { texto: '00011' + CNPJ + 'SAME CONSTRUTORA LTDA', coluna: 1 },
-            { texto: this.#padZeros(numeroLinha++, 9), coluna: 342 }
+        const startRow = this.#posicionarCampos([
+            { texto: '00011' + cnpj + 'SAME CONSTRUTORA LTDA', coluna: 1 },
+            { texto: this.#padZeros(row++, 9), coluna: 342 }
         ]) + '\n';
 
-        const linha1 = this.#posicionarCampos([
-            { texto: '10' + CNPJ + '01', coluna: 1 },
+        const row1 = this.#posicionarCampos([
+            { texto: '10' + cnpj + '01', coluna: 1 },
             { texto: 'Same Construtora ltda', coluna: 47 },
             { texto: 'Rua', coluna: 127 },
             { texto: 'Arthur Lopes', coluna: 147 },
@@ -271,51 +254,65 @@ class BenefitService {
             { texto: 'Recife', coluna: 243 },
             { texto: 'PE51200180', coluna: 273 },
             { texto: 'Recursos Humanos', coluna: 273 + 'PE51200180'.length },
-            { texto: this.#padZeros(numeroLinha++, 9), coluna: 342 }
+            { texto: this.#padZeros(row++, 9), coluna: 342 }
         ]) + '\n';
 
-        let linhasBeneficiarios = [];
-        let linhasValores = [];
+        let employeeInfo = [];
+        let employeeValue = [];
 
-        employeeData.forEach((beneficiario) => {
-            const cpfFormatado = beneficiario.cpf.replace(/\D/g, '').padStart(11, '0');
+        const filteredEmployees = employees.filter((beneficiario) => {
+            if (benefit === 'VR') {
+                return beneficiario.vr_vr > 0;
+            } else if (benefit === 'VT') {
+                return beneficiario.vc_vr > 0;
+            }
+            return false;
+        });
+
+        filteredEmployees.forEach((beneficiario) => {
+            const cpf = beneficiario.cpf;
+
             const linhaBeneficiario = this.#posicionarCampos([
-                { texto: '30' + CNPJ + cpfFormatado + '01', coluna: 1 },
+                { texto: '30' + cnpj + cpf + '01', coluna: 1 },
                 { texto: beneficiario.nome, coluna: 80 },
-                { texto: beneficiario.data_nascimento.replace(/\D/g, ''), coluna: 144 },
-                { texto: this.#padZeros(numeroLinha++, 9), coluna: 342 }
+                { texto: this.#formatedDate(beneficiario.data_nascimento), coluna: 144 },
+                { texto: this.#padZeros(row++, 9), coluna: 342 }
             ]) + '\n';
-            linhasBeneficiarios.push(linhaBeneficiario);
+
+            employeeInfo.push(linhaBeneficiario);
         });
 
-        const linhaSeparacao = this.#posicionarCampos([
-            { texto: '50' + CNPJ + 'MBF' + DATA_PROCESSAMENTO, coluna: 1 },
-            { texto: this.#padZeros(numeroLinha++, 9), coluna: 342 }
+        const division = this.#posicionarCampos([
+            { texto: '50' + cnpj + 'MBF' + DATA_PROCESSAMENTO, coluna: 1 },
+            { texto: this.#padZeros(row++, 9), coluna: 342 }
         ]) + '\n';
 
-        employeeData.forEach((beneficiario) => {
-            const cpfFormatado = beneficiario.cpf.replace(/\D/g, '').padStart(11, '0');
-            const valorFormatado = this.#padZeros(Math.round(beneficiario.valor * 100), 11);
+        filteredEmployees.forEach((beneficiario) => {
+            const cpf = beneficiario.cpf;
+            const valor = benefit === 'VR' ? beneficiario.vr_month : beneficiario.vt_month;
+            const valorFormatado = this.#padZeros(Math.round(valor * 100), 11);
+
             const linhaValor = this.#posicionarCampos([
-                { texto: '60' + CNPJ + 'MBF' + cpfFormatado, coluna: 1 },
+                { texto: '60' + cnpj + 'MBF' + cpf, coluna: 1 },
                 { texto: valorFormatado, coluna: 71 },
-                { texto: this.#padZeros(numeroLinha++, 9), coluna: 342 }
+                { texto: this.#padZeros(row++, 9), coluna: 342 }
             ]) + '\n';
-            linhasValores.push(linhaValor);
+
+            employeeValue.push(linhaValor);
         });
 
-        const linhaFinal = this.#posicionarCampos([
-            { texto: '99' + CNPJ, coluna: 1 },
-            { texto: this.#padZeros(numeroLinha++, 9), coluna: 342 }
+        const endRow = this.#posicionarCampos([
+            { texto: '99' + cnpj, coluna: 1 },
+            { texto: this.#padZeros(row++, 9), coluna: 342 }
         ]) + '\n';
 
-        const conteudo = linha0 + linha1 + linhasBeneficiarios.join('') + linhaSeparacao + linhasValores.join('') + linhaFinal;
+        const content = startRow + row1 + employeeInfo.join('') + division + employeeValue.join('') + endRow;
 
-        logger.info(`Layout VR gerado com sucesso: ${nomeArquivo}`);
+        logger.info(`Layout VR gerado com sucesso: ${filename}`);
 
         return {
-            nomeArquivo,
-            conteudo
+            filename,
+            content
         };
     }
 
