@@ -104,7 +104,7 @@ router.get('/experience/reports',
     ExperienceController.getExperience
 );
 
-router.get('experience/download',
+router.get('/experience/download',
     authToken,
     ExperienceController.convertToExcel,
 );
