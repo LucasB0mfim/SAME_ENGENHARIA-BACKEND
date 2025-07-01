@@ -463,8 +463,6 @@ class BenefitService {
 
         if (employee.contrato === 'ESTÁGIO' || employee.contrato === 'PJ' || employee.centro_custo === 'ESCRITÓRIO') {
             return employee.dias_uteis;
-        } else if (employee.funcao === 'ALMOXARIFE') {
-            return employee.dias_uteis + this.#extraDaysCounter(employee.timesheet) - this.#absenceCounter(employee.timesheet) - this.#medicalCertificateCounter(employee.timesheet);
         } else if (vr_day > 25 && vr_day < 50) {
             return employee.dias_uteis + employee.dias_nao_uteis - this.#absenceCounter(employee.timesheet) - this.#medicalCertificateCounter(employee.timesheet);
         } else if (employee.funcao === 'ENCARREGADO') {
