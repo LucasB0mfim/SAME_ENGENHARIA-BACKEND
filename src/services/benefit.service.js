@@ -420,7 +420,7 @@ class BenefitService {
     #vc_day(employee) {
         const vc_day = employee.vc_caju + employee.vc_vr;
 
-        if (vc_day > 100) {
+        if (vc_day > 50) {
             return vc_day / employee.dias_uteis;
         } else {
             return vc_day;
@@ -430,7 +430,7 @@ class BenefitService {
     #vc_month(employee) {
         const vc_day = employee.vc_caju + employee.vc_vr;
 
-        if (vc_day > 100) {
+        if (vc_day > 50) {
             return vc_day;
         } else {
             return vc_day * this.#daysWorked(employee);
