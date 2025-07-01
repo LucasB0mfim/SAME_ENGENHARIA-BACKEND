@@ -478,8 +478,9 @@ class BenefitService {
 
     #absenceCounter(timesheet) {
         return timesheet.filter(value =>
-            value.evento_abono === 'NÃO CONSTA' &&
-            parseInt(value.jornada_realizada?.split(':')[0]) <= 3
+            value.evento_abono != 'Dia extra' &&
+            value.evento_abono != 'Atestado Médico' &&
+            parseInt(value.jornada_realizada?.split(':')[0]) < 3
         ).length;
     }
 
