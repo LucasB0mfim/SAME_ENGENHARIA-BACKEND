@@ -420,7 +420,7 @@ class BenefitService {
     #vc_day(employee) {
         const vc_day = employee.vc_caju + employee.vc_vr;
 
-        if (vc_day > 50) {
+        if (vc_day > 40) {
             return vc_day / employee.dias_uteis;
         } else {
             return vc_day;
@@ -430,7 +430,7 @@ class BenefitService {
     #vc_month(employee) {
         const vc_day = employee.vc_caju + employee.vc_vr;
 
-        if (vc_day > 50) {
+        if (vc_day > 40) {
             return vc_day;
         } else {
             return vc_day * this.#daysWorked(employee);
@@ -440,7 +440,7 @@ class BenefitService {
     #vt_day(employee) {
         const vt_day = employee.vt_caju + employee.vt_vem;
 
-        if (vt_day > 100) {
+        if (vt_day > 40) {
             return vt_day / employee.dias_uteis;
         } else {
             return vt_day;
@@ -450,7 +450,7 @@ class BenefitService {
     #vt_month(employee) {
         const vt_day = employee.vt_caju + employee.vt_vem;
 
-        if (vt_day > 100) {
+        if (vt_day > 40) {
             return vt_day;
         } else {
             return vt_day * this.#daysWorked(employee);
