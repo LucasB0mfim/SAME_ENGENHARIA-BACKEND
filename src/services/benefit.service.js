@@ -461,9 +461,9 @@ class BenefitService {
     #daysWorked(employee) {
         const vr_day = employee.vr_caju + employee.vr_vr;
 
-        if (employee.contrato === 'ESTÁGIO' || employee.contrato === 'PJ' || employee.centro_custo === 'ESCRITÓRIO') {
+        if (employee.contrato === 'ESTÁGIO' || employee.contrato === 'PJ' || employee.centro_custo === 'ESCRITÓRIO' || employee.funcao === 'ALMOXARIFE') {
             return employee.dias_uteis;
-        } else if (vr_day > 25 && vr_day < 50 && !employee.funcao === 'ALMOXARIFE') {
+        } else if (vr_day > 25 && vr_day < 50) {
             return employee.dias_uteis + employee.dias_nao_uteis - this.#absenceCounter(employee.timesheet) - this.#medicalCertificateCounter(employee.timesheet);
         } else if (employee.funcao === 'ENCARREGADO') {
             return employee.dias_uteis;
