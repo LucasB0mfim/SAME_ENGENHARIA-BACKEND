@@ -391,7 +391,7 @@ class BenefitService {
         employees.forEach((employee) => {
             const cpf = employee.cpf || '00000000000';
             const days_worked = employee.days_worked || 0;
-            const vt = employee.vt_vem > 0 ? Math.round(employee.vt_month / days_worked) * 100 : 0;
+            const vt = employee.vt_vem > 0 ? employee.vt_month / days_worked * 100 : 0;
             const name = employee.nome.trim().toUpperCase() || 'N/A';
 
             if (vt > 0) {
