@@ -74,19 +74,42 @@ class TimeSheetsService {
         await new Promise((resolve, reject) => {
             stream.pipe(csvParser({ separator: ';' }))
                 .on('data', (data) => {
+
                     const removeSpace = Object.fromEntries(
                         Object.entries(data).map(([key, value]) => [key.trim(), value.trim()])
                     );
 
-                    // Extrai a data no formato DD/MM/YYYY e converte para YYYY-MM-DD
+                    // Valida se existem as duas marcações
+                    const hora1 = removeSpace["Hora da Marcação 1"];
+                    const hora2 = removeSpace["Hora da Marcação 2"];
+
+                    if (!hora1 || !hora2) return; // Ignora se faltar alguma marcação
+
                     const [day, month, year] = removeSpace["Data da Marcação"].split('/');
                     const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+
+                    const [firstHour, firstMinute] = hora1.split(':').map(Number);
+                    const [secondHour, secondMinute] = hora2.split(':').map(Number);
+
+                    const date1 = new Date(`${year}-${month}-${day}T${firstHour.toString().padStart(2, '0')}:${firstMinute.toString().padStart(2, '0')}:00`);
+                    const date2 = new Date(`${year}-${month}-${day}T${secondHour.toString().padStart(2, '0')}:${secondMinute.toString().padStart(2, '0')}:00`);
+
+                    const diffMs = date2 - date1;
+
+                    // Verifica se o tempo é negativo ou menor que 3 horas (10800000 ms)
+                    if (diffMs < 3 * 60 * 60 * 1000) return;
+
+                    const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+                    const diffMin = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                    const diffSec = Math.floor((diffMs % (1000 * 60)) / 1000);
+
+                    const jornadaRealizada = `${diffHrs.toString().padStart(2, '0')}:${diffMin.toString().padStart(2, '0')}:${diffSec.toString().padStart(2, '0')}`;
 
                     const headers = {
                         periodo: formattedDate,
                         chapa: removeSpace["Matrícula"] === "-" ? null : removeSpace["Matrícula"],
                         nome: removeSpace["Nome"].toUpperCase(),
-                        jornada_realizada: "08:00:00",
+                        jornada_realizada: jornadaRealizada,
                         falta: "NÃO CONSTA",
                         evento_abono: "Dia extra",
                     };

@@ -137,7 +137,7 @@ class BenefitService {
             return { ...employee, timesheet }
         })
 
-        return dataMerge.map((item) => {
+        const dataComBeneficios = dataMerge.map((item) => {
             return {
                 ...item,
                 days_worked: Math.max(0, this.#daysWorked(item)),
@@ -153,6 +153,19 @@ class BenefitService {
                 total_benefit: Math.max(0, Number(this.#totalBenefit(item).toFixed(2)))
             };
         });
+
+        // Verifica se os cálculos essenciais estão todos prontos
+        const todosCalculados = dataComBeneficios.every(emp =>
+            emp.days_worked !== undefined &&
+            emp.vr_month !== undefined &&
+            emp.total_benefit !== undefined
+        );
+
+        if (!todosCalculados) {
+            throw new AppError('Os dados ainda estão sendo processados. Tente novamente em instantes.', 503);
+        }
+
+        return dataComBeneficios;
     }
 
     async getBenefitMedia(data, centro_custo) {
@@ -487,6 +500,7 @@ class BenefitService {
     #medicalCertificateCounter(timesheet) {
         return timesheet.filter(value =>
             value.evento_abono === 'Atestado Médico' &&
+            parseInt(value.jornada_realizada?.split(':')[0]) < 3 &&
             !this.#isWeekend(value.periodo)
         ).length;
     }
