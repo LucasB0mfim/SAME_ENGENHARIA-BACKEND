@@ -302,7 +302,7 @@ class BenefitService {
 
         filteredEmployees.forEach((beneficiario) => {
             const cpf = beneficiario.cpf;
-            const valor = benefit === 'VR' ? beneficiario.vr_month : beneficiario.vt_month;
+            const valor = benefit === 'VR' ? beneficiario.vr_month : beneficiario.vc_month;
             const valorFormatado = this.#padZeros(Math.round(valor * 100), 11);
 
             const linhaValor = this.#posicionarCampos([
