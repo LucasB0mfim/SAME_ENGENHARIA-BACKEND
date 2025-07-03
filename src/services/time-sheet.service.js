@@ -1,8 +1,12 @@
 import { Readable } from 'stream';
 import csvParser from 'csv-parser';
 
-import repository from '../repositories/time-sheet.repository.js';
+import logger from '../utils/logger/winston.js';
 import AppError from '../utils/errors/AppError.js';
+
+import benefitService from './benefit.service.js';
+
+import repository from '../repositories/time-sheet.repository.js';
 
 class TimeSheetsService {
     async getAllRecords() {
@@ -121,6 +125,37 @@ class TimeSheetsService {
         });
 
         return await repository.create(result);
+    }
+
+    async generateLayout(data) {
+
+        if (!data) throw new AppError('Os campos "data" são obrigatórios.');
+
+        const [yearStr, monthStr] = data.split('-');
+        const month = parseInt(monthStr);
+        const year = parseInt(yearStr);
+
+        const hasDay30 = new Date(year, month - 1, 30).getDate() === 30;
+
+        const day = hasDay30 ? 30 : new Date(year, month, 0).getDate();
+        const formattedDate = `${day.toString().padStart(2, '0')}${monthStr}${yearStr}`;
+
+        const rows = [];
+        const filename = 'layout_ponto_totvs.txt';
+        const employees = await benefitService.findRecord(data, "");
+
+        employees.filter((item) => item.chapa != '000000').forEach((employee) => {
+            const chapa = employee.chapa;
+            const days_worked = employee.days_worked.toString().padStart(2, 0);
+            rows.push(`${chapa};${formattedDate};0008;;0000000000${days_worked},00;;;;;`)
+        });
+
+        logger.info(`Arquivo ${filename} gerado com sucesso.`);
+
+        return {
+            filename,
+            content: rows.join('\n')
+        }
     }
 }
 

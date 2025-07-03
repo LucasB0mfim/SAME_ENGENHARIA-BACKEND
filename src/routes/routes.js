@@ -75,12 +75,12 @@ router.get('/health',
 router.get('/reports/timesheets',
     authToken,
     TimeSheetController.getAllRecords
-)
+);
 
 router.post('/reports/timesheet',
     authToken,
     TimeSheetController.getRecordsByName
-)
+);
 
 router.post('/reports/csv',
     authToken,
@@ -97,7 +97,12 @@ router.post('/reports/extra-day',
 router.post('/reports/timesheet/filters',
     authToken,
     TimeSheetController.getRecordsByFilters
-)
+);
+
+router.post('/timesheet/download/layout',
+    authToken,
+    TimeSheetController.downloadLayoutTotvs
+);
 
 router.get('/experience/reports',
     authToken,

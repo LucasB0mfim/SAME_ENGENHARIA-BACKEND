@@ -124,6 +124,29 @@ class TimeSheetsController {
             });
         }
     }
+
+    async downloadLayoutTotvs(req, res) {
+        try {
+            const { data } = req.body;
+            const { content, filename } = await service.generateLayout(data);
+
+            res.setHeader('Content-Type', 'text/plain');
+            res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+            return res.status(200).send(content);
+        } catch (error) {
+            if (error.statusCode) {
+                return res.status(error.statusCode).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+
+            return res.status(500).json({
+                success: false,
+                message: 'Erro no servidor.'
+            });
+        }
+    }
 }
 
 export default new TimeSheetsController();
