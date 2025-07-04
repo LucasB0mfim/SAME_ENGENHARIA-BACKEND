@@ -127,8 +127,8 @@ class TimeSheetsController {
 
     async downloadLayoutTotvs(req, res) {
         try {
-            const { data } = req.body;
-            const { content, filename } = await service.generateLayout(data);
+            const { date, workingDays } = req.body;
+            const { content, filename } = await service.generateLayout(date, workingDays);
 
             res.setHeader('Content-Type', 'text/plain');
             res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);

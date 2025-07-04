@@ -127,11 +127,13 @@ class TimeSheetsService {
         return await repository.create(result);
     }
 
-    async generateLayout(data) {
+    async generateLayout(date, workingDays) {
 
-        if (!data) throw new AppError('Os campos "data" são obrigatórios.');
+        if (!date || !workingDays) {
+            throw new AppError('Os campos "date" e "workingDays" são obrigatórios.', 400);
+        }
 
-        const [yearStr, monthStr] = data.split('-');
+        const [yearStr, monthStr] = date.split('-');
         const month = parseInt(monthStr);
         const year = parseInt(yearStr);
 
@@ -142,13 +144,26 @@ class TimeSheetsService {
 
         const rows = [];
         const filename = 'layout_ponto_totvs.txt';
-        const employees = await benefitService.findRecord(data, "");
+        const employees = await benefitService.findRecord(date, null);
+
+        if (employees.length === 0) {
+            throw new AppError('Nenhum colaborador encontrado ou mês inexistente.', 404);
+        }
 
         employees.filter((item) => item.chapa != '000000').forEach((employee) => {
             const chapa = employee.chapa;
-            const days_worked = employee.days_worked.toString().padStart(2, 0);
-            rows.push(`${chapa};${formattedDate};0008;;0000000000${days_worked},00;;;;;`)
+            const daysWorked = employee.days_worked;
+            const absences = workingDays - daysWorked;
+            const absencesStr = (workingDays - daysWorked).toString().padStart(2, '0');
+
+            if (absences < workingDays && absences > 0) {
+                rows.push(`${chapa};${formattedDate};0008;;0000000000${absencesStr},00;;;;;`);
+            }
         });
+
+        if (rows.length === 0) {
+            throw new AppError('Nenhuma falta foi encontrada.', 404);
+        }
 
         logger.info(`Arquivo ${filename} gerado com sucesso.`);
 
