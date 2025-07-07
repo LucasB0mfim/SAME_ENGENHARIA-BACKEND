@@ -83,11 +83,10 @@ class TimeSheetsService {
                         Object.entries(data).map(([key, value]) => [key.trim(), value.trim()])
                     );
 
-                    // Valida se existem as duas marcações
                     const hora1 = removeSpace["Hora da Marcação 1"];
                     const hora2 = removeSpace["Hora da Marcação 2"];
 
-                    if (!hora1 || !hora2) return; // Ignora se faltar alguma marcação
+                    if (!hora1 || !hora2) return;
 
                     const [day, month, year] = removeSpace["Data da Marcação"].split('/');
                     const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
@@ -100,7 +99,6 @@ class TimeSheetsService {
 
                     const diffMs = date2 - date1;
 
-                    // Verifica se o tempo é negativo ou menor que 3 horas (10800000 ms)
                     if (diffMs < 3 * 60 * 60 * 1000) return;
 
                     const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
@@ -152,12 +150,22 @@ class TimeSheetsService {
 
         employees.filter((item) => item.chapa != '000000').forEach((employee) => {
             const chapa = employee.chapa;
-            const daysWorked = employee.days_worked;
-            const absences = workingDays - daysWorked;
-            const absencesStr = (workingDays - daysWorked).toString().padStart(2, '0');
+            const absences = this.#absenceCounter(employee.timesheet);
 
-            if (absences < workingDays && absences > 0) {
-                rows.push(`${chapa};${formattedDate};0008;;0000000000${absencesStr},00;;;;;`);
+            if (absences > 0) {
+                rows.push(`${chapa};${formattedDate};0008;;0000000000${absences.toString().padStart(2, '0')},00;;;;;`);
+            }
+        });
+
+        employees.filter((item) => item.chapa != '000000').forEach((employee) => {
+            const { chapa, salario, timesheet } = employee;
+
+            const dsr = this.#dsrCounter(timesheet);
+            const absences = this.#absenceCounter(employee.timesheet);
+            const discount = (((salario / 100) / 30) * (absences + dsr)).toFixed(2);
+
+            if (absences > 0 && dsr > 0) {
+                rows.push(`${chapa};${formattedDate};9211;;0000000000${dsr.toString().padStart(2, '0')},00;${discount};${discount};;;`);
             }
         });
 
@@ -171,6 +179,39 @@ class TimeSheetsService {
             filename,
             content: rows.join('\n')
         }
+    }
+
+    #getISOWeekNumber(date) {
+        const tempDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+        const dayNum = tempDate.getUTCDay() || 7;
+        tempDate.setUTCDate(tempDate.getUTCDate() + 4 - dayNum);
+        const yearStart = new Date(Date.UTC(tempDate.getUTCFullYear(), 0, 1));
+        return Math.ceil((((tempDate - yearStart) / 86400000) + 1) / 7);
+    }
+
+    #dsrCounter(timesheet) {
+        const weeksWithAbsence = new Set();
+
+        timesheet.forEach(ts => {
+            if (ts.falta === 'SIM' && ts.evento_abono === 'NÃO CONSTA' && ts.jornada_realizada.split(':')[0] < 3) {
+                const date = new Date(ts.periodo);
+                if (!isNaN(date)) {
+                    const week = this.#getISOWeekNumber(date);
+                    const year = date.getFullYear();
+                    weeksWithAbsence.add(`${year}-W${week}`);
+                }
+            }
+        });
+
+        return weeksWithAbsence.size;
+    }
+
+    #absenceCounter(timesheet) {
+        return timesheet.filter(value =>
+            value.falta === 'SIM' &&
+            value.evento_abono === 'NÃO CONSTA' &&
+            parseInt(value.jornada_realizada?.split(':')[0]) < 3
+        ).length;
     }
 }
 
