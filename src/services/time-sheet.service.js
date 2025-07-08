@@ -125,7 +125,7 @@ class TimeSheetsService {
         return await repository.create(result);
     }
 
-    async generateLayout(date, workingDays) {
+    async generateLayout(date, workingDays, holidays) {
 
         if (!date || !workingDays) {
             throw new AppError('Os campos "date" e "workingDays" são obrigatórios.', 400);
@@ -148,7 +148,7 @@ class TimeSheetsService {
             throw new AppError('Nenhum colaborador encontrado ou mês inexistente.', 404);
         }
 
-        employees.filter((item) => item.chapa != '000000').forEach((employee) => {
+        employees.filter((employee) => employee.contrato === 'CLT').forEach((employee) => {
             const chapa = employee.chapa;
             const absences = this.#absenceCounter(employee.timesheet);
 
@@ -157,14 +157,14 @@ class TimeSheetsService {
             }
         });
 
-        employees.filter((item) => item.chapa != '000000').forEach((employee) => {
+        employees.filter((employee) => employee.contrato === 'CLT').forEach((employee) => {
             const { chapa, salario, timesheet } = employee;
 
-            const dsr = this.#dsrCounter(timesheet);
+            const dsr = this.#dsrCounter(timesheet, holidays);
             const absences = this.#absenceCounter(employee.timesheet);
             const discount = (((salario / 100) / 30) * (absences + dsr)).toFixed(2);
 
-            if (absences > 0 && dsr > 0) {
+            if (absences > 0) {
                 rows.push(`${chapa};${formattedDate};9211;;0000000000${dsr.toString().padStart(2, '0')},00;${discount};${discount};;;`);
             }
         });
@@ -181,36 +181,49 @@ class TimeSheetsService {
         }
     }
 
-    #getISOWeekNumber(date) {
-        const tempDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-        const dayNum = tempDate.getUTCDay() || 7;
-        tempDate.setUTCDate(tempDate.getUTCDate() + 4 - dayNum);
-        const yearStart = new Date(Date.UTC(tempDate.getUTCFullYear(), 0, 1));
-        return Math.ceil((((tempDate - yearStart) / 86400000) + 1) / 7);
-    }
+    #dsrCounter(timesheet, holidays = []) {
+        const weeks = {};
 
-    #dsrCounter(timesheet) {
-        const weeksWithAbsence = new Set();
+        function getWeekKey(dateStr) {
+            const [year, month, day] = dateStr.split('-').map(Number);
+            const firstDay = new Date(year, month - 1, 1).getDay();
+            const week = Math.ceil((day + firstDay) / 7);
+            return `${year}-${month}-${week}`;
+        }
 
+        // Marca as semanas dos feriados
+        holidays.forEach(dateStr => {
+            const key = getWeekKey(dateStr);
+            weeks[key] = weeks[key] || { falta: false, feriados: 0 };
+            weeks[key].feriados += 1;
+        });
+
+        // Marca as semanas com faltas
         timesheet.forEach(ts => {
-            if (ts.falta === 'SIM' && ts.evento_abono === 'NÃO CONSTA' && ts.jornada_realizada.split(':')[0] < 3) {
-                const date = new Date(ts.periodo);
-                if (!isNaN(date)) {
-                    const week = this.#getISOWeekNumber(date);
-                    const year = date.getFullYear();
-                    weeksWithAbsence.add(`${year}-W${week}`);
-                }
+            if (ts.evento_abono === 'NÃO CONSTA' && ts.jornada_realizada.split(':')[0] < 3) {
+                const key = getWeekKey(ts.periodo);
+                weeks[key] = weeks[key] || { falta: false, feriados: 0 };
+                weeks[key].falta = true;
             }
         });
 
-        return weeksWithAbsence.size;
+        // Soma os DSRs
+        let dsr = 0;
+
+        Object.values(weeks).forEach(semana => {
+            if (semana.falta) {
+                dsr += 1 + semana.feriados;
+            }
+        });
+
+        return dsr;
     }
+
 
     #absenceCounter(timesheet) {
         return timesheet.filter(value =>
-            value.falta === 'SIM' &&
             value.evento_abono === 'NÃO CONSTA' &&
-            parseInt(value.jornada_realizada?.split(':')[0]) < 3
+            value.jornada_realizada.split(':')[0] < 3
         ).length;
     }
 }
