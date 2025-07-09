@@ -148,25 +148,24 @@ class TimeSheetsService {
             throw new AppError('Nenhum colaborador encontrado ou mês inexistente.', 404);
         }
 
-        employees.filter((employee) => employee.contrato === 'CLT').forEach((employee) => {
-            const chapa = employee.chapa;
+        const employeesWithAbsences = employees.filter((employee) => {
             const absences = this.#absenceCounter(employee.timesheet);
-
-            if (absences > 0) {
-                rows.push(`${chapa};${formattedDate};0008;;0000000000${absences.toString().padStart(2, '0')},00;;;;;`);
-            }
+            return employee.contrato === 'CLT' && absences > 0;
         });
 
-        employees.filter((employee) => employee.contrato === 'CLT').forEach((employee) => {
+        employeesWithAbsences.forEach((employee) => {
+            const chapa = employee.chapa;
+            const absences = this.#absenceCounter(employee.timesheet);
+            rows.push(`${chapa};${formattedDate};0008;;0000000000${absences.toString().padStart(2, '0')},00;;;;;`);
+        });
+
+        employeesWithAbsences.forEach((employee) => {
             const { chapa, salario, timesheet } = employee;
 
             const dsr = this.#dsrCounter(timesheet, holidays);
             const absences = this.#absenceCounter(employee.timesheet);
             const discount = (((salario / 100) / 30) * (absences + dsr)).toFixed(2);
-
-            if (absences > 0) {
-                rows.push(`${chapa};${formattedDate};9211;;0000000000${dsr.toString().padStart(2, '0')},00;${discount};${discount};;;`);
-            }
+            rows.push(`${chapa};${formattedDate};9211;;0000000000${dsr.toString().padStart(2, '0')},00;${discount};${discount};;;`);
         });
 
         if (rows.length === 0) {
@@ -186,39 +185,42 @@ class TimeSheetsService {
 
         function getWeekKey(dateStr) {
             const [year, month, day] = dateStr.split('-').map(Number);
-            const firstDay = new Date(year, month - 1, 1).getDay();
-            const week = Math.ceil((day + firstDay) / 7);
-            return `${year}-${month}-${week}`;
+            const date = new Date(year, month - 1, day);
+            const firstDayOfYear = new Date(year, 0, 1);
+            const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
+            return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
         }
 
-        // Marca as semanas dos feriados
+        // Inicializa as semanas com feriados
         holidays.forEach(dateStr => {
-            const key = getWeekKey(dateStr);
-            weeks[key] = weeks[key] || { falta: false, feriados: 0 };
-            weeks[key].feriados += 1;
+            const weekKey = getWeekKey(dateStr);
+            if (!weeks[weekKey]) {
+                weeks[weekKey] = { hasAbsence: false, holidayCount: 0 };
+            }
+            weeks[weekKey].holidayCount += 1;
         });
 
         // Marca as semanas com faltas
         timesheet.forEach(ts => {
             if (ts.evento_abono === 'NÃO CONSTA' && ts.jornada_realizada.split(':')[0] < 3) {
-                const key = getWeekKey(ts.periodo);
-                weeks[key] = weeks[key] || { falta: false, feriados: 0 };
-                weeks[key].falta = true;
+                const weekKey = getWeekKey(ts.periodo);
+                if (!weeks[weekKey]) {
+                    weeks[weekKey] = { hasAbsence: false, holidayCount: 0 };
+                }
+                weeks[weekKey].hasAbsence = true;
             }
         });
 
         // Soma os DSRs
         let dsr = 0;
-
-        Object.values(weeks).forEach(semana => {
-            if (semana.falta) {
-                dsr += 1 + semana.feriados;
+        Object.values(weeks).forEach(week => {
+            if (week.hasAbsence) {
+                dsr += 1 + week.holidayCount;
             }
         });
 
         return dsr;
     }
-
 
     #absenceCounter(timesheet) {
         return timesheet.filter(value =>
