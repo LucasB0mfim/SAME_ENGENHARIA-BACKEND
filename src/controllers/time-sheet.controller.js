@@ -100,10 +100,10 @@ class TimeSheetsController {
         }
     }
 
-    async AddExtraDay(req, res) {
+    async addExtraDay(req, res) {
         try {
             const timeSheet = req.file.buffer;
-            const result = await service.AddExtraDay(timeSheet);
+            const result = await service.addExtraDay(timeSheet);
 
             res.status(200).json({
                 success: true,

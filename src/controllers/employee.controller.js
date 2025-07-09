@@ -160,6 +160,7 @@ class EmployeeController {
             return res.status(200).json({
                 success: true,
                 message: 'Colaborador logado com sucesso.',
+                email,
                 token
             });
         } catch (error) {

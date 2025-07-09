@@ -91,7 +91,7 @@ router.post('/reports/csv',
 router.post('/reports/extra-day',
     authToken,
     uploadCSV,
-    TimeSheetController.AddExtraDay
+    TimeSheetController.addExtraDay
 );
 
 router.post('/reports/timesheet/filters',

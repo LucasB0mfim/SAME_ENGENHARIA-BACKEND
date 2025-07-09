@@ -69,7 +69,7 @@ class TimeSheetsService {
         return await repository.create(result);
     }
 
-    async AddExtraDay(timeSheet) {
+    async addExtraDay(timeSheet) {
         if (!timeSheet) throw new AppError('O controle de ponto não foi fornecido.');
 
         const result = [];
