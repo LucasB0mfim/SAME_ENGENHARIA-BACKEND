@@ -26,5 +26,5 @@ app.use(routes);
 
 // Responsável por escutar a porta definida pela variável 'PORT'
 app.listen(PORT, () => {
-    console.log(`O servidor está rodando no http://localhost:${PORT}`);
+    console.log(`O serviço está rodando: http://localhost:${PORT}`);
 });

@@ -12,6 +12,7 @@ import IndicatorController from '../controllers/indicator.controller.js';
 import BenefitController from '../controllers/benefit.controller.js';
 import GeneralController from '../controllers/general.controller.js';
 import FinancialController from '../controllers/financial.controller.js';
+import AdmissionController from '../controllers/admission.controller.js';
 
 // Importando middlewares
 import authToken from '../middlewares/authToken.js';
@@ -233,6 +234,11 @@ router.post('/comment',
 router.get('/financial/track',
     authToken,
     FinancialController.getTrack
+);
+
+router.post('/admission/generate-link',
+    authToken,
+    AdmissionController.generateLink
 );
 
 

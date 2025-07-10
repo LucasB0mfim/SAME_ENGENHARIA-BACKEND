@@ -22,6 +22,10 @@ export const generateToken = (email) => {
     return jwt.sign({ email }, CHAVE_SECRETA, { expiresIn: 18000 });
 };
 
+export const generateTempToken = () => {
+    return jwt.sign({ temp: true }, CHAVE_SECRETA, { expiresIn: 60 });
+};
+
 /**
  * Função responsável por validar um token JWT fornecido.
  * 
