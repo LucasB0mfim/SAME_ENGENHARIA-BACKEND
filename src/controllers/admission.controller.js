@@ -1,11 +1,14 @@
 import service from '../services/admission.service.js';
+import dotenv from "dotenv";
+
+dotenv.config();
 
 class AdmissionController {
 
     async generateLink(req, res) {
         try {
             const token = await service.generateToken();
-            const link = `https://sameengenharia.com.br/admission?token=${token}`;
+            const link = `${process.env.URL}/admission?token=${token}`;
 
             return res.status(200).json({
                 success: true,
