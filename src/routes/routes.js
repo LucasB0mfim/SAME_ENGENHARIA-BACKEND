@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { uploadNF, uploadCSV } from '../config/multer.js';
+import { uploadNF, uploadCSV, uploadDocuments } from '../config/multer.js';
 
 // Importando os controllers
 import EmployeeController from '../controllers/employee.controller.js';
@@ -236,11 +236,30 @@ router.get('/financial/track',
     FinancialController.getTrack
 );
 
+router.get('/admission/find-admission',
+    authToken,
+    AdmissionController.findAdmission
+);
+
 router.post('/admission/generate-link',
     authToken,
     AdmissionController.generateLink
 );
 
+router.delete('/admission/delete/:id',
+    authToken,
+    AdmissionController.deleteAdmission
+);
+
+router.post('/admission/create-admission',
+    authToken,
+    uploadDocuments,
+    AdmissionController.createEmployee
+);
+
+router.use('/admission/documents',
+    express.static('./src/uploads/admission')
+);
 
 // Exportando a rota
 export default router;
