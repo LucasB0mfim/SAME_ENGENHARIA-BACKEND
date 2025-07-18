@@ -33,13 +33,39 @@ class AdmissionController {
     async findAdmission(req, res) {
         try {
 
-            const result = await service.findAdmission();
+            const { status } = req.body;
+            const result = await service.findAdmission(status);
 
             return res.status(200).json({
                 success: true,
                 message: 'Consulta realizada com sucesso.',
                 result
             })
+        } catch (error) {
+            if (error.statusCode) {
+                return res.status(error.statusCode).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+
+            return res.status(500).json({
+                success: false,
+                message: 'Erro interno no servidor.'
+            });
+        }
+    }
+
+    async updateAdmission(req, res) {
+        try {
+            const { id, status } = req.body;
+            await service.updateAdmission(id, status);
+
+            return res.status(200).json({
+                success: true,
+                message: 'Admissão atualizada com sucesso.',
+            });
+
         } catch (error) {
             if (error.statusCode) {
                 return res.status(error.statusCode).json({

@@ -13,8 +13,14 @@ class AdmissionService {
         return generateTempToken();
     }
 
-    async findAdmission() {
-        return await repository.findAll();
+    async updateAdmission(id, status) {
+        if (!id || !status) throw new AppError('O campo "id" e "status" são obrigatórios.', 404);
+        return await repository.update(id, status);
+    }
+
+    async findAdmission(status) {
+        if (!status) throw new AppError("O campo 'status' é obrigatório.", 404);
+        return await repository.findByStatus(status);
     }
 
     async deleteAdmission(id) {

@@ -5,11 +5,12 @@ import AppError from '../utils/errors/AppError.js';
 
 class AdmissionRepository {
 
-    async findAll() {
+    async findByStatus(status) {
         try {
             const { data, error } = await dataBase
                 .from('admission')
                 .select('*')
+                .eq('status', status);
 
             if (error) {
                 logger.error('Erro ao consultar a tabela admission', error);
@@ -39,26 +40,6 @@ class AdmissionRepository {
             return data
         } catch (error) {
             logger.error('Erro ao consultar pelo id.', { error });
-            throw error;
-        }
-    }
-
-    async delete(id) {
-        try {
-            const { data, error } = await dataBase
-                .from('admission')
-                .delete()
-                .eq('id', id)
-                .select('*');
-
-            if (error) {
-                logger.error('Erro deletar admissão na tabela admission:', error)
-                throw new AppError('Erro ao deletar: ' + error.message, 500);
-            }
-
-            return data;
-        } catch (error) {
-            logger.error('Erro no delete:', error);
             throw error;
         }
     }
@@ -131,6 +112,48 @@ class AdmissionRepository {
             return data;
         } catch (error) {
             logger.error('Erro ao salvar dados de um novo colaborador.');
+            throw error;
+        }
+    }
+
+    async update(id, status) {
+        try {
+            const { data, error } = await dataBase
+                .from('admission')
+                .update({ status: status })
+                .eq('id', id)
+                .select('*')
+                .single();
+
+            if (error) {
+                logger.warn(`Falha ao atualizar admissão do ID: ${id}`);
+                throw new AppError(`Não foi possível atualizar essa admissão: ${error}`, 400);
+            }
+
+            logger.info(`Status da admissão do id ${id} atualizado com sucesso.`);
+            return data;
+        } catch (error) {
+            logger.error(`Falha ao atualizar a admissão do ID ${id}`);
+            throw new AppError('Não foi possível atualizar.', 400)
+        }
+    }
+
+    async delete(id) {
+        try {
+            const { data, error } = await dataBase
+                .from('admission')
+                .delete()
+                .eq('id', id)
+                .select('*');
+
+            if (error) {
+                logger.error('Erro deletar admissão na tabela admission:', error)
+                throw new AppError('Erro ao deletar: ' + error.message, 500);
+            }
+
+            return data;
+        } catch (error) {
+            logger.error('Erro no delete:', error);
             throw error;
         }
     }

@@ -236,14 +236,20 @@ router.get('/financial/track',
     FinancialController.getTrack
 );
 
-router.get('/admission/find-admission',
+router.post('/admission/create',
+    authToken,
+    uploadDocuments,
+    AdmissionController.createEmployee
+);
+
+router.post('/admission/find',
     authToken,
     AdmissionController.findAdmission
 );
 
-router.post('/admission/generate-link',
+router.put('/admission/update',
     authToken,
-    AdmissionController.generateLink
+    AdmissionController.updateAdmission
 );
 
 router.delete('/admission/delete/:id',
@@ -251,10 +257,9 @@ router.delete('/admission/delete/:id',
     AdmissionController.deleteAdmission
 );
 
-router.post('/admission/create-admission',
+router.post('/admission/generate-link',
     authToken,
-    uploadDocuments,
-    AdmissionController.createEmployee
+    AdmissionController.generateLink
 );
 
 router.use('/admission/documents',
