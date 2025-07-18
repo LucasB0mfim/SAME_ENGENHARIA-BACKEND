@@ -23,7 +23,7 @@ export const generateToken = (email) => {
 };
 
 export const generateTempToken = () => {
-    return jwt.sign({ temp: true }, CHAVE_SECRETA, { expiresIn: 60 });
+    return jwt.sign({ temp: true }, CHAVE_SECRETA, { expiresIn: 86400 });
 };
 
 /**
