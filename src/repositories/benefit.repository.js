@@ -22,7 +22,7 @@ class BenefitRepository {
         }
     }
 
-    async createEmployee(nome, funcao, setor, contrato, centro_custo, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem) {
+    async createEmployee(nome, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem) {
         try {
             const { data, error } = await dataBase
                 .from('beneficiary')
@@ -32,6 +32,7 @@ class BenefitRepository {
                     setor: setor,
                     contrato: contrato,
                     centro_custo: centro_custo,
+                    recebe_integral: recebe_integral,
                     vr_caju: vr_caju,
                     vr_vr: vr_vr,
                     vc_caju: vc_caju,
@@ -53,7 +54,7 @@ class BenefitRepository {
         }
     }
 
-    async update(id, nome, funcao, setor, contrato, centro_custo, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem) {
+    async update(id, nome, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem) {
         try {
             const { data, error } = await dataBase
                 .from('beneficiary')
@@ -63,6 +64,7 @@ class BenefitRepository {
                     setor: setor,
                     contrato: contrato,
                     centro_custo: centro_custo,
+                    recebe_integral: recebe_integral,
                     vr_caju: vr_caju,
                     vr_vr: vr_vr,
                     vc_caju: vc_caju,
