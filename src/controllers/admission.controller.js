@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 class AdmissionController {
-
     async generateLink(req, res) {
         try {
             const token = await service.generateToken();
@@ -14,15 +13,15 @@ class AdmissionController {
                 success: true,
                 message: 'Link gerado com sucesso.',
                 link
-            })
+            });
         } catch (error) {
+            console.error('Erro em generateLink:', error);
             if (error.statusCode) {
                 return res.status(error.statusCode).json({
                     success: false,
                     message: error.message
                 });
             }
-
             return res.status(500).json({
                 success: false,
                 message: 'Erro interno no servidor.'
@@ -32,7 +31,6 @@ class AdmissionController {
 
     async findAdmission(req, res) {
         try {
-
             const { status } = req.body;
             const result = await service.findAdmission(status);
 
@@ -40,15 +38,15 @@ class AdmissionController {
                 success: true,
                 message: 'Consulta realizada com sucesso.',
                 result
-            })
+            });
         } catch (error) {
+            console.error('Erro em findAdmission:', error);
             if (error.statusCode) {
                 return res.status(error.statusCode).json({
                     success: false,
                     message: error.message
                 });
             }
-
             return res.status(500).json({
                 success: false,
                 message: 'Erro interno no servidor.'
@@ -65,15 +63,14 @@ class AdmissionController {
                 success: true,
                 message: 'Admissão atualizada com sucesso.',
             });
-
         } catch (error) {
+            console.error('Erro em updateAdmission:', error);
             if (error.statusCode) {
                 return res.status(error.statusCode).json({
                     success: false,
                     message: error.message
                 });
             }
-
             return res.status(500).json({
                 success: false,
                 message: 'Erro interno no servidor.'
@@ -84,7 +81,6 @@ class AdmissionController {
     async deleteAdmission(req, res) {
         try {
             const { id } = req.params;
-
             await service.deleteAdmission(id);
 
             return res.status(200).json({
@@ -92,13 +88,13 @@ class AdmissionController {
                 message: 'Admissão deletada com sucesso.',
             });
         } catch (error) {
+            console.error('Erro em deleteAdmission:', error);
             if (error.statusCode) {
                 return res.status(error.statusCode).json({
                     success: false,
                     message: error.message
                 });
             }
-
             return res.status(500).json({
                 success: false,
                 message: 'Erro no servidor.'
@@ -108,10 +104,10 @@ class AdmissionController {
 
     async createEmployee(req, res) {
         try {
-            const { name, cpf, birthDate, phone, rg, pis, address, uniform, dailyVouchers, role, bootSize, childrenUnder14, instagram, linkedin, bloodType, emergencyName, relationship, emergencyPhone, allergy, chronicDisease } = req.body;
 
-            const files = req.files;
+            const { name, cpf, birthDate, phone, rg, pis, address, uniform, dailyVouchers, role, bootSize, childrenUnder14, instagram, linkedin, bloodType, emergencyName, relationship, emergencyPhone, allergy, chronicDisease, useVT } = req.body;
 
+            const files = req.files || {};
             const photo3x4 = files?.photo3x4?.[0]?.filename || null;
             const cpfImage = files?.cpfImage?.[0]?.filename || null;
             const rgFront = files?.rgFront?.[0]?.filename || null;
@@ -127,20 +123,19 @@ class AdmissionController {
                 result
             });
         } catch (error) {
+            console.error('Erro em createEmployee:', error);
             if (error.statusCode) {
                 return res.status(error.statusCode).json({
                     success: false,
                     message: error.message
                 });
             }
-
             return res.status(500).json({
                 success: false,
                 message: 'Erro interno no servidor.'
             });
         }
     }
-
 }
 
 export default new AdmissionController();

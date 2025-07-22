@@ -1,10 +1,8 @@
 import dataBase from '../database/dataBase.js';
-
 import logger from '../utils/logger/winston.js';
 import AppError from '../utils/errors/AppError.js';
 
 class AdmissionRepository {
-
     async findByStatus(status) {
         try {
             const { data, error } = await dataBase
@@ -13,13 +11,13 @@ class AdmissionRepository {
                 .eq('status', status);
 
             if (error) {
-                logger.error('Erro ao consultar a tabela admission', error);
+                logger.error('Erro ao consultar a tabela admission:', error);
                 throw new AppError('Erro ao consultar a tabela.', 500);
             }
 
-            return data
+            return data;
         } catch (error) {
-            logger.error('Erro no método findAdmission: ', { error });
+            logger.error('Erro no método findByStatus:', error);
             throw error;
         }
     }
@@ -33,13 +31,13 @@ class AdmissionRepository {
                 .single();
 
             if (error) {
-                logger.error('Erro ao consultar a tabela admission', error);
+                logger.error('Erro ao consultar a tabela admission:', error);
                 throw new AppError('Erro ao consultar a tabela.', 500);
             }
 
-            return data
+            return data;
         } catch (error) {
-            logger.error('Erro ao consultar pelo id.', { error });
+            logger.error('Erro ao consultar pelo id:', error);
             throw error;
         }
     }
@@ -73,45 +71,48 @@ class AdmissionRepository {
         residenceProof
     ) {
         try {
-            logger.info('Recebida a solicitação para atualizar pedido.');
 
             const { data, error } = await dataBase
                 .from('admission')
                 .insert({
-                    name: name,
-                    cpf: cpf,
+                    name,
+                    cpf,
                     birth_date: birthDate,
-                    phone: phone,
-                    rg: rg,
-                    pis: pis,
-                    address: address,
-                    uniform: uniform,
+                    phone,
+                    rg,
+                    pis,
+                    address,
+                    uniform,
                     daily_vouchers: dailyVouchers,
-                    role: role,
+                    role,
                     boot_size: bootSize,
                     children_under_14: childrenUnder14,
-                    instagram: instagram,
-                    linkedin: linkedin,
+                    instagram,
+                    linkedin,
                     blood_type: bloodType,
                     emergency_name: emergencyName,
-                    relationship: relationship,
+                    relationship,
                     emergency_phone: emergencyPhone,
-                    allergy: allergy,
+                    allergy,
                     chronic_disease: chronicDisease,
                     photo_3x4: photo3x4,
                     cpf_image: cpfImage,
                     rg_front: rgFront,
                     rg_back: rgBack,
-                    certificate: certificate,
+                    certificate,
                     residence_proof: residenceProof
                 })
-                .select('*')
+                .select('*');
 
-            logger.info('Dados de um novo colaborador foram armazenados.');
+            if (error) {
+                logger.error('Erro ao inserir na tabela admission:', error);
+                throw new AppError(`Erro ao inserir dados: ${error.message}`, 500);
+            }
 
+            logger.info('Dados de um novo colaborador foram armazenados:', data);
             return data;
         } catch (error) {
-            logger.error('Erro ao salvar dados de um novo colaborador.');
+            logger.error('Erro no método create:', error);
             throw error;
         }
     }
@@ -120,21 +121,21 @@ class AdmissionRepository {
         try {
             const { data, error } = await dataBase
                 .from('admission')
-                .update({ status: status })
+                .update({ status })
                 .eq('id', id)
                 .select('*')
                 .single();
 
             if (error) {
-                logger.warn(`Falha ao atualizar admissão do ID: ${id}`);
-                throw new AppError(`Não foi possível atualizar essa admissão: ${error}`, 400);
+                logger.warn(`Falha ao atualizar admissão do ID: ${id}`, error);
+                throw new AppError(`Não foi possível atualizar essa admissão: ${error.message}`, 400);
             }
 
             logger.info(`Status da admissão do id ${id} atualizado com sucesso.`);
             return data;
         } catch (error) {
-            logger.error(`Falha ao atualizar a admissão do ID ${id}`);
-            throw new AppError('Não foi possível atualizar.', 400)
+            logger.error(`Falha ao atualizar a admissão do ID ${id}`, error);
+            throw new AppError('Não foi possível atualizar.', 400);
         }
     }
 
@@ -147,13 +148,13 @@ class AdmissionRepository {
                 .select('*');
 
             if (error) {
-                logger.error('Erro deletar admissão na tabela admission:', error)
+                logger.error('Erro ao deletar admissão na tabela admission:', error);
                 throw new AppError('Erro ao deletar: ' + error.message, 500);
             }
 
             return data;
         } catch (error) {
-            logger.error('Erro no delete:', error);
+            logger.error('Erro no método delete:', error);
             throw error;
         }
     }
