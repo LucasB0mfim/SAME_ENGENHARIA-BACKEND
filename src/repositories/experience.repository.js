@@ -9,71 +9,14 @@ class ExperienceRepository {
         try {
             connection = await pool.connect();
             const result = await connection.request().query('exec experience');
-            const sqlData = result.recordset;
+            const data = result.recordset;
 
-            if (!sqlData || sqlData.length === 0) {
+            if (!data || data.length === 0) {
                 logger.error('Nenhum dado encontrado na tabela experience do SQL Server.');
                 throw new AppError('Nenhum dado encontrado na tabela experience do SQL Server.', 404);
             }
 
-            const { data: supabaseData, error: selectError } = await dataBase
-                .from('experience')
-                .select('*');
-
-            if (selectError) {
-                logger.error('Erro ao consultar tabela experience no Supabase.', { error: selectError });
-                throw new AppError('Não foi possível consultar tabela experience no Supabase.', 404);
-            }
-
-            const sqlMap = new Map();
-            sqlData.forEach(item => {
-                const key = item.chapa || item.funcionario;
-                sqlMap.set(key, item);
-            });
-
-            const supabaseMap = new Map();
-            supabaseData?.forEach(item => {
-                const key = item.chapa || item.funcionario;
-                supabaseMap.set(key, item);
-            });
-
-            const operations = [];
-
-            for (const [key] of supabaseMap) {
-                if (!sqlMap.has(key)) {
-                    operations.push(
-                        dataBase.from('experience')
-                            .delete()
-                            .eq('chapa', key)
-                            .then()
-                    );
-                }
-            }
-
-            for (const [key, sqlItem] of sqlMap) {
-                const supabaseItem = supabaseMap.get(key);
-
-                if (!supabaseItem || JSON.stringify(supabaseItem) !== JSON.stringify(sqlItem)) {
-                    operations.push(
-                        dataBase.from('experience')
-                            .upsert(sqlItem)
-                            .then()
-                    );
-                }
-            }
-
-            await Promise.all(operations);
-
-            const { data: finalData, error: finalError } = await dataBase
-                .from('experience')
-                .select('*');
-
-            if (finalError) {
-                logger.error('Erro ao consultar tabela experience após sincronização.', { error: finalError });
-                throw new AppError('Não foi possível consultar tabela experience após sincronização.', 404);
-            }
-
-            return finalData;
+            return data;
         } catch (error) {
             logger.error('Erro ao sincronizar dados.', { error });
             throw error;
