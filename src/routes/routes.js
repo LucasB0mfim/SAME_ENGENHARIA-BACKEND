@@ -237,7 +237,6 @@ router.get('/financial/track',
 );
 
 router.post('/admission/create',
-    authToken,
     uploadDocuments,
     AdmissionController.createEmployee
 );
