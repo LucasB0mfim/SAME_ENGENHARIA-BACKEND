@@ -22,12 +22,14 @@ class BenefitRepository {
         }
     }
 
-    async createEmployee(nome, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem) {
+    async createEmployee(nome, chapa, cpf, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo) {
         try {
             const { data, error } = await dataBase
                 .from('beneficiary')
                 .insert({
                     nome: nome,
+                    chapa: chapa,
+                    cpf: cpf,
                     funcao: funcao,
                     setor: setor,
                     contrato: contrato,
@@ -38,7 +40,14 @@ class BenefitRepository {
                     vc_caju: vc_caju,
                     vc_vr: vc_vr,
                     vt_caju: vt_caju,
-                    vt_vem: vt_vem
+                    vt_vem: vt_vem,
+                    vr_caju_fixo: vr_caju_fixo,
+                    vr_vr_fixo: vr_vr_fixo,
+                    vc_caju_fixo: vc_caju_fixo,
+                    vc_vr_fixo: vc_vr_fixo,
+                    vt_caju_fixo: vt_caju_fixo,
+                    vt_vem_fixo: vt_vem_fixo
+
                 })
                 .select('*');
 
@@ -54,12 +63,14 @@ class BenefitRepository {
         }
     }
 
-    async update(id, nome, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem) {
+    async update(id, nome, chapa, cpf, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo) {
         try {
             const { data, error } = await dataBase
                 .from('beneficiary')
                 .update({
                     nome: nome,
+                    chapa: chapa,
+                    cpf: cpf,
                     funcao: funcao,
                     setor: setor,
                     contrato: contrato,
@@ -70,7 +81,13 @@ class BenefitRepository {
                     vc_caju: vc_caju,
                     vc_vr: vc_vr,
                     vt_caju: vt_caju,
-                    vt_vem: vt_vem
+                    vt_vem: vt_vem,
+                    vr_caju_fixo: vr_caju_fixo,
+                    vr_vr_fixo: vr_vr_fixo,
+                    vc_caju_fixo: vc_caju_fixo,
+                    vc_vr_fixo: vc_vr_fixo,
+                    vt_caju_fixo: vt_caju_fixo,
+                    vt_vem_fixo: vt_vem_fixo
                 })
                 .eq('id', id)
                 .select('*');

@@ -115,11 +115,6 @@ router.get('/experience/download',
     ExperienceController.convertToExcel,
 );
 
-router.put('/experience/update',
-    authToken,
-    ExperienceController.updateModality
-);
-
 router.get('/reports/tracking',
     authToken,
     TrackingController.getTracking

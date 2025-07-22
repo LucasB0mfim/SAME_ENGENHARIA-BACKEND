@@ -9,22 +9,22 @@ class BenefitService {
         return await repository.findEmployee();
     }
 
-    async createEmployee(nome, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem) {
+    async createEmployee(nome, chapa, cpf, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo) {
 
-        if (!nome || !funcao || !setor || !contrato || !centro_custo || !recebe_integral) {
-            throw new AppError('Os campos "nome", "funcao", "setor", "contrato", "centro_custo" e "recebe_integral" são obrigatórios.', 400);
+        if (!nome || !chapa || !funcao || !setor || !contrato || !centro_custo || !recebe_integral || vr_caju === null || vr_vr === null || vc_caju === null || vc_vr === null || vt_caju === null || vt_vem === null || !vr_caju_fixo || !vr_vr_fixo || !vc_caju_fixo || !vc_vr_fixo || !vt_caju_fixo || !vt_vem_fixo) {
+            throw new AppError('Os campos "nome", "funcao", "setor", "contrato", "centro_custo", "recebe_integral", "vr_caju", "vr_vr", "vc_caju", "vc_vr", "vt_caju", "vt_vem", "vr_caju_fixo", "vr_vr_fixo", "vc_caju_fixo", "vc_vr_fixo", "vt_caju_fixo" e "vt_vem_fixo" são obrigatórios.', 400);
         }
 
-        return await repository.createEmployee(nome, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem);
+        return await repository.createEmployee(nome, chapa, cpf, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo);
     }
 
-    async updateEmployee(id, nome, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem) {
+    async updateEmployee(id, nome, chapa, cpf, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo) {
 
-        if (!id || !nome || !funcao || !setor || !contrato || !centro_custo || !recebe_integral) {
-            throw new AppError('Os campos "id", "nome", "funcao", "setor", "contrato", "centro_custo" e "recebe_integral" são obrigatórios.', 400);
+        if (!id || !nome || !chapa || !cpf || !funcao || !setor || !contrato || !centro_custo || !recebe_integral || vr_caju === null || vr_vr === null || vc_caju === null || vc_vr === null || vt_caju === null || vt_vem === null || !vr_caju_fixo || !vr_vr_fixo || !vc_caju_fixo || !vc_vr_fixo || !vt_caju_fixo || !vt_vem_fixo) {
+            throw new AppError('Os campos "id", "nome", "chapa", "funcao", "setor", "contrato", "centro_custo", "recebe_integral", "vr_caju", "vr_vr", "vc_caju", "vc_vr", "vt_caju", "vt_vem", "vr_caju_fixo", "vr_vr_fixo", "vc_caju_fixo", "vc_vr_fixo", "vt_caju_fixo" e "vt_vem_fixo" são obrigatórios.', 400);
         }
 
-        return await repository.update(id, nome, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem);
+        return await repository.update(id, nome, chapa, cpf, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo);
     }
 
     async deleteEmployee(id) {
@@ -408,78 +408,80 @@ class BenefitService {
     }
 
     // ========== MÉTODOS PARA CALCULAR BENEFÍCIOS ========== //
-    #vr_day(employee) {
-        const vr_day = employee.vr_caju + employee.vr_vr;
-
-        if (vr_day > 100) {
-            return vr_day / employee.dias_uteis;
-        } else {
-            return vr_day;
-        }
-    }
 
     #vr_month(employee) {
         const vr_day = employee.vr_caju + employee.vr_vr;
 
-        if (vr_day > 100) {
+        if (employee.vr_caju_fixo === 'SIM' || employee.vr_vr_fixo === 'SIM') {
             return vr_day;
-        } else if (vr_day > 25) {
-            return vr_day * this.#daysWorked(employee);
+        } else if (employee.recebe_integral === 'SIM') {
+            return (vr_day * (employee.dias_uteis + employee.dias_nao_uteis));
         } else {
             return vr_day * this.#daysWorked(employee);
         }
     }
 
-    #vc_day(employee) {
-        const vc_day = employee.vc_caju + employee.vc_vr;
+    #vr_day(employee) {
+        const vr_month = this.#vr_month(employee);
 
-        if (vc_day > 40) {
-            return vc_day / employee.dias_uteis;
+        if (employee.recebe_integral === 'SIM') {
+            return (vr_month / (employee.dias_uteis + employee.dias_nao_uteis));
         } else {
-            return vc_day;
+            return vr_month / employee.dias_uteis;
         }
     }
+
 
     #vc_month(employee) {
         const vc_day = employee.vc_caju + employee.vc_vr;
 
-        if (vc_day > 40) {
+        if (employee.vc_caju_fixo === 'SIM' || employee.vc_vr_fixo === 'SIM') {
             return vc_day;
+        } else if (employee.recebe_integral === 'SIM') {
+            return (vc_day * (employee.dias_uteis + employee.dias_nao_uteis));
         } else {
             return vc_day * this.#daysWorked(employee);
         }
     }
 
-    #vt_day(employee) {
-        const vt_day = employee.vt_caju + employee.vt_vem;
+    #vc_day(employee) {
+        const vc_month = this.#vc_month(employee);
 
-        if (vt_day > 40) {
-            return vt_day / employee.dias_uteis;
+        if (employee.recebe_integral === 'SIM') {
+            return (vc_month / (employee.dias_uteis + employee.dias_nao_uteis));
         } else {
-            return vt_day;
+            return vc_month / employee.dias_uteis;
         }
     }
 
     #vt_month(employee) {
         const vt_day = employee.vt_caju + employee.vt_vem;
 
-        if (vt_day > 40) {
+        if (employee.vt_caju_fixo === 'SIM' || employee.vt_vem_fixo === 'SIM') {
             return vt_day;
+        } else if (employee.recebe_integral === 'SIM') {
+            return (vt_day * (employee.dias_uteis + employee.dias_nao_uteis));
         } else {
             return vt_day * this.#daysWorked(employee);
         }
     }
 
+    #vt_day(employee) {
+        const vt_month = this.#vt_month(employee);
+
+        if (employee.recebe_integral === 'SIM') {
+            return (vt_month / (employee.dias_uteis + employee.dias_nao_uteis));
+        } else {
+            return vt_month / employee.dias_uteis;
+        }
+    }
+
     // ========== MÉTODOS AUXILIARES PARA CALCULAR FALTAS ========== //
     #daysWorked(employee) {
-        const vr_day = employee.vr_caju + employee.vr_vr;
-
-        if (employee.contrato === 'ESTÁGIO' || employee.contrato === 'PJ' || employee.centro_custo === 'ESCRITÓRIO') {
+        if (employee.contrato === 'ESTÁGIO' || employee.contrato === 'PJ' || employee.funcao === 'ENCARREGADO') {
             return employee.dias_uteis;
-        } else if (vr_day > 25 && vr_day < 50) {
+        } else if (employee.recebe_integral === 'SIM') {
             return employee.dias_uteis + employee.dias_nao_uteis - this.#absenceCounter(employee.timesheet) - this.#medicalCertificateCounter(employee.timesheet);
-        } else if (employee.funcao === 'ENCARREGADO') {
-            return employee.dias_uteis;
         } else {
             return employee.dias_uteis + this.#extraDaysCounter(employee.timesheet) - this.#absenceCounter(employee.timesheet) - this.#medicalCertificateCounter(employee.timesheet);
         }

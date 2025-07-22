@@ -24,12 +24,6 @@ class TimeSheetsService {
     async uploadTimeSheet(timeSheet) {
         if (!timeSheet) throw new AppError('O controle de ponto não foi fornecido.');
 
-        const costCenters = await repository.findCostCenter();
-
-        if (!costCenters || costCenters.length === 0) {
-            throw new AppError('Não foi possível obter informações de centro de custo.');
-        }
-
         const result = [];
         const stream = Readable.from(timeSheet.toString().replace(/^\uFEFF/, ''));
 
@@ -46,10 +40,6 @@ class TimeSheetsService {
                     const employeeName = removeSpace["Nome"].toUpperCase();
                     const employeeMatricula = removeSpace["Matrícula"] === "-" ? null : removeSpace["Matrícula"];
 
-                    const employeeRecord = costCenters.find(cc =>
-                        cc.funcionario.toUpperCase() === employeeName
-                    );
-
                     const headers = {
                         periodo: formattedDate,
                         chapa: employeeMatricula,
@@ -57,7 +47,7 @@ class TimeSheetsService {
                         jornada_realizada: removeSpace["Jornada realizada"],
                         falta: removeSpace["Falta"] || "NÃO CONSTA",
                         evento_abono: removeSpace["Evento Abono"] || "NÃO CONSTA",
-                        centro_custo: employeeRecord ? employeeRecord.centro_custo : 'NÃO CONSTA'
+                        centro_custo: 'NÃO CONSTA'
                     };
 
                     result.push(headers);
@@ -114,6 +104,7 @@ class TimeSheetsService {
                         jornada_realizada: jornadaRealizada,
                         falta: "NÃO CONSTA",
                         evento_abono: "Dia extra",
+                        centro_custo: 'NÃO CONSTA'
                     };
 
                     result.push(headers);

@@ -83,31 +83,6 @@ class ExperienceRepository {
             }
         }
     }
-
-    async update(chapa, viajar, segmento) {
-        try {
-            const { data, error } = await dataBase
-                .from('experience')
-                .update({
-                    viajar: viajar,
-                    segmento: segmento
-                })
-                .eq('chapa', chapa)
-                .select('*')
-
-            if (!data || error) {
-                logger.error('Erro ao atualizar modalidade de trabalho.', { error });
-                throw new AppError(`Não foi possível atualizar o colaborador: ${chapa}.`, 404);
-            }
-
-            logger.info(`Modalidade do colaborador: ${chapa} atualizada.`);
-
-            return data;
-        } catch (error) {
-            logger.error('Erro ao atualizar colaborador.', { error });
-            throw error;
-        }
-    }
 }
 
 export default new ExperienceRepository();
