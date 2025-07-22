@@ -12,6 +12,11 @@ import { validarToken } from '../utils/jwt-manager.js';
  * resposta com o código de status adequado (401 para falta de token e 403 para token inválido/expirado).
  */
 const authToken = (req, res, next) => {
+
+    if (req.method === 'OPTIONS') {
+        return next();
+    }
+
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
