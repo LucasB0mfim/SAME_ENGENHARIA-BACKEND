@@ -5,10 +5,13 @@ import AppError from '../utils/errors/AppError.js';
 class AdmissionRepository {
     async findByStatus(status) {
         try {
-            const { data, error } = await dataBase
-                .from('admission')
-                .select('*')
-                .eq('status', status);
+            let query = dataBase.from('admission').select('*');
+
+            if (status !== 'TODOS') {
+                query = query.eq('status', status);
+            }
+
+            const { data, error } = await query;
 
             if (error) {
                 logger.error('Erro ao consultar a tabela admission:', error);

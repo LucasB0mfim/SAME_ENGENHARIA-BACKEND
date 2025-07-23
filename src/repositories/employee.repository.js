@@ -41,12 +41,6 @@ class EmployeeRepository {
                 throw new AppError('Não foi possível criar o colaborador.', 500);
             }
 
-            // await cache.set(`employee:${email}`, {
-            //     success: true,
-            //     message: 'Colaborador encontrado.',
-            //     employee
-            // });
-
             logger.info(`Employee created successfully: ${email}`);
 
             return employee
@@ -60,12 +54,6 @@ class EmployeeRepository {
         try {
             logger.info(`Procurando colaborador com e-mail: ${email}`);
 
-            // const cachedEmployee = await cache.get(`employee:${email}`);
-            // if (cachedEmployee) {
-            //     logger.info(`Cache hit for employee: ${email}`);
-            //     return cachedEmployee;
-            // }
-
             const { data: employee, error } = await dataBase
                 .from('office')
                 .select('*')
@@ -76,8 +64,6 @@ class EmployeeRepository {
                 logger.error(`Colaborador não encontrado: ${email}`);
                 throw new AppError('O colaborador não foi encontrado.', 404);
             }
-
-            // await cache.set(`employee:${email}`, response);
 
             logger.info(`Colaborador encontrado: ${email}`);
 
@@ -91,12 +77,6 @@ class EmployeeRepository {
     async findByLogin(email, password) {
         try {
             logger.info(`Autenticando colaborador: ${email}`);
-
-            // const cachedEmployee = await cache.get(`employee:${email}`);
-            // if (cachedEmployee) {
-            //     logger.info(`Cache hit for employee: ${email}`);
-            //     return cachedEmployee;
-            // }
 
             const { data: employee, error } = await dataBase
                 .from('office')
@@ -115,8 +95,6 @@ class EmployeeRepository {
                 logger.warn(`Senha inválida para o colaborador: ${email}`);
                 throw new AppError('Senha incorreta.', 401);
             }
-
-            // await cache.set(`employee:${email}`, response);
 
             logger.info(`Colaborador encontrado: ${email}`);
 
@@ -216,11 +194,6 @@ class EmployeeRepository {
                 logger.error(`Colaborador não encontrado para exclusão: ${email}`);
                 throw new AppError('Colaborador não encontrado.', 404);
             }
-
-            // await Promise.all([
-            //     cache.del(`employee:${email}`),
-            //     cache.del('employees:all')
-            // ]);
 
             logger.info(`Colaborador excluído com sucesso: ${email}`);
 
