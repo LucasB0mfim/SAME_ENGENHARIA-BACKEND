@@ -493,7 +493,18 @@ class BenefitService {
 
     #absenceCounter(timesheet) {
         return timesheet.filter(value =>
-            value.evento_abono === 'NÃO CONSTA' &&
+            value.evento_abono === 'NÃO CONSTA' ||
+            value.evento_abono === 'Day-off' ||
+            value.evento_abono === 'Comparecimento em Juízo' ||
+            value.evento_abono === 'Doação de Sangue' ||
+            value.evento_abono === 'AFASTAMENTO INSS' ||
+            value.evento_abono === 'Casamento' ||
+            value.evento_abono === 'Exame Vestibular' ||
+            value.evento_abono === 'Declaração de Horas' ||
+            value.evento_abono === 'Suspensão' ||
+            value.evento_abono === 'Falta injustificada' ||
+            value.evento_abono === 'Licença Paternidade' ||
+            value.evento_abono === 'Falecimento de Parente Próximo' ||
             parseInt(value.jornada_realizada?.split(':')[0]) < 3
         ).length;
     }
