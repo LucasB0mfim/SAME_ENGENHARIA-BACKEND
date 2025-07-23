@@ -28,8 +28,8 @@ class BenefitController {
 
     async createEmployee(req, res) {
         try {
-            const { nome, chapa, cpf, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo } = req.body;
-            const result = await service.createEmployee(nome, chapa, cpf, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo);
+            const { nome, chapa, cpf, data_nascimento, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo } = req.body;
+            const result = await service.createEmployee(nome, chapa, cpf, data_nascimento, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo);
 
             return res.status(200).json({
                 success: true,
@@ -178,8 +178,8 @@ class BenefitController {
 
     async updateRecord(req, res) {
         try {
-            const { nome, data, dias_uteis, dias_nao_uteis, reembolso } = req.body;
-            const result = await service.updateRecord(nome, data, dias_uteis, dias_nao_uteis, reembolso);
+            const { data, nome, reembolso, dias_uteis, dias_nao_uteis, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_caju_fixo, vr_vr, vr_vr_fixo, vc_caju, vc_caju_fixo, vc_vr, vc_vr_fixo, vt_caju, vt_caju_fixo, vt_vem, vt_vem_fixo } = req.body;
+            const result = await service.updateRecord(data, nome, reembolso, dias_uteis, dias_nao_uteis, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_caju_fixo, vr_vr, vr_vr_fixo, vc_caju, vc_caju_fixo, vc_vr, vc_vr_fixo, vt_caju, vt_caju_fixo, vt_vem, vt_vem_fixo);
 
             return res.status(200).json({
                 success: true,
