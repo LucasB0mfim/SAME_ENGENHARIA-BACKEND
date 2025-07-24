@@ -13,6 +13,7 @@ import BenefitController from '../controllers/benefit.controller.js';
 import GeneralController from '../controllers/general.controller.js';
 import FinancialController from '../controllers/financial.controller.js';
 import AdmissionController from '../controllers/admission.controller.js';
+import ResignationController from '../controllers/resignation.controller.js';
 
 // Importando middlewares
 import authToken from '../middlewares/authToken.js';
@@ -258,6 +259,21 @@ router.post('/admission/generate-link',
 
 router.use('/admission/documents',
     express.static('./src/uploads/admission')
+);
+
+router.get('/resignation',
+    authToken,
+    ResignationController.findAll
+);
+
+router.post('/resignation',
+    authToken,
+    ResignationController.create
+);
+
+router.put('/resignation',
+    authToken,
+    ResignationController.update
 );
 
 // Exportando a rota
