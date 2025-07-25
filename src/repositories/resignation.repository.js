@@ -25,74 +25,86 @@ class ResignationRepository {
         }
     }
 
-    async create(centro_custo, colaborador_comunicado, data_demissao, data_inicio_aviso_trabalhado, data_pagamento_rescisao, data_rescisao, data_solicitacao, data_ultimo_dia_trabalhado, funcao, modalidade, nome, observacao, status) {
+    async create(nome, funcao, centro_custo, status, modalidade, data_comunicacao, data_solicitacao, observacao) {
         try {
 
             const { data, error } = await dataBase
                 .from('resignation')
                 .insert({
-                    centro_custo: centro_custo,
-                    colaborador_comunicado: colaborador_comunicado,
-                    data_demissao: data_demissao,
-                    data_inicio_aviso_trabalhado: data_inicio_aviso_trabalhado,
-                    data_pagamento_rescisao: data_pagamento_rescisao,
-                    data_rescisao: data_rescisao,
-                    data_solicitacao: data_solicitacao,
-                    data_ultimo_dia_trabalhado: data_ultimo_dia_trabalhado,
-                    funcao: funcao,
-                    modalidade: modalidade,
                     nome: nome,
-                    observacao: observacao,
-                    status: status
-                })
+                    funcao: funcao,
+                    centro_custo: centro_custo,
+                    status: status,
+                    modalidade: modalidade,
+                    data_comunicacao: data_comunicacao,
+                    data_solicitacao: data_solicitacao,
+                    observacao: observacao
+                });
 
             if (error) {
-                logger.warn('Falha ao criar na tabela resignation.');
-                throw new AppError('Não foi possível criar o registro.', 400);
+                logger.warn('Falha ao gerar a solicitação da demissão:', error);
+                throw new AppError('Falha ao gerar a solicitação da demissão.', 400);
             }
 
-            logger.info('Criação na tabela resignation realizada com sucesso.');
+            logger.info('Solicitação de demissão gerada com sucesso.');
 
             return data;
         } catch (error) {
-            logger.error('Erro no funcionamento do método:', error);
-            throw new AppError('Falha ao criar na tabela resignation.', 500);
+            logger.error('Erro ao gerar registro de demissão:', error);
+            throw new AppError('Não foi possível solicitar a demissão.', 500);
         }
     }
 
-    async update(id, centro_custo, colaborador_comunicado, data_demissao, data_inicio_aviso_trabalhado, data_pagamento_rescisao, data_rescisao, data_solicitacao, data_ultimo_dia_trabalhado, funcao, modalidade, nome, observacao, status) {
+    async update(id, status, modalidade, colaborador_comunicado, data_demissao, data_inicio_aviso_trabalhado, data_pagamento_rescisao, data_rescisao, data_solicitacao, data_ultimo_dia_trabalhado) {
         try {
-
             const { data, error } = await dataBase
                 .from('resignation')
                 .update({
-                    centro_custo: centro_custo,
+                    status: status,
+                    modalidade: modalidade,
                     colaborador_comunicado: colaborador_comunicado,
                     data_demissao: data_demissao,
                     data_inicio_aviso_trabalhado: data_inicio_aviso_trabalhado,
                     data_pagamento_rescisao: data_pagamento_rescisao,
                     data_rescisao: data_rescisao,
                     data_solicitacao: data_solicitacao,
-                    data_ultimo_dia_trabalhado: data_ultimo_dia_trabalhado,
-                    funcao: funcao,
-                    modalidade: modalidade,
-                    nome: nome,
-                    observacao: observacao,
-                    status: status
+                    data_ultimo_dia_trabalhado: data_ultimo_dia_trabalhado
                 })
-                .eq('id', id);
+                .eq('id', id)
+                .select('id')
 
-            if (error) {
-                logger.warn('Falha ao atualizar tabela resignation.');
-                throw new AppError('Não foi possível atualizar o registro.', 400);
+            if (!data || error) {
+                logger.warn('Erro ao atualizar solicitação de demissão.');
+                throw new AppError('Não foi possível atualizar a solicitação.', 400);
             }
 
-            logger.info('Atualização na tabela resignation realizada com sucesso.');
+            logger.info('Solicitação de demissão atualizado com sucesso.');
 
             return data;
         } catch (error) {
-            logger.error('Erro no funcionamento do método:', error);
-            throw new AppError('Falha ao atualizar tabela resignation.', 500);
+            logger.warn('Erro ao atualizar solicitação da tabela resignation.');
+            throw new AppError('Não foi possível atualizar solicitação.', 400);
+        }
+    }
+
+    async delete(id) {
+        try {
+            const { data, error } = await dataBase
+                .from('resignation')
+                .delete()
+                .eq('id', id);
+
+            if (error) {
+                logger.warn('Não foi possível deletar registro na tabela resignation.');
+                throw new AppError(`Não foi possível deletar os registros do id: ${id}`, 400);
+            }
+
+            logger.info(`Registros do id: ${id} deletados da tabela resignation com sucesso.`);
+
+            return data;
+        } catch (error) {
+            logger.warn('Erro ao deletar registro da tabela resignation.');
+            throw new AppError('Não foi possível deletar registro.', 400);
         }
     }
 }

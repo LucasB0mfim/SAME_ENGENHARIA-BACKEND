@@ -1,13 +1,12 @@
 import express from 'express';
 
-import { uploadNF, uploadCSV, uploadDocuments } from '../config/multer.js';
+import { uploadCSV, uploadDocuments } from '../config/multer.js';
 
 // Importando os controllers
 import EmployeeController from '../controllers/employee.controller.js';
 import TimeSheetController from '../controllers/time-sheet.controller.js';
 import ExperienceController from '../controllers/experience.controller.js';
 import TrackingController from '../controllers/tracking.controller.js';
-import OrderController from '../controllers/order.controller.js';
 import IndicatorController from '../controllers/indicator.controller.js';
 import BenefitController from '../controllers/benefit.controller.js';
 import GeneralController from '../controllers/general.controller.js';
@@ -119,22 +118,6 @@ router.get('/experience/download',
 router.get('/reports/tracking',
     authToken,
     TrackingController.getTracking
-);
-
-router.get('/reports/request',
-    authToken,
-    OrderController.getOrder
-);
-
-router.put('/reports/request',
-    authToken,
-    uploadNF,
-    OrderController.updateOrder
-);
-
-router.put('/order/update',
-    authToken,
-    OrderController.updateStatus
 );
 
 router.use('/notas_fiscais',
@@ -274,6 +257,11 @@ router.post('/resignation',
 router.put('/resignation',
     authToken,
     ResignationController.update
+);
+
+router.delete('/resignation/:id',
+    authToken,
+    ResignationController.delete
 );
 
 // Exportando a rota

@@ -7,84 +7,21 @@ class ResignationService {
         return await repository.findAll();
     }
 
-    async create(centro_custo, colaborador_comunicado, data_demissao, data_inicio_aviso_trabalhado, data_pagamento_rescisao, data_rescisao, data_solicitacao, data_ultimo_dia_trabalhado, funcao, modalidade, nome, observacao, status) {
-
-        if (!nome || !funcao || !status || !centro_custo) {
-            throw new AppError('Os campos "nome", "funcao", "status" e "centro_custo" são obrigatórios.', 400);
+    async create(nome, funcao, centro_custo, status, modalidade, data_comunicacao, data_solicitacao, observacao) {
+        if (!nome || !funcao || !centro_custo || !status || !modalidade || !data_comunicacao || !data_solicitacao) {
+            throw new AppError('Os campos "nome", "funcao", "status", "centro_custo", "modalidade", "data_comunicacao" e "data_solicitacao" são obrigatórios.', 400);
         }
-
-        const toUpperCase = {
-            centro_custo: centro_custo?.trim().toUpperCase() || null,
-            colaborador_comunicado: colaborador_comunicado?.trim().toUpperCase() || null,
-            data_demissao: data_demissao || null,
-            data_inicio_aviso_trabalhado: data_inicio_aviso_trabalhado || null,
-            data_pagamento_rescisao: data_pagamento_rescisao || null,
-            data_rescisao: data_rescisao || null,
-            data_solicitacao: data_solicitacao || null,
-            data_ultimo_dia_trabalhado: data_ultimo_dia_trabalhado || null,
-            funcao: funcao?.trim().toUpperCase() || null,
-            modalidade: modalidade?.trim().toUpperCase() || null,
-            nome: nome?.trim().toUpperCase() || null,
-            observacao: observacao?.trim().toUpperCase() || null,
-            status: status?.trim().toUpperCase() || null
-        }
-
-        return await repository.create(
-            toUpperCase.centro_custo,
-            toUpperCase.colaborador_comunicado,
-            toUpperCase.data_demissao,
-            toUpperCase.data_inicio_aviso_trabalhado,
-            toUpperCase.data_pagamento_rescisao,
-            toUpperCase.data_rescisao,
-            toUpperCase.data_solicitacao,
-            toUpperCase.data_ultimo_dia_trabalhado,
-            toUpperCase.funcao,
-            toUpperCase.modalidade,
-            toUpperCase.nome,
-            toUpperCase.observacao,
-            toUpperCase.status
-        );
+        return await repository.create(nome.trim().toUpperCase(), funcao, centro_custo, status, modalidade, data_comunicacao, data_solicitacao, observacao.trim().toUpperCase());
     }
 
-    async update(id, centro_custo, colaborador_comunicado, data_demissao, data_inicio_aviso_trabalhado, data_pagamento_rescisao, data_rescisao, data_solicitacao, data_ultimo_dia_trabalhado, funcao, modalidade, nome, observacao, status) {
+    async update(id, status, modalidade, colaborador_comunicado, data_demissao, data_inicio_aviso_trabalhado, data_pagamento_rescisao, data_rescisao, data_solicitacao, data_ultimo_dia_trabalhado) {
+        if (!id) throw new AppError('O "id" é obrigatório para a atualização.', 400);
+        return await repository.update(id, status, modalidade, colaborador_comunicado, data_demissao, data_inicio_aviso_trabalhado, data_pagamento_rescisao, data_rescisao, data_solicitacao, data_ultimo_dia_trabalhado);
+    }
 
-        if (!id || !centro_custo || !colaborador_comunicado || !data_demissao || !data_inicio_aviso_trabalhado || !data_pagamento_rescisao || !data_rescisao || !data_solicitacao || !data_ultimo_dia_trabalhado || !funcao || !modalidade || !nome || !status) {
-            throw new AppError('Todos os campos são obrigatórios.', 400);
-        }
-
-        const toUpperCase = {
-            id: id,
-            centro_custo: centro_custo?.trim().toUpperCase() || '',
-            colaborador_comunicado: colaborador_comunicado?.trim().toUpperCase() || 'NÃO',
-            data_demissao: data_demissao || null,
-            data_inicio_aviso_trabalhado: data_inicio_aviso_trabalhado || null,
-            data_pagamento_rescisao: data_pagamento_rescisao || null,
-            data_rescisao: data_rescisao || null,
-            data_solicitacao: data_solicitacao || null,
-            data_ultimo_dia_trabalhado: data_ultimo_dia_trabalhado || null,
-            funcao: funcao?.trim().toUpperCase() || '',
-            modalidade: modalidade?.trim().toUpperCase() || '',
-            nome: nome?.trim().toUpperCase() || '',
-            observacao: observacao?.trim().toUpperCase() || '',
-            status: status?.trim().toUpperCase() || 'NOVA SOLICITAÇÃO'
-        }
-
-        return await repository.update(
-            toUpperCase.id,
-            toUpperCase.centro_custo,
-            toUpperCase.colaborador_comunicado,
-            toUpperCase.data_demissao,
-            toUpperCase.data_inicio_aviso_trabalhado,
-            toUpperCase.data_pagamento_rescisao,
-            toUpperCase.data_rescisao,
-            toUpperCase.data_solicitacao,
-            toUpperCase.data_ultimo_dia_trabalhado,
-            toUpperCase.funcao,
-            toUpperCase.modalidade,
-            toUpperCase.nome,
-            toUpperCase.observacao,
-            toUpperCase.status
-        );
+    async delete(id) {
+        if (!id) throw new AppError('O cmapo de "id" é obrigatório.');
+        return await repository.delete(id);
     }
 }
 
