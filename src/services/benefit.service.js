@@ -22,11 +22,6 @@ class BenefitService {
                 const month = data_nascimento.slice(2, 4);
                 const year = data_nascimento.slice(4, 8);
                 formattedBirthDate = `${year}-${month}-${day}`;
-                // Verifica se a data é válida
-                const date = new Date(formattedBirthDate);
-                if (isNaN(date.getTime())) {
-                    throw new AppError('Formato de data de nascimento inválido.', 400);
-                }
             } catch (error) {
                 logger.error('Erro ao formatar birthDate:', error);
                 throw new AppError('Formato de data de nascimento inválido.', 400);
