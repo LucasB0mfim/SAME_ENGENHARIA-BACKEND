@@ -478,7 +478,7 @@ class BenefitService {
         if (employee.vt_caju_fixo === 'SIM' || employee.vt_vem_fixo === 'SIM') {
             return vt_day;
         } else if (employee.recebe_integral === 'SIM') {
-            return (vt_day * (employee.dias_uteis + employee.dias_nao_uteis));
+            return vt_day * employee.dias_uteis;
         } else {
             return vt_day * this.#daysWorked(employee);
         }
