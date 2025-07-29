@@ -9,6 +9,7 @@ class BenefitRepository {
             const { data, error } = await dataBase
                 .from('beneficiary')
                 .select('*')
+                .order('nome', { ascending: true });
 
             if (error) {
                 logger.error('Erro ao consultar a tabela beneficiary', error);
@@ -26,7 +27,7 @@ class BenefitRepository {
         try {
             const { data, error } = await dataBase
                 .from('beneficiary')
-                .select('centro_custo');
+                .select('centro_custo, funcao');
 
             if (error) {
                 logger.error('Erro ao consultar a tabela beneficiary', error);
@@ -44,7 +45,8 @@ class BenefitRepository {
         try {
             let query = dataBase
                 .from('beneficiary')
-                .select('id, nome, funcao, centro_custo, chapa');
+                .select('id, nome, funcao, centro_custo, chapa')
+                .order('nome', { ascending: true });
 
             if (centro_custo !== 'GERAL') {
                 query = query.eq('centro_custo', centro_custo);
@@ -64,16 +66,17 @@ class BenefitRepository {
         }
     }
 
-    async updateCostCenter(id, nome, centro_custo) {
+    async updateCostCenter(id, nome, centro_custo, funcao) {
         try {
             const { data, error } = await dataBase
                 .from('beneficiary')
                 .update({
                     centro_custo: centro_custo,
+                    funcao: funcao
                 })
                 .eq('id', id)
                 .eq('nome', nome)
-                .select('id, nome, centro_custo');
+                .select('id, nome, centro_custo, funcao');
 
             if (error) {
                 logger.error('Erro atualizar colaborador na tabela beneficiary:', error)

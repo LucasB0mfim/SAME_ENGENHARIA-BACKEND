@@ -18,13 +18,13 @@ class BenefitService {
         return await repository.findByCostCenter(centro_custo);
     }
 
-    async updateCostCenter(id, nome, centro_custo) {
+    async updateCostCenter(id, nome, centro_custo, funcao) {
 
-        if (!id || !nome || !centro_custo) {
-            throw new AppError('Os campos "id", "nome" e "centro_custo" são obrigatórios.', 400);
+        if (!id || !nome || !centro_custo || !funcao) {
+            throw new AppError('Os campos "id", "nome", "centro_custo" e "funcao" são obrigatórios.', 400);
         }
 
-        return await repository.updateCostCenter(id, nome, centro_custo);
+        return await repository.updateCostCenter(id, nome, centro_custo, funcao);
     }
 
     async createEmployee(nome, chapa, cpf, data_nascimento, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo) {

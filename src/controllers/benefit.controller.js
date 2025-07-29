@@ -77,8 +77,8 @@ class BenefitController {
 
     async updateCostCenter(req, res) {
         try {
-            const { id, nome, centro_custo } = req.body;
-            const result = await service.updateCostCenter(id, nome, centro_custo);
+            const { id, nome, centro_custo, funcao } = req.body;
+            const result = await service.updateCostCenter(id, nome, centro_custo, funcao);
 
             return res.status(200).json({
                 success: true,
