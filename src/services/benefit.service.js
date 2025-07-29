@@ -9,6 +9,24 @@ class BenefitService {
         return await repository.findEmployee();
     }
 
+    async findAllCostCenter() {
+        return await repository.findAllCostCenter();
+    }
+
+    async findByCostCenter(centro_custo) {
+        if (!centro_custo) throw new AppError('O campo "centro_custo" é obrigatório.', 404);
+        return await repository.findByCostCenter(centro_custo);
+    }
+
+    async updateCostCenter(id, nome, centro_custo) {
+
+        if (!id || !nome || !centro_custo) {
+            throw new AppError('Os campos "id", "nome" e "centro_custo" são obrigatórios.', 400);
+        }
+
+        return await repository.updateCostCenter(id, nome, centro_custo);
+    }
+
     async createEmployee(nome, chapa, cpf, data_nascimento, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo) {
 
         if (!nome || !chapa || !cpf || !data_nascimento || !funcao || !setor || !contrato || !centro_custo || !recebe_integral || vr_caju === null || vr_caju === undefined || vr_vr === null || vr_vr === undefined || vc_caju === null || vc_caju === undefined || vc_vr === null || vc_vr === undefined || vt_caju === null || vt_caju === undefined || vt_vem === null || vt_vem === undefined || !vr_caju_fixo || !vr_vr_fixo || !vc_caju_fixo || !vc_vr_fixo || !vt_caju_fixo || !vt_vem_fixo) {

@@ -264,5 +264,20 @@ router.delete('/resignation/:id',
     ResignationController.delete
 );
 
+router.get('/benefit/cost-center',
+    authToken,
+    BenefitController.findAllCostCenter
+);
+
+router.post('/benefit/cost-center',
+    authToken,
+    BenefitController.findByCostCenter
+);
+
+router.put('/benefit/cost-center',
+    authToken,
+    BenefitController.updateCostCenter
+);
+
 // Exportando a rota
 export default router;

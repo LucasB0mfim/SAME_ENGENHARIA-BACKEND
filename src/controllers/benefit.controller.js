@@ -26,6 +26,80 @@ class BenefitController {
         }
     }
 
+    async findAllCostCenter(req, res) {
+        try {
+            const result = await service.findAllCostCenter();
+
+            return res.status(200).json({
+                success: true,
+                message: 'Centro de custos encontrados com sucesso.',
+                result
+            });
+        } catch (error) {
+            if (error.statusCode) {
+                return res.status(error.statusCode).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+
+            return res.status(500).json({
+                success: false,
+                message: 'Erro no servidor.'
+            });
+        }
+    }
+
+    async findByCostCenter(req, res) {
+        try {
+            const { centro_custo } = req.body;
+            const result = await service.findByCostCenter(centro_custo);
+
+            return res.status(200).json({
+                success: true,
+                message: 'Colaboradores encontrados com sucesso.',
+                result
+            });
+        } catch (error) {
+            if (error.statusCode) {
+                return res.status(error.statusCode).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+
+            return res.status(500).json({
+                success: false,
+                message: 'Erro no servidor.'
+            });
+        }
+    }
+
+    async updateCostCenter(req, res) {
+        try {
+            const { id, nome, centro_custo } = req.body;
+            const result = await service.updateCostCenter(id, nome, centro_custo);
+
+            return res.status(200).json({
+                success: true,
+                message: 'Colaborador atualizado com sucesso.',
+                result
+            });
+        } catch (error) {
+            if (error.statusCode) {
+                return res.status(error.statusCode).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+
+            return res.status(500).json({
+                success: false,
+                message: 'Erro no servidor.'
+            });
+        }
+    }
+
     async createEmployee(req, res) {
         try {
             const { nome, chapa, cpf, data_nascimento, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo } = req.body;

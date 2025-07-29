@@ -22,6 +22,71 @@ class BenefitRepository {
         }
     }
 
+    async findAllCostCenter() {
+        try {
+            const { data, error } = await dataBase
+                .from('beneficiary')
+                .select('centro_custo');
+
+            if (error) {
+                logger.error('Erro ao consultar a tabela beneficiary', error);
+                throw new AppError('Erro ao consultar a tabela.', 500);
+            }
+
+            return data
+        } catch (error) {
+            logger.error('Erro no método findModel: ', { error });
+            throw error;
+        }
+    }
+
+    async findByCostCenter(centro_custo) {
+        try {
+            let query = dataBase
+                .from('beneficiary')
+                .select('id, nome, funcao, centro_custo, chapa');
+
+            if (centro_custo !== 'GERAL') {
+                query = query.eq('centro_custo', centro_custo);
+            }
+
+            const { data, error } = await query;
+
+            if (error) {
+                logger.error('Erro ao consultar a tabela beneficiary', { error });
+                throw new AppError('Não foi possível consultar a tabela.', 500);
+            }
+
+            return data;
+        } catch (error) {
+            logger.error('Erro no método findWorkforce: ', { error });
+            throw error;
+        }
+    }
+
+    async updateCostCenter(id, nome, centro_custo) {
+        try {
+            const { data, error } = await dataBase
+                .from('beneficiary')
+                .update({
+                    centro_custo: centro_custo,
+                })
+                .eq('id', id)
+                .eq('nome', nome)
+                .select('id, nome, centro_custo');
+
+            if (error) {
+                logger.error('Erro atualizar colaborador na tabela beneficiary:', error)
+                throw new AppError('Erro ao atualizar: ' + error.message, 500);
+            }
+
+            return data;
+        } catch (error) {
+            logger.error('Erro no update:', error);
+            throw error;
+        }
+    }
+
     async createEmployee(nome, chapa, cpf, data_nascimento, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo) {
         try {
             const { data, error } = await dataBase
