@@ -7,11 +7,13 @@ class ResignationService {
         return await repository.findAll();
     }
 
+    async findByStatus(status) {
+        if (!status) throw new AppError('O campo "status" é obrigatório.', 400);
+        return await repository.findByStatus(status);
+    }
+
     async create(nome, funcao, centro_custo, status, modalidade, data_comunicacao, data_solicitacao, observacao) {
-        if (!nome || !funcao || !centro_custo || !status || !modalidade || !data_comunicacao || !data_solicitacao) {
-            throw new AppError('Os campos "nome", "funcao", "status", "centro_custo", "modalidade", "data_comunicacao" e "data_solicitacao" são obrigatórios.', 400);
-        }
-        return await repository.create(nome.trim().toUpperCase(), funcao, centro_custo, status, modalidade, data_comunicacao, data_solicitacao, observacao.trim().toUpperCase());
+        return await repository.create(nome.toUpperCase(), funcao, centro_custo, status, modalidade, data_comunicacao, data_solicitacao, observacao.toUpperCase());
     }
 
     async update(id, status, modalidade, colaborador_comunicado, data_demissao, data_inicio_aviso_trabalhado, data_pagamento_rescisao, data_rescisao, data_solicitacao, data_ultimo_dia_trabalhado) {

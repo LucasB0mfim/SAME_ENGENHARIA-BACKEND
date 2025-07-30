@@ -26,6 +26,31 @@ class ResignationController {
         }
     }
 
+    async findByStatus(req, res) {
+        try {
+            const { status } = req.params;
+
+            const result = await service.findByStatus(status);
+
+            return res.status(200).json({
+                success: true,
+                message: 'Colaboradores encontrados com sucesso!',
+                result
+            });
+        } catch (error) {
+            if (error.statusCode) {
+                return res.status(error.statusCode).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+            return res.status(500).json({
+                success: false,
+                message: 'Erro interno no servidor.'
+            });
+        }
+    }
+
     async create(req, res) {
         try {
 

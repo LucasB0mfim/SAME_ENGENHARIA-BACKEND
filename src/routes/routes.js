@@ -245,9 +245,26 @@ router.use('/admission/documents',
     express.static('./src/uploads/admission')
 );
 
-router.get('/resignation',
+router.get('/benefit/cost-center',
     authToken,
-    ResignationController.findAll
+    BenefitController.findAllCostCenter
+);
+
+router.post('/benefit/cost-center',
+    authToken,
+    BenefitController.findByCostCenter
+);
+
+router.put('/benefit/cost-center',
+    authToken,
+    BenefitController.updateCostCenter
+);
+
+// ========== ROTAS DESLIGAMENTO ========== // 
+
+router.get('/resignation/:status',
+    authToken,
+    ResignationController.findByStatus
 );
 
 router.post('/resignation',
@@ -263,21 +280,6 @@ router.put('/resignation',
 router.delete('/resignation/:id',
     authToken,
     ResignationController.delete
-);
-
-router.get('/benefit/cost-center',
-    authToken,
-    BenefitController.findAllCostCenter
-);
-
-router.post('/benefit/cost-center',
-    authToken,
-    BenefitController.findByCostCenter
-);
-
-router.put('/benefit/cost-center',
-    authToken,
-    BenefitController.updateCostCenter
 );
 
 // ========== ROTAS BRK ========== // 

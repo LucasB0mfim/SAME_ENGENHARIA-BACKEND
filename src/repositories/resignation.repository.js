@@ -25,34 +25,45 @@ class ResignationRepository {
         }
     }
 
-    async create(nome, funcao, centro_custo, status, modalidade, data_comunicacao, data_solicitacao, observacao) {
-        try {
+    async findByStatus(status) {
+        const { data, error } = await dataBase
+            .from('resignation')
+            .select('*')
+            .eq('status', status);
 
-            const { data, error } = await dataBase
-                .from('resignation')
-                .insert({
-                    nome: nome,
-                    funcao: funcao,
-                    centro_custo: centro_custo,
-                    status: status,
-                    modalidade: modalidade,
-                    data_comunicacao: data_comunicacao,
-                    data_solicitacao: data_solicitacao,
-                    observacao: observacao
-                });
-
-            if (error) {
-                logger.warn('Falha ao gerar a solicitação da demissão:', error);
-                throw new AppError('Falha ao gerar a solicitação da demissão.', 400);
-            }
-
-            logger.info('Solicitação de demissão gerada com sucesso.');
-
-            return data;
-        } catch (error) {
-            logger.error('Erro ao gerar registro de demissão:', error);
-            throw new AppError('Não foi possível solicitar a demissão.', 500);
+        if (error) {
+            logger.warn(`Erro ao atualizar id: ${id} na tabela 'brk': ${JSON.stringify(error)}`);
+            throw new AppError(`Erro ao consultar registros: ${error.message}`, 400);
         }
+
+        logger.info('Consulta na tabela "brk" realizada com sucesso!');
+
+        return data;
+    }
+
+    async create(nome, funcao, centro_custo, status, modalidade, data_comunicacao, data_solicitacao, observacao) {
+        const { data, error } = await dataBase
+            .from('resignation')
+            .insert({
+                nome: nome,
+                funcao: funcao,
+                centro_custo: centro_custo,
+                status: status,
+                modalidade: modalidade,
+                data_comunicacao: data_comunicacao,
+                data_solicitacao: data_solicitacao,
+                observacao: observacao
+            })
+            .select();
+
+        if (error) {
+            logger.warn('Falha ao gerar a solicitação da demissão:', error);
+            throw new AppError('Falha ao gerar a solicitação da demissão.', 400);
+        }
+
+        logger.info('Solicitação de demissão gerada com sucesso.');
+
+        return data;
     }
 
     async update(id, status, modalidade, colaborador_comunicado, data_demissao, data_inicio_aviso_trabalhado, data_pagamento_rescisao, data_rescisao, data_solicitacao, data_ultimo_dia_trabalhado) {
