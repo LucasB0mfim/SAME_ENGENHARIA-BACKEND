@@ -280,14 +280,21 @@ router.put('/benefit/cost-center',
     BenefitController.updateCostCenter
 );
 
-router.get('/brk',
+// ========== ROTAS BRK ========== // 
+
+router.get('/brk/centroCusto',
     authToken,
-    BrkController.findAll
+    BrkController.findByCC
+);
+
+router.get('/brk/items',
+    authToken,
+    BrkController.findItemsByStatus
 );
 
 router.post('/brk',
     authToken,
-    BrkController.findByStatus
+    BrkController.create
 );
 
 router.put('/brk',
@@ -295,9 +302,9 @@ router.put('/brk',
     BrkController.update
 );
 
-router.post('/brk-create',
+router.delete('/brk/:id',
     authToken,
-    BrkController.create
+    BrkController.delete
 );
 
 // Exportando a rota

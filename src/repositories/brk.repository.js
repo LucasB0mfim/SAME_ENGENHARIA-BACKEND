@@ -4,77 +4,45 @@ import AppError from '../utils/errors/AppError.js';
 
 class BrkRepository {
 
-    async findAll() {
-        try {
-            const { data, error } = await dataBase
-                .from('brk')
-                .select('*');
+    async findByCC(centro_custo) {
+        let query = dataBase.from('brk').select('*');
 
-            if (!data || error) {
-                logger.error('Erro ao consultar a tabela admission:', error);
-                throw new AppError('Erro ao consultar a tabela.', 500);
-            }
-
-            return data;
-        } catch (error) {
-            logger.error('Erro no método findByStatus:', error);
-            throw error;
-        }
-    }
-
-    async findByStatus(status) {
-        const { data, error } = await dataBase
-            .from('brk')
-            .select('*')
-            .eq('status', status);
-
-        if (!data) {
-            throw new AppError('Nenhum registro foi encontrado.', 404);
+        if (centro_custo !== 'GERAL') {
+            query = query.eq('centro_custo', centro_custo);
         }
 
-        if (error) {
-            logger.warn('Erro ao buscar registros da tabela brk.');
-            throw new AppError('Erro ao realizar a consulta.', 400);
-        }
-
-        return data;
-    }
-
-    async update(id, nome, funcao, protocolo, contrato, centro_custo, status, dt_envio_pesq_social, dt_prev_aprov_pesq_social, treinamento, ficha_epi, dt_envio_doc, dt_prev_aprov_doc, os, aso, dt_reenvio_doc, dt_prev_aprov_reenvio_doc) {
-        const { data, error } = await dataBase
-            .from('brk')
-            .update({
-                nome: nome,
-                funcao: funcao,
-                protocolo: protocolo || null,
-                contrato: contrato || null,
-                centro_custo: centro_custo,
-                status: status,
-                dt_envio_pesq_social: dt_envio_pesq_social || null,
-                dt_prev_aprov_pesq_social: dt_prev_aprov_pesq_social || null,
-                treinamento: treinamento,
-                ficha_epi: ficha_epi,
-                dt_envio_doc: dt_envio_doc || null,
-                dt_prev_aprov_doc: dt_prev_aprov_doc || null,
-                os: os,
-                aso: aso,
-                dt_reenvio_doc: dt_reenvio_doc || null,
-                dt_prev_aprov_reenvio_doc: dt_prev_aprov_reenvio_doc || null
-            })
-            .eq('id', id)
-            .select();
+        const { data, error } = await query;
 
         if (!data || data.length === 0) {
             throw new AppError('Nenhum registro foi encontrado.', 404);
         }
 
         if (error) {
-            console.log('Erro do Supabase:', JSON.stringify(error, null, 2));
             logger.warn(`Erro ao atualizar id: ${id} na tabela 'brk': ${JSON.stringify(error)}`);
-            throw new AppError(`Erro ao atualizar colaborador: ${error.message}`, 400);
+            throw new AppError(`Erro ao consultar registros: ${error.message}`, 400);
         }
 
-        logger.info(`Dados do id: ${id} atualizados com sucesso na tabela 'brk'.`);
+        logger.info('Consulta na tabela "brk" realizada com sucesso!');
+
+        return data;
+    }
+
+    async findItemsByStatus(centro_custo, status) {
+        let query = dataBase.from('brk').select('*').eq('status', status);
+
+        if (centro_custo !== 'GERAL') {
+            query = query.eq('centro_custo', centro_custo);
+        }
+
+        const { data, error } = await query;
+
+        if (error) {
+            logger.warn(`Erro ao atualizar id: ${id} na tabela 'brk': ${JSON.stringify(error)}`);
+            throw new AppError(`Erro ao consultar registros: ${error.message}`, 400);
+        }
+
+        logger.info('Consulta na tabela "brk" realizada com sucesso!');
+
         return data;
     }
 
@@ -112,6 +80,56 @@ class BrkRepository {
         }
 
         logger.info(`Registro criado com sucesso na tabela 'brk'.`);
+        return data;
+    }
+
+    async update(id, nome, funcao, protocolo, contrato, centro_custo, status, dt_envio_pesq_social, dt_prev_aprov_pesq_social, treinamento, ficha_epi, dt_envio_doc, dt_prev_aprov_doc, os, aso, dt_reenvio_doc, dt_prev_aprov_reenvio_doc) {
+        const { data, error } = await dataBase
+            .from('brk')
+            .update({
+                nome: nome,
+                funcao: funcao,
+                protocolo: protocolo || null,
+                contrato: contrato || null,
+                centro_custo: centro_custo,
+                status: status,
+                dt_envio_pesq_social: dt_envio_pesq_social || null,
+                dt_prev_aprov_pesq_social: dt_prev_aprov_pesq_social || null,
+                treinamento: treinamento,
+                ficha_epi: ficha_epi,
+                dt_envio_doc: dt_envio_doc || null,
+                dt_prev_aprov_doc: dt_prev_aprov_doc || null,
+                os: os,
+                aso: aso,
+                dt_reenvio_doc: dt_reenvio_doc || null,
+                dt_prev_aprov_reenvio_doc: dt_prev_aprov_reenvio_doc || null
+            })
+            .eq('id', id)
+            .select();
+
+        if (error) {
+            logger.warn(`Erro ao atualizar ${id} na tabela 'brk': ${JSON.stringify(error)}`);
+            throw new AppError(`Erro ao atualizar colaborador: ${error.message}`, 400);
+        }
+
+        logger.info(`Colaborador ${id} atualizado na tabela brk.`);
+        return data;
+    }
+
+    async delete(id) {
+        const { data, error } = await dataBase
+            .from('brk')
+            .delete()
+            .eq('id', id)
+            .select();
+
+        if (error) {
+            logger.warn(`Erro ao deletar id: ${id} na tabela 'brk': ${JSON.stringify(error)}`);
+            throw new AppError(`Erro ao deletar colaborador: ${error.message}`, 400);
+        }
+
+        logger.warn(`Colaborador ${id} deletado da tabela brk.`);
+
         return data;
     }
 }
