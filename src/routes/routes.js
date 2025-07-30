@@ -13,6 +13,7 @@ import GeneralController from '../controllers/general.controller.js';
 import FinancialController from '../controllers/financial.controller.js';
 import AdmissionController from '../controllers/admission.controller.js';
 import ResignationController from '../controllers/resignation.controller.js';
+import BrkController from '../controllers/brk.controller.js';
 
 // Importando middlewares
 import authToken from '../middlewares/authToken.js';
@@ -277,6 +278,26 @@ router.post('/benefit/cost-center',
 router.put('/benefit/cost-center',
     authToken,
     BenefitController.updateCostCenter
+);
+
+router.get('/brk',
+    authToken,
+    BrkController.findAll
+);
+
+router.post('/brk',
+    authToken,
+    BrkController.findByStatus
+);
+
+router.put('/brk',
+    authToken,
+    BrkController.update
+);
+
+router.post('/brk-create',
+    authToken,
+    BrkController.create
 );
 
 // Exportando a rota
