@@ -9,67 +9,9 @@ class BenefitService {
         return await repository.findEmployee();
     }
 
-    async findAllCostCenter() {
-        return await repository.findAllCostCenter();
-    }
-
     async findByCostCenter(centro_custo) {
         if (!centro_custo) throw new AppError('O campo "centro_custo" é obrigatório.', 404);
         return await repository.findByCostCenter(centro_custo);
-    }
-
-    async updateCostCenter(id, nome, centro_custo, funcao) {
-
-        if (!id || !nome || !centro_custo || !funcao) {
-            throw new AppError('Os campos "id", "nome", "centro_custo" e "funcao" são obrigatórios.', 400);
-        }
-
-        return await repository.updateCostCenter(id, nome, centro_custo, funcao);
-    }
-
-    async createEmployee(nome, chapa, cpf, data_nascimento, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo) {
-
-        if (!nome || !chapa || !cpf || !data_nascimento || !funcao || !setor || !contrato || !centro_custo || !recebe_integral || vr_caju === null || vr_caju === undefined || vr_vr === null || vr_vr === undefined || vc_caju === null || vc_caju === undefined || vc_vr === null || vc_vr === undefined || vt_caju === null || vt_caju === undefined || vt_vem === null || vt_vem === undefined || !vr_caju_fixo || !vr_vr_fixo || !vc_caju_fixo || !vc_vr_fixo || !vt_caju_fixo || !vt_vem_fixo) {
-            throw new AppError('Os campos "nome", "cpf", "data_nascimento,", "funcao", "setor", "contrato", "centro_custo", "recebe_integral", "vr_caju", "vr_vr", "vc_caju", "vc_vr", "vt_caju", "vt_vem", "vr_caju_fixo", "vr_vr_fixo", "vc_caju_fixo", "vc_vr_fixo", "vt_caju_fixo" e "vt_vem_fixo" são obrigatórios.', 400);
-        }
-
-        let formattedBirthDate = null;
-        if (data_nascimento) {
-            try {
-                const day = data_nascimento.slice(0, 2);
-                const month = data_nascimento.slice(2, 4);
-                const year = data_nascimento.slice(4, 8);
-                formattedBirthDate = `${year}-${month}-${day}`;
-
-                const date = new Date(formattedBirthDate);
-                if (isNaN(date.getTime())) {
-                    throw new AppError('Formato de data de nascimento inválido.', 400);
-                }
-            } catch (error) {
-                logger.error('Erro ao formatar birthDate:', error);
-                throw new AppError('Formato de data de nascimento inválido.', 400);
-            }
-        }
-
-        return await repository.createEmployee(nome, chapa, cpf, formattedBirthDate, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo);
-    }
-
-    async updateEmployee(id, nome, chapa, cpf, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo) {
-
-        if (!id || !nome || !chapa || !cpf || !funcao || !setor || !contrato || !centro_custo || !recebe_integral || vr_caju === null || vr_caju === undefined || vr_vr === null || vr_vr === undefined || vc_caju === null || vc_caju === undefined || vc_vr === null || vc_vr === undefined || vt_caju === null || vt_caju === undefined || vt_vem === null || vt_vem === undefined || !vr_caju_fixo || !vr_vr_fixo || !vc_caju_fixo || !vc_vr_fixo || !vt_caju_fixo || !vt_vem_fixo) {
-            throw new AppError('Os campos "id", "nome", "chapa", "funcao", "setor", "contrato", "centro_custo", "recebe_integral", "vr_caju", "vr_vr", "vc_caju", "vc_vr", "vt_caju", "vt_vem", "vr_caju_fixo", "vr_vr_fixo", "vc_caju_fixo", "vc_vr_fixo", "vt_caju_fixo" e "vt_vem_fixo" são obrigatórios.', 400);
-        }
-
-        return await repository.update(id, nome, chapa, cpf, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo);
-    }
-
-    async deleteEmployee(id) {
-
-        if (!id) {
-            throw new AppError('O campo "id" é obrigatório.', 400);
-        }
-
-        return await repository.delete(id);
     }
 
     async deleteEmployeeRecord(id) {
@@ -270,6 +212,63 @@ class BenefitService {
         }
     }
 
+    // ========== MÉTODOS PARA GERENCIAR COLABORADOR ========== //
+
+    async createEmployee(nome, chapa, cpf, data_nascimento, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo) {
+
+        if (!nome || !chapa || !cpf || !data_nascimento || !funcao || !setor || !contrato || !centro_custo) {
+            throw new AppError('Os campos "nome", "chapa", "cpf", "data_nascimento,", "funcao", "setor", "contrato", "centro_custo" são obrigatórios.', 400);
+        }
+
+        let formattedBirthDate = null;
+        if (data_nascimento) {
+            try {
+                const day = data_nascimento.slice(0, 2);
+                const month = data_nascimento.slice(2, 4);
+                const year = data_nascimento.slice(4, 8);
+                formattedBirthDate = `${year}-${month}-${day}`;
+
+                const date = new Date(formattedBirthDate);
+                if (isNaN(date.getTime())) {
+                    throw new AppError('Formato de data de nascimento inválido.', 400);
+                }
+            } catch (error) {
+                logger.error('Erro ao formatar birthDate:', error);
+                throw new AppError('Formato de data de nascimento inválido.', 400);
+            }
+        }
+
+        return await repository.createEmployee(nome.toUpperCase(), chapa, cpf, formattedBirthDate, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo);
+    }
+
+    async updateEmployee(id, nome, chapa, cpf, data_nascimento, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo) {
+
+        if (
+            !id || !nome || !chapa || !cpf || !data_nascimento || !funcao || !setor ||
+            !contrato || !centro_custo || !recebe_integral ||
+            vr_caju === null || vr_caju === undefined ||
+            vr_vr === null || vr_vr === undefined ||
+            vc_caju === null || vc_caju === undefined ||
+            vc_vr === null || vc_vr === undefined ||
+            vt_caju === null || vt_caju === undefined ||
+            vt_vem === null || vt_vem === undefined ||
+            vr_caju_fixo === undefined || vr_vr_fixo === undefined ||
+            vc_caju_fixo === undefined || vc_vr_fixo === undefined ||
+            vt_caju_fixo === undefined || vt_vem_fixo === undefined
+        ) {
+            throw new AppError('Todos os campos são obrigatórios!', 400);
+        }
+
+        return await repository.updateEmployee(id, nome.toUpperCase(), chapa, cpf, data_nascimento, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo);
+    }
+
+    async deleteEmployee(id) {
+        if (!id) throw new AppError('O campo "id" é obrigatório.', 400);
+        return await repository.deleteEmployee(id);
+    }
+
+    // ========== MÉTODOS PARA GERAR LAYOUTS ========== //
+
     async generateVrTxt(data, centro_custo, benefit) {
 
         if (!data || !centro_custo || !benefit) {
@@ -466,7 +465,6 @@ class BenefitService {
             return vr_month / employee.dias_uteis;
         }
     }
-
 
     #vc_month(employee) {
         const vc_day = employee.vc_caju + employee.vc_vr;

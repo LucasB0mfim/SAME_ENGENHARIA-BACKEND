@@ -245,19 +245,9 @@ router.use('/admission/documents',
     express.static('./src/uploads/admission')
 );
 
-router.get('/benefit/cost-center',
-    authToken,
-    BenefitController.findAllCostCenter
-);
-
 router.post('/benefit/cost-center',
     authToken,
     BenefitController.findByCostCenter
-);
-
-router.put('/benefit/cost-center',
-    authToken,
-    BenefitController.updateCostCenter
 );
 
 // ========== ROTAS DESLIGAMENTO ========== // 

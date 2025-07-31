@@ -26,30 +26,6 @@ class BenefitController {
         }
     }
 
-    async findAllCostCenter(req, res) {
-        try {
-            const result = await service.findAllCostCenter();
-
-            return res.status(200).json({
-                success: true,
-                message: 'Centro de custos encontrados com sucesso.',
-                result
-            });
-        } catch (error) {
-            if (error.statusCode) {
-                return res.status(error.statusCode).json({
-                    success: false,
-                    message: error.message
-                });
-            }
-
-            return res.status(500).json({
-                success: false,
-                message: 'Erro no servidor.'
-            });
-        }
-    }
-
     async findByCostCenter(req, res) {
         try {
             const { centro_custo } = req.body;
@@ -58,106 +34,6 @@ class BenefitController {
             return res.status(200).json({
                 success: true,
                 message: 'Colaboradores encontrados com sucesso.',
-                result
-            });
-        } catch (error) {
-            if (error.statusCode) {
-                return res.status(error.statusCode).json({
-                    success: false,
-                    message: error.message
-                });
-            }
-
-            return res.status(500).json({
-                success: false,
-                message: 'Erro no servidor.'
-            });
-        }
-    }
-
-    async updateCostCenter(req, res) {
-        try {
-            const { id, nome, centro_custo, funcao } = req.body;
-            const result = await service.updateCostCenter(id, nome, centro_custo, funcao);
-
-            return res.status(200).json({
-                success: true,
-                message: 'Colaborador atualizado com sucesso.',
-                result
-            });
-        } catch (error) {
-            if (error.statusCode) {
-                return res.status(error.statusCode).json({
-                    success: false,
-                    message: error.message
-                });
-            }
-
-            return res.status(500).json({
-                success: false,
-                message: 'Erro no servidor.'
-            });
-        }
-    }
-
-    async createEmployee(req, res) {
-        try {
-            const { nome, chapa, cpf, data_nascimento, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo } = req.body;
-            const result = await service.createEmployee(nome, chapa, cpf, data_nascimento, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo);
-
-            return res.status(200).json({
-                success: true,
-                message: 'Colaborador criado com sucesso.',
-                result
-            });
-        } catch (error) {
-            if (error.statusCode) {
-                return res.status(error.statusCode).json({
-                    success: false,
-                    message: error.message
-                });
-            }
-
-            return res.status(500).json({
-                success: false,
-                message: 'Erro no servidor.'
-            });
-        }
-    }
-
-    async updateEmployee(req, res) {
-        try {
-            const { id, chapa, cpf, nome, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo } = req.body;
-            const result = await service.updateEmployee(id, nome, chapa, cpf, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo);
-
-            return res.status(200).json({
-                success: true,
-                message: 'Colaborador atualizado com sucesso.',
-                result
-            });
-        } catch (error) {
-            if (error.statusCode) {
-                return res.status(error.statusCode).json({
-                    success: false,
-                    message: error.message
-                });
-            }
-
-            return res.status(500).json({
-                success: false,
-                message: 'Erro no servidor.'
-            });
-        }
-    }
-
-    async deleteEmployee(req, res) {
-        try {
-            const { id } = req.params;
-            const result = await service.deleteEmployee(id);
-
-            return res.status(200).json({
-                success: true,
-                message: 'Colaborador deletado com sucesso.',
                 result
             });
         } catch (error) {
@@ -299,6 +175,110 @@ class BenefitController {
             });
         }
     }
+    
+    async getBenefitMedia(req, res) {
+        try {
+            const { data, centro_custo } = req.body;
+            const result = await service.getBenefitMedia(data, centro_custo);
+
+            return res.status(200).json({
+                success: true,
+                message: 'Registro encontrados com sucesso.',
+                result
+            });
+        } catch (error) {
+            if (error.statusCode) {
+                return res.status(error.statusCode).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+
+            return res.status(500).json({
+                success: false,
+                message: 'Erro no servidor.'
+            });
+        }
+    }
+
+    // ========== MÉTODOS PARA GERENCIAR COLABORADOR ========== //
+
+    async createEmployee(req, res) {
+        try {
+            const { nome, chapa, cpf, data_nascimento, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo } = req.body;
+            const result = await service.createEmployee(nome, chapa, cpf, data_nascimento, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo);
+
+            return res.status(200).json({
+                success: true,
+                message: 'Colaborador criado com sucesso.',
+                result
+            });
+        } catch (error) {
+            if (error.statusCode) {
+                return res.status(error.statusCode).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+
+            return res.status(500).json({
+                success: false,
+                message: 'Erro no servidor.'
+            });
+        }
+    }
+
+    async updateEmployee(req, res) {
+        try {
+            const { id, nome, chapa, cpf, data_nascimento, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo } = req.body;
+            const result = await service.updateEmployee(id, nome, chapa, cpf, data_nascimento, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo);
+
+            return res.status(200).json({
+                success: true,
+                message: 'Colaborador atualizado com sucesso.',
+                result
+            });
+        } catch (error) {
+            if (error.statusCode) {
+                return res.status(error.statusCode).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+
+            return res.status(500).json({
+                success: false,
+                message: 'Erro no servidor.'
+            });
+        }
+    }
+
+    async deleteEmployee(req, res) {
+        try {
+            const { id } = req.params;
+            const result = await service.deleteEmployee(id);
+
+            return res.status(200).json({
+                success: true,
+                message: 'Colaborador deletado com sucesso.',
+                result
+            });
+        } catch (error) {
+            if (error.statusCode) {
+                return res.status(error.statusCode).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+
+            return res.status(500).json({
+                success: false,
+                message: 'Erro no servidor.'
+            });
+        }
+    }
+
+    // ========== MÉTODOS PARA GERAR LAYOUTS ========== //
 
     async downloadLayoutVr(req, res) {
         try {
@@ -352,31 +332,6 @@ class BenefitController {
             res.setHeader('Content-Type', 'text/plain');
             res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
             return res.status(200).send(content);
-        } catch (error) {
-            if (error.statusCode) {
-                return res.status(error.statusCode).json({
-                    success: false,
-                    message: error.message
-                });
-            }
-
-            return res.status(500).json({
-                success: false,
-                message: 'Erro no servidor.'
-            });
-        }
-    }
-
-    async getBenefitMedia(req, res) {
-        try {
-            const { data, centro_custo } = req.body;
-            const result = await service.getBenefitMedia(data, centro_custo);
-
-            return res.status(200).json({
-                success: true,
-                message: 'Registro encontrados com sucesso.',
-                result
-            });
         } catch (error) {
             if (error.statusCode) {
                 return res.status(error.statusCode).json({
