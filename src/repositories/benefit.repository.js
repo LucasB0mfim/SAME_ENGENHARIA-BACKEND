@@ -261,14 +261,14 @@ class BenefitRepository {
         return data;
     }
 
-    async updateEmployee(id, nome, chapa, cpf, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo) {
+    async updateEmployee(id, nome, chapa, cpf, data_nascimento, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo) {
         const { data, error } = await dataBase
             .from('beneficiary')
             .update({
                 nome: nome || null,
                 chapa: chapa || '000000',
                 cpf: cpf || '00000000000',
-                data_nascimento: data_nascimento || null,
+                data_nascimento: data_nascimento || '0000-00-00',
                 funcao: funcao || null,
                 setor: setor || null,
                 contrato: contrato || null,

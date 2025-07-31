@@ -220,25 +220,7 @@ class BenefitService {
             throw new AppError('Os campos "nome", "chapa", "cpf", "data_nascimento,", "funcao", "setor", "contrato", "centro_custo" são obrigatórios.', 400);
         }
 
-        let formattedBirthDate = null;
-        if (data_nascimento) {
-            try {
-                const day = data_nascimento.slice(0, 2);
-                const month = data_nascimento.slice(2, 4);
-                const year = data_nascimento.slice(4, 8);
-                formattedBirthDate = `${year}-${month}-${day}`;
-
-                const date = new Date(formattedBirthDate);
-                if (isNaN(date.getTime())) {
-                    throw new AppError('Formato de data de nascimento inválido.', 400);
-                }
-            } catch (error) {
-                logger.error('Erro ao formatar birthDate:', error);
-                throw new AppError('Formato de data de nascimento inválido.', 400);
-            }
-        }
-
-        return await repository.createEmployee(nome.toUpperCase(), chapa, cpf, formattedBirthDate, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo);
+        return await repository.createEmployee(nome.toUpperCase(), chapa, cpf, data_nascimento, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo);
     }
 
     async updateEmployee(id, nome, chapa, cpf, data_nascimento, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo) {
