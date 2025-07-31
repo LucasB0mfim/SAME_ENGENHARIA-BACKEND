@@ -66,23 +66,25 @@ class ResignationRepository {
         return data;
     }
 
-    async update(id, status, modalidade, colaborador_comunicado, data_demissao, data_inicio_aviso_trabalhado, data_pagamento_rescisao, data_rescisao, data_solicitacao, data_ultimo_dia_trabalhado) {
+    async update(id, nome, funcao, centro_custo, status, modalidade, colaborador_comunicado, data_inicio_aviso_trabalhado, data_rescisao, dataDemissao, dataUltimoDiaTrabalhado, dataPagamentoRescisao) {
         try {
             const { data, error } = await dataBase
                 .from('resignation')
                 .update({
+                    nome: nome,
+                    funcao: funcao,
+                    centro_custo: centro_custo,
                     status: status,
                     modalidade: modalidade,
                     colaborador_comunicado: colaborador_comunicado,
-                    data_demissao: data_demissao,
-                    data_inicio_aviso_trabalhado: data_inicio_aviso_trabalhado,
-                    data_pagamento_rescisao: data_pagamento_rescisao,
-                    data_rescisao: data_rescisao,
-                    data_solicitacao: data_solicitacao,
-                    data_ultimo_dia_trabalhado: data_ultimo_dia_trabalhado
+                    data_inicio_aviso_trabalhado: data_inicio_aviso_trabalhado || null,
+                    data_rescisao: data_rescisao || null,
+                    data_demissao: dataDemissao || null,
+                    data_ultimo_dia_trabalhado: dataUltimoDiaTrabalhado || null,
+                    data_pagamento_rescisao: dataPagamentoRescisao || null
                 })
                 .eq('id', id)
-                .select('id')
+                .select()
 
             if (!data || error) {
                 logger.warn('Erro ao atualizar solicitação de demissão.');
