@@ -131,9 +131,14 @@ router.get('/indicators/cost-center',
     IndicatorController.getCostCenter
 );
 
-router.get('/benefit/employee',
+router.get('/benefit/employee/basic',
     authToken,
-    BenefitController.findEmployee
+    BenefitController.findBasicEmployeeInfo
+);
+
+router.get('/benefit/employee/full',
+    authToken,
+    BenefitController.findFullEmployeeInfo
 );
 
 router.post('/benefit/employee',

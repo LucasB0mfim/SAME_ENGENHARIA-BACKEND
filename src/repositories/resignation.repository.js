@@ -41,11 +41,12 @@ class ResignationRepository {
         return data;
     }
 
-    async create(nome, funcao, centro_custo, status, modalidade, data_comunicacao, data_solicitacao, observacao) {
+    async create(nome, cpf, funcao, centro_custo, status, modalidade, data_comunicacao, data_solicitacao, observacao) {
         const { data, error } = await dataBase
             .from('resignation')
             .insert({
                 nome: nome,
+                cpf: cpf,
                 funcao: funcao,
                 centro_custo: centro_custo,
                 status: status,

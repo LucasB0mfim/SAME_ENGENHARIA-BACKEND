@@ -54,8 +54,8 @@ class ResignationController {
     async create(req, res) {
         try {
 
-            const { nome, funcao, centro_custo, status, modalidade, data_comunicacao, data_solicitacao, observacao } = req.body;
-            await service.create(nome, funcao, centro_custo, status, modalidade, data_comunicacao, data_solicitacao, observacao);
+            const { nome, status, modalidade, data_comunicacao, data_solicitacao, observacao } = req.body;
+            await service.create(nome, status, modalidade, data_comunicacao, data_solicitacao, observacao);
 
             return res.status(200).json({
                 success: true,

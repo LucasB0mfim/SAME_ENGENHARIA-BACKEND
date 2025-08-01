@@ -4,25 +4,6 @@ import logger from '../utils/logger/winston.js';
 
 class BenefitRepository {
 
-    async findEmployee() {
-        try {
-            const { data, error } = await dataBase
-                .from('beneficiary')
-                .select('*')
-                .order('nome', { ascending: true });
-
-            if (error) {
-                logger.error('Erro ao consultar a tabela beneficiary', error);
-                throw new AppError('Erro ao consultar a tabela.', 500);
-            }
-
-            return data
-        } catch (error) {
-            logger.error('Erro no método findModel: ', { error });
-            throw error;
-        }
-    }
-
     async findAllCostCenter() {
         try {
             const { data, error } = await dataBase
@@ -224,6 +205,63 @@ class BenefitRepository {
     }
 
     // ========== MÉTODOS PARA GERENCIAR COLABORADOR ========== //
+    async findBasicEmployeeInfo() {
+        try {
+            const { data, error } = await dataBase
+                .from('beneficiary')
+                .select('nome, funcao, centro_custo')
+                .order('nome', { ascending: true });
+
+            if (error) {
+                logger.error('Erro ao consultar a tabela beneficiary', error);
+                throw new AppError('Erro ao consultar a tabela.', 500);
+            }
+
+            return data
+        } catch (error) {
+            logger.error('Erro no método findModel: ', { error });
+            throw error;
+        }
+    }
+
+    async findFullEmployeeInfo() {
+        try {
+            const { data, error } = await dataBase
+                .from('beneficiary')
+                .select('*')
+                .order('nome', { ascending: true });
+
+            if (error) {
+                logger.error('Erro ao consultar a tabela beneficiary', error);
+                throw new AppError('Erro ao consultar a tabela.', 500);
+            }
+
+            return data
+        } catch (error) {
+            logger.error('Erro no método findModel: ', { error });
+            throw error;
+        }
+    }
+
+    async findEmployeeByName(nome) {
+        try {
+            const { data, error } = await dataBase
+                .from('beneficiary')
+                .select('*')
+                .eq('nome', nome)
+                .single();
+
+            if (error) {
+                logger.error('Erro ao consultar a tabela beneficiary', error);
+                throw new AppError('Erro ao consultar a tabela.', 500);
+            }
+
+            return data
+        } catch (error) {
+            logger.error('Erro no método findModel: ', { error });
+            throw error;
+        }
+    }
 
     async createEmployee(nome, chapa, cpf, data_nascimento, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo) {
         const { data, error } = await dataBase

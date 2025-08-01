@@ -2,30 +2,6 @@ import service from '../services/benefit.service.js';
 
 class BenefitController {
 
-    async findEmployee(req, res) {
-        try {
-            const result = await service.findEmployee();
-
-            return res.status(200).json({
-                success: true,
-                message: 'Colaboradores encontrados.',
-                result
-            });
-        } catch (error) {
-            if (error.statusCode) {
-                return res.status(error.statusCode).json({
-                    success: false,
-                    message: error.message
-                });
-            }
-
-            return res.status(500).json({
-                success: false,
-                message: 'Erro no servidor.'
-            });
-        }
-    }
-
     async findByCostCenter(req, res) {
         try {
             const { centro_custo } = req.body;
@@ -175,7 +151,7 @@ class BenefitController {
             });
         }
     }
-    
+
     async getBenefitMedia(req, res) {
         try {
             const { data, centro_custo } = req.body;
@@ -202,6 +178,54 @@ class BenefitController {
     }
 
     // ========== MÉTODOS PARA GERENCIAR COLABORADOR ========== //
+
+    async findBasicEmployeeInfo(req, res) {
+        try {
+            const result = await service.findBasicEmployeeInfo();
+
+            return res.status(200).json({
+                success: true,
+                message: 'Colaboradores encontrados.',
+                result
+            });
+        } catch (error) {
+            if (error.statusCode) {
+                return res.status(error.statusCode).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+
+            return res.status(500).json({
+                success: false,
+                message: 'Erro no servidor.'
+            });
+        }
+    }
+
+    async findFullEmployeeInfo(req, res) {
+        try {
+            const result = await service.findFullEmployeeInfo();
+
+            return res.status(200).json({
+                success: true,
+                message: 'Colaboradores encontrados.',
+                result
+            });
+        } catch (error) {
+            if (error.statusCode) {
+                return res.status(error.statusCode).json({
+                    success: false,
+                    message: error.message
+                });
+            }
+
+            return res.status(500).json({
+                success: false,
+                message: 'Erro no servidor.'
+            });
+        }
+    }
 
     async createEmployee(req, res) {
         try {

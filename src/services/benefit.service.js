@@ -5,9 +5,6 @@ import timesheetRepository from '../repositories/time-sheet.repository.js';
 import logger from '../utils/logger/winston.js';
 
 class BenefitService {
-    async findEmployee() {
-        return await repository.findEmployee();
-    }
 
     async findByCostCenter(centro_custo) {
         if (!centro_custo) throw new AppError('O campo "centro_custo" é obrigatório.', 404);
@@ -213,6 +210,13 @@ class BenefitService {
     }
 
     // ========== MÉTODOS PARA GERENCIAR COLABORADOR ========== //
+    async findBasicEmployeeInfo() {
+        return await repository.findBasicEmployeeInfo();
+    }
+
+    async findFullEmployeeInfo() {
+        return await repository.findFullEmployeeInfo();
+    }
 
     async createEmployee(nome, chapa, cpf, data_nascimento, funcao, setor, contrato, centro_custo, recebe_integral, vr_caju, vr_vr, vc_caju, vc_vr, vt_caju, vt_vem, vr_caju_fixo, vr_vr_fixo, vc_caju_fixo, vc_vr_fixo, vt_caju_fixo, vt_vem_fixo) {
 
