@@ -32,6 +32,9 @@ class ResignationService {
         let dataPagamentoRescisao = null;
 
         if (data_inicio_aviso_trabalhado === '') {
+            dataUltimoDiaTrabalhado = data_comunicacao;
+            dataDemissao = data_comunicacao;
+        } else {
             dataDemissao = addDays(data_inicio_aviso_trabalhado, 29);
             dataPagamentoRescisao = addDays(data_inicio_aviso_trabalhado, 7);
 
@@ -40,8 +43,7 @@ class ResignationService {
             } else if (modalidade_aviso_trabalhado === 'REDUÇÃO DE CARGA HORARIA') {
                 dataUltimoDiaTrabalhado = addDays(data_inicio_aviso_trabalhado, 29);
             } else {
-                dataUltimoDiaTrabalhado = data_comunicacao;
-                dataDemissao = data_comunicacao;
+                throw new AppError('O início do aviso trabalhado é incompátivel com a sua modalidade!', 422);
             }
         }
 
