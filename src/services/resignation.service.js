@@ -21,17 +21,32 @@ class ResignationService {
         return await repository.create(nome.toUpperCase(), employee.cpf, employee.funcao, employee.centro_custo, status, modalidade, data_comunicacao, data_solicitacao, observacao.toUpperCase());
     }
 
-    async update(id, nome, status, modalidade, data_inicio_aviso_trabalhado, colaborador_comunicado, data_rescisao) {
+    async update(id, nome, status, modalidade, data_inicio_aviso_trabalhado, modalidade_aviso_trabalhado, colaborador_comunicado, data_comunicacao, data_rescisao) {
 
-        if (!id || !nome || !status || !modalidade || !data_inicio_aviso_trabalhado) {
-            throw new AppError('Os campos "id", "nome", "status", "modalidade" e "data_inicio_aviso_trabalhado" são obrigatórios.', 400);
+        if (!id?.toString().trim() || !nome?.toString().trim() || !status?.toString().trim() || !modalidade?.toString().trim()) {
+            throw new AppError('Os campos "id", "nome", "status" e "modalidade" são obrigatórios.', 400);
         }
 
-        const dataDemissao = addDays(new Date(data_inicio_aviso_trabalhado), 29);
-        const dataUltimoDiaTrabalhado = addDays(new Date(data_inicio_aviso_trabalhado), 22);
-        const dataPagamentoRescisao = addDays(dataDemissao, 7);
+        let dataDemissao = null;
+        let dataUltimoDiaTrabalhado = null;
+        let dataPagamentoRescisao = null;
 
-        return await repository.update(id, nome, status, modalidade, colaborador_comunicado, data_inicio_aviso_trabalhado, data_rescisao, dataDemissao, dataUltimoDiaTrabalhado, dataPagamentoRescisao);
+        if (data_inicio_aviso_trabalhado === '') {
+            dataDemissao = addDays(data_inicio_aviso_trabalhado, 29);
+            dataPagamentoRescisao = addDays(data_inicio_aviso_trabalhado, 7);
+
+            if (modalidade_aviso_trabalhado === 'REDUÇÃO DE DIAS') {
+                dataUltimoDiaTrabalhado = addDays(data_inicio_aviso_trabalhado, 22);
+            } else if (modalidade_aviso_trabalhado === 'REDUÇÃO DE CARGA HORARIA') {
+                dataUltimoDiaTrabalhado = addDays(data_inicio_aviso_trabalhado, 29);
+            } else {
+                dataUltimoDiaTrabalhado = data_comunicacao;
+                dataDemissao = data_comunicacao;
+            }
+        }
+
+
+        return await repository.update(id, nome, status, modalidade, colaborador_comunicado, data_inicio_aviso_trabalhado, modalidade_aviso_trabalhado, data_rescisao, dataDemissao, dataUltimoDiaTrabalhado, dataPagamentoRescisao);
     }
 
     async delete(id) {

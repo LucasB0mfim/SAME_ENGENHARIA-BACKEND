@@ -69,36 +69,34 @@ class ResignationRepository {
         return data;
     }
 
-    async update(id, nome, status, modalidade, colaborador_comunicado, data_inicio_aviso_trabalhado, data_rescisao, dataDemissao, dataUltimoDiaTrabalhado, dataPagamentoRescisao) {
-        try {
-            const { data, error } = await dataBase
-                .from('resignation')
-                .update({
-                    nome: nome,
-                    status: status,
-                    modalidade: modalidade,
-                    colaborador_comunicado: colaborador_comunicado,
-                    data_inicio_aviso_trabalhado: data_inicio_aviso_trabalhado || null,
-                    data_rescisao: data_rescisao || null,
-                    data_demissao: dataDemissao || null,
-                    data_ultimo_dia_trabalhado: dataUltimoDiaTrabalhado || null,
-                    data_pagamento_rescisao: dataPagamentoRescisao || null
-                })
-                .eq('id', id)
-                .select()
+    async update(id, nome, status, modalidade, colaborador_comunicado, data_inicio_aviso_trabalhado, modalidade_aviso_trabalhado, data_rescisao, dataDemissao, dataUltimoDiaTrabalhado, dataPagamentoRescisao) {
+        const { data, error } = await dataBase
+            .from('resignation')
+            .update({
+                colaborador_comunicado: colaborador_comunicado || 'NÃO',
+                data_inicio_aviso_trabalhado: data_inicio_aviso_trabalhado || null,
+                nome: nome,
+                status: status,
+                modalidade: modalidade,
+                modalidade_aviso_trabalhado: modalidade_aviso_trabalhado || 'NÃO SE APLICA',
+                data_rescisao: data_rescisao || null,
+                data_demissao: dataDemissao || null,
+                data_ultimo_dia_trabalhado: dataUltimoDiaTrabalhado || null,
+                data_pagamento_rescisao: dataPagamentoRescisao || null
+            })
+            .eq('id', id)
+            .select()
 
-            if (!data || error) {
-                logger.warn('Erro ao atualizar solicitação de demissão.');
-                throw new AppError('Não foi possível atualizar a solicitação.', 400);
-            }
+        console.log(data);
 
-            logger.info('Solicitação de demissão atualizado com sucesso.');
-
-            return data;
-        } catch (error) {
-            logger.warn('Erro ao atualizar solicitação da tabela resignation.');
-            throw new AppError('Não foi possível atualizar solicitação.', 400);
+        if (!data || error) {
+            logger.warn('Erro ao atualizar solicitação de demissão.');
+            throw new AppError('Não foi possível atualizar a solicitação.', 500);
         }
+
+        logger.info('Solicitação de demissão atualizado com sucesso.');
+
+        return data;
     }
 
     async delete(id) {
