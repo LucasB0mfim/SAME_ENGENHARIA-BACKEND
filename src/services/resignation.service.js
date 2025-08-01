@@ -27,6 +27,10 @@ class ResignationService {
             throw new AppError('Os campos "id", "nome", "status" e "modalidade" são obrigatórios.', 400);
         }
 
+        if (modalidade_aviso_trabalhado != 'NÃO SE APLICA' && data_inicio_aviso_trabalhado === '') {
+            throw new AppError('O início do aviso trabalhado é incompátivel com a sua modalidade!', 422);
+        }
+
         let dataDemissao = null;
         let dataUltimoDiaTrabalhado = null;
         let dataPagamentoRescisao = null;
