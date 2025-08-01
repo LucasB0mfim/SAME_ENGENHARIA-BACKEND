@@ -9,7 +9,8 @@ class ResignationRepository {
         try {
             const { data, error } = await dataBase
                 .from('resignation')
-                .select('*');
+                .select('*')
+                .order('nome', { ascending: true });
 
             if (error) {
                 logger.warn('Falha ao consultar tabela resignation.');
@@ -29,7 +30,8 @@ class ResignationRepository {
         const { data, error } = await dataBase
             .from('resignation')
             .select('*')
-            .eq('status', status);
+            .eq('status', status)
+            .order('nome', { ascending: true });
 
         if (error) {
             logger.warn(`Erro ao atualizar id: ${id} na tabela 'brk': ${JSON.stringify(error)}`);
