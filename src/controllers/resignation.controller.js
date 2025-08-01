@@ -79,8 +79,8 @@ class ResignationController {
     async update(req, res) {
         try {
 
-            const { id, nome, funcao, centro_custo, status, modalidade, colaborador_comunicado, data_inicio_aviso_trabalhado, data_rescisao } = req.body;
-            await service.update(id, nome, funcao, centro_custo, status, modalidade, colaborador_comunicado, data_inicio_aviso_trabalhado, data_rescisao);
+            const { id, nome, status, modalidade, data_inicio_aviso_trabalhado, colaborador_comunicado, data_rescisao } = req.body;
+            await service.update(id, nome, status, modalidade, data_inicio_aviso_trabalhado, colaborador_comunicado, data_rescisao);
 
             return res.status(200).json({
                 success: true,

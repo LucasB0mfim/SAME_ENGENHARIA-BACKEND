@@ -21,7 +21,7 @@ class ResignationService {
         return await repository.create(nome.toUpperCase(), employee.cpf, employee.funcao, employee.centro_custo, status, modalidade, data_comunicacao, data_solicitacao, observacao.toUpperCase());
     }
 
-    async update(id, nome, status, modalidade, colaborador_comunicado, data_inicio_aviso_trabalhado, data_rescisao) {
+    async update(id, nome, status, modalidade, data_inicio_aviso_trabalhado, colaborador_comunicado, data_rescisao) {
 
         if (!id || !nome || !status || !modalidade || !data_inicio_aviso_trabalhado) {
             throw new AppError('Os campos "id", "nome", "status", "modalidade" e "data_inicio_aviso_trabalhado" são obrigatórios.', 400);

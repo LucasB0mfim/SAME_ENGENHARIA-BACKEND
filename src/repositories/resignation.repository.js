@@ -67,14 +67,12 @@ class ResignationRepository {
         return data;
     }
 
-    async update(id, nome, funcao, centro_custo, status, modalidade, colaborador_comunicado, data_inicio_aviso_trabalhado, data_rescisao, dataDemissao, dataUltimoDiaTrabalhado, dataPagamentoRescisao) {
+    async update(id, nome, status, modalidade, colaborador_comunicado, data_inicio_aviso_trabalhado, data_rescisao, dataDemissao, dataUltimoDiaTrabalhado, dataPagamentoRescisao) {
         try {
             const { data, error } = await dataBase
                 .from('resignation')
                 .update({
                     nome: nome,
-                    funcao: funcao,
-                    centro_custo: centro_custo,
                     status: status,
                     modalidade: modalidade,
                     colaborador_comunicado: colaborador_comunicado,
