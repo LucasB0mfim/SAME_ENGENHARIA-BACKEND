@@ -45,7 +45,6 @@ class ResignationService {
             }
         }
 
-
         return await repository.update(id, nome, status, modalidade, colaborador_comunicado, data_inicio_aviso_trabalhado, modalidade_aviso_trabalhado, data_rescisao, dataDemissao, dataUltimoDiaTrabalhado, dataPagamentoRescisao);
     }
 

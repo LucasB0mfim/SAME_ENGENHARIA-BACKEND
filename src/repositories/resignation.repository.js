@@ -87,8 +87,6 @@ class ResignationRepository {
             .eq('id', id)
             .select()
 
-        console.log(data);
-
         if (!data || error) {
             logger.warn('Erro ao atualizar solicitação de demissão.');
             throw new AppError('Não foi possível atualizar a solicitação.', 500);
