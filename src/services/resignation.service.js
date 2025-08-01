@@ -36,8 +36,9 @@ class ResignationService {
         let dataPagamentoRescisao = null;
 
         if (data_inicio_aviso_trabalhado === '') {
-            dataUltimoDiaTrabalhado = data_comunicacao;
             dataDemissao = data_comunicacao;
+            dataUltimoDiaTrabalhado = data_comunicacao;
+            dataPagamentoRescisao = addDays(data_comunicacao, 7);
         } else {
             dataDemissao = addDays(data_inicio_aviso_trabalhado, 29);
             dataPagamentoRescisao = addDays(data_inicio_aviso_trabalhado, 7);
